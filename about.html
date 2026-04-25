@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6XZWPZP2N5');
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adventis – About Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <style>
+    :root {
+      --primary-purple:#2A0753;
+      --stc-green:#00C48C;
+      --white:#fff;
+      --pad:clamp(16px,2vw,28px);
+      --title-size:clamp(28px,6vw,64px);
+      --subtitle-size:clamp(15px,2.2vw,20px);
+      --content-max-width:1000px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      font-family:'Lexend',sans-serif;
+      background:var(--primary-purple);
+      color:var(--white);
+      scroll-behavior:smooth;
+    }
+
+    /* Header igual ao resto do site */
+    header{
+      position:sticky;top:0;width:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--pad);
+      height:64px;
+      background:rgba(255,255,255,0.58);
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(255,255,255,0.25);
+      box-shadow:inset 0 -18px 18px -12px rgba(0,0,0,0.08);
+      z-index:1000;
+    }
+    .logo img{max-height:32px;display:block}
+    nav{display:flex;gap:min(3.2vw,24px);align-items:center}
+    nav a{color:var(--primary-purple);text-decoration:none;font-weight:600;font-size:clamp(14px,1.8vw,16px)}
+    nav a:hover{opacity:.78}
+
+    .burger{display:none;width:32px;height:24px;position:relative;cursor:pointer}
+    .burger span,.burger:before,.burger:after{
+      content:"";position:absolute;left:0;right:0;height:3px;background:var(--primary-purple);border-radius:3px;transition:.25s
+    }
+    .burger span{top:50%;transform:translateY(-50%)}
+    .burger:before{top:0}
+    .burger:after{bottom:0}
+    .burger.active span{opacity:0}
+    .burger.active:before{transform:translateY(10px) rotate(45deg)}
+    .burger.active:after{transform:translateY(-10px) rotate(-45deg)}
+
+    .drawer{
+      position:fixed;top:64px;right:var(--pad);background:#fff;color:var(--primary-purple);
+      width:min(260px,80vw);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);
+      display:none;overflow:hidden;z-index:2000;
+    }
+    .drawer a{
+      display:block;padding:14px 18px;text-decoration:none;color:var(--primary-purple);
+      font-weight:600;font-size:clamp(14px,1.8vw,16px);border-bottom:1px solid #eee
+    }
+    .drawer a:last-child{border-bottom:none}
+    @media(max-width:960px){nav{display:none}.burger{display:block}}
+
+    /* Main */
+    main{
+      display:flex;flex-direction:column;align-items:center;
+      padding:60px var(--pad);gap:40px;
+    }
+    .content-box{
+      background:#fff;color:#000;max-width:var(--content-max-width);
+      padding:40px;border-radius:14px;
+      box-shadow:0 8px 22px rgba(0,0,0,.15);
+    }
+    h1{text-align:center;color:var(--stc-green);font-size:var(--title-size);margin-bottom:20px}
+    h2{text-align:left;font-size:clamp(20px,4vw,32px);margin:30px 0 15px;color:var(--primary-purple)}
+    p{font-size:var(--subtitle-size);line-height:1.65;margin-bottom:18px}
+    ul{margin:12px 0 24px 20px}
+    li{margin-bottom:8px;font-size:var(--subtitle-size)}
+
+    /* Accordion */
+    .accordion{
+      width:100%;max-width:var(--content-max-width);
+      border:1px solid var(--stc-green);
+      border-radius:10px;margin-bottom:14px;
+      overflow:hidden;background:#fff;color:#000;
+      transition:box-shadow .25s ease;
+    }
+    .accordion:hover{box-shadow:0 8px 20px rgba(0,0,0,0.08)}
+    .accordion-header{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:16px 20px;cursor:pointer;
+      font-weight:600;color:var(--primary-purple);font-size:18px;
+    }
+    .accordion-header span.icon{
+      width:22px;height:22px;border:2px solid var(--stc-green);border-radius:6px;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:800;color:var(--stc-green);font-size:16px;
+      transition:.25s;
+    }
+    .accordion-content{
+      max-height:0;overflow:hidden;
+      transition:max-height .35s ease,padding .35s ease;
+      padding:0 20px;
+    }
+    .accordion.open .accordion-content{
+      max-height:500px;
+      padding:14px 20px 20px;
+    }
+    .accordion.open .accordion-header span.icon{transform:rotate(45deg)}
+
+    footer{
+      padding:14px var(--pad);text-align:center;color:#fff;background:var(--primary-purple);
+      border-top:1px solid rgba(255,255,255,.1);margin-top:40px
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="images/Website_Adventis_Logo.png" alt="Adventis Logo">
+    </a>
+    <nav>
+      <a href="about.html" aria-current="page">About Us</a>
+      <a href="analytics.html">Analytics & Data Science</a>
+      <a href="digital.html">Digital Advertising</a>
+      <a href="media.html">Media & Sponsorship</a>
+      <a href="creative.html">Creative & Development</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+    <div id="burger" class="burger"><span></span></div>
+  </header>
+
+  <aside id="drawer" class="drawer">
+    <a href="about.html">About Us</a>
+    <a href="analytics.html">Analytics & Data Science</a>
+    <a href="digital.html">Digital Advertising</a>
+    <a href="media.html">Media & Sponsorship</a>
+    <a href="creative.html">Creative & Development</a>
+    <a href="contact.html">Contact Us</a>
+  </aside>
+
+  <main>
+    <div class="content-box">
+      <h1>About Us</h1>
+      <p>Adventis is a performance-driven agency combining analytics, creativity and media expertise. Founded with the vision of making marketing measurable, we guide brands through the complexity of digital ecosystems with clarity and purpose.</p>
+      <p>Our team brings decades of combined experience across industries and regions. From building advanced data models to executing high-impact media buys, we pride ourselves on being hands-on, transparent and focused on outcomes.</p>
+    </div>
+
+    <div class="content-box">
+      <h2>Our Mission</h2>
+      <p>We exist to empower businesses with data-informed strategies that drive short-term performance and also build long-term brand equity. Our mission is to bridge the gap between data and creativity, ensuring every campaign is measurable, meaningful and impactful.</p>
+    </div>
+
+    <!-- Accordion -->
+    <div class="accordion">
+      <div class="accordion-header">
+        <span>01. Our Values</span>
+        <span class="icon">+</span>
+      </div>
+      <div class="accordion-content">
+        <ul>
+          <li><strong>Transparency:</strong> Open and clear communication with our partners.</li>
+          <li><strong>Innovation:</strong> Embracing new technologies and methods.</li>
+          <li><strong>Partnership:</strong> Acting as an extension of client teams.</li>
+          <li><strong>Agility:</strong> Quick responses with flexible solutions.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header">
+        <span>02. Our Expertise</span>
+        <span class="icon">+</span>
+      </div>
+      <div class="accordion-content">
+        <ul>
+          <li>Advanced Analytics and Data Science: actionable strategies from raw data.</li>
+          <li>Programmatic and Digital Advertising: reaching the right audience at scale.</li>
+          <li>Creative and Multimedia: building stories that connect and deliver results.</li>
+          <li>Media and Sponsorships: placements that maximize brand exposure.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <div class="accordion-header">
+        <span>03. Looking Forward</span>
+        <span class="icon">+</span>
+      </div>
+      <div class="accordion-content">
+        <p>We believe the future belongs to brands that decide based on evidence and execute with creativity. Adventis evolves alongside technology and consumer behavior, giving clients a competitive edge.</p>
+        <p>Whether you are an established enterprise or a fast-growing brand, Adventis is your trusted partner for measurable growth.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 Adventis. All rights reserved.</footer>
+
+  <script>
+    // Drawer
+    const burger=document.getElementById('burger');
+    const drawer=document.getElementById('drawer');
+    burger.addEventListener('click',()=>{
+      const open=drawer.style.display==='block';
+      drawer.style.display=open?'none':'block';
+      burger.classList.toggle('active',!open);
+    });
+    drawer.querySelectorAll('a').forEach(a=>{
+      a.addEventListener('click',()=>{
+        drawer.style.display='none';
+        burger.classList.remove('active');
+      });
+    });
+
+    // Accordion
+    document.querySelectorAll('.accordion-header').forEach(header=>{
+      header.addEventListener('click',()=>{
+        const acc=header.parentElement;
+        const open=acc.classList.contains('open');
+        document.querySelectorAll('.accordion').forEach(a=>{
+          a.classList.remove('open');
+          a.querySelector('.icon').textContent='+';
+        });
+        if(!open){
+          acc.classList.add('open');
+          acc.querySelector('.icon').textContent='×';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

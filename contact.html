@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6XZWPZP2N5');
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact Us – Adventis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <style>
+    :root {
+      --primary-purple:#2A0753;
+      --stc-green:#00C48C;
+      --white:#fff;
+      --pad:clamp(16px,2vw,28px);
+      --content-max-width:800px;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{
+      font-family:'Lexend',sans-serif;
+      background:var(--primary-purple);
+      color:#333;
+      scroll-behavior:smooth;
+    }
+
+    /* Header com blur igual ao About */
+    header{
+      position:sticky;top:0;width:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--pad);
+      height:64px;
+      background:rgba(255,255,255,0.58);
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(255,255,255,0.25);
+      box-shadow:inset 0 -18px 18px -12px rgba(0,0,0,0.08);
+      z-index:1000;
+    }
+    .logo img{max-height:32px;display:block}
+    nav{display:flex;gap:min(3.2vw,24px);align-items:center}
+    nav a{color:var(--primary-purple);font-weight:600;text-decoration:none;font-size:clamp(14px,1.8vw,16px)}
+    nav a:hover{opacity:.8}
+
+    .burger{display:none;width:32px;height:24px;position:relative;cursor:pointer}
+    .burger span,.burger:before,.burger:after{
+      content:"";position:absolute;left:0;right:0;height:3px;background:var(--primary-purple);border-radius:3px;
+      transition:.25s;
+    }
+    .burger span{top:50%;transform:translateY(-50%)}
+    .burger:before{top:0}
+    .burger:after{bottom:0}
+    .burger.active span{opacity:0}
+    .burger.active:before{transform:translateY(10px) rotate(45deg)}
+    .burger.active:after{transform:translateY(-10px) rotate(-45deg)}
+
+    .drawer{
+      position:fixed;top:64px;right:var(--pad);background:#fff;width:min(260px,80vw);
+      border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);
+      display:none;z-index:2000;
+    }
+    .drawer a{
+      display:block;padding:14px 18px;text-decoration:none;color:var(--primary-purple);
+      font-weight:600;border-bottom:1px solid #eee;
+      font-size:clamp(14px,1.8vw,16px)
+    }
+    .drawer a:last-child{border-bottom:none}
+
+    main{
+      display:flex;justify-content:center;padding:60px var(--pad);
+    }
+    .content-box{
+      background:#fff;color:#333;
+      max-width:var(--content-max-width);
+      padding:40px;
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    }
+    h1{
+      color:var(--stc-green);
+      margin-bottom:20px;
+      text-align:center;
+      font-size:clamp(28px,6vw,48px)
+    }
+    p{
+      margin-bottom:16px;
+      line-height:1.6;
+      font-size:clamp(15px,2.2vw,18px)
+    }
+    a{color:var(--stc-green);text-decoration:none;font-weight:600}
+    a:hover{text-decoration:underline}
+
+    footer{
+      background:var(--primary-purple);
+      color:#fff;
+      text-align:center;
+      padding:14px;
+      margin-top:40px;
+      border-top:1px solid rgba(255,255,255,0.1);
+    }
+
+    @media(max-width:960px){nav{display:none}.burger{display:block}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">
+      <img src="images/Website_Adventis_Logo.png" alt="Adventis Logo">
+    </a>
+    <nav>
+      <a href="about.html">About Us</a>
+      <a href="analytics.html">Analytics & Data Science</a>
+      <a href="digital.html">Digital Advertising</a>
+      <a href="media.html">Media & Sponsorship</a>
+      <a href="creative.html">Creative & Development</a>
+      <a href="contact.html" aria-current="page">Contact Us</a>
+    </nav>
+    <div id="burger" class="burger"><span></span></div>
+  </header>
+
+  <aside id="drawer" class="drawer">
+    <a href="about.html">About Us</a>
+    <a href="analytics.html">Analytics & Data Science</a>
+    <a href="digital.html">Digital Advertising</a>
+    <a href="media.html">Media & Sponsorship</a>
+    <a href="creative.html">Creative & Development</a>
+    <a href="contact.html">Contact Us</a>
+  </aside>
+
+  <main>
+    <div class="content-box">
+      <h1>Contact Us</h1>
+      <p>We’d love to hear from you. Whether you’re a potential client, partner, or simply curious about our work, feel free to reach out.</p>
+      <p><strong>Email:</strong> <a href="mailto:connect@adventishub.com">connect@adventishub.com</a></p>
+      <p><strong>Location:</strong> Dubai, UAE</p>
+    </div>
+  </main>
+
+  <footer>© 2025 Adventis. All rights reserved.</footer>
+
+  <script>
+    const burger=document.getElementById('burger');
+    const drawer=document.getElementById('drawer');
+    burger.addEventListener('click',()=>{
+      const opened=drawer.style.display==='block';
+      drawer.style.display=opened?'none':'block';
+      burger.classList.toggle('active',!opened);
+    });
+    drawer.querySelectorAll('a').forEach(a=>{
+      a.addEventListener('click',()=>{
+        drawer.style.display='none';
+        burger.classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>

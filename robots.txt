@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block common unnecessary files
+Disallow: /cgi-bin/
+Disallow: /tmp/
+Disallow: /private/
+
+# Point Google to your sitemap
+Sitemap: https://adventishub.com/sitemap.xml

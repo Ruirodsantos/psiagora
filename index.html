@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psiagora | Psicologia e Bem-Estar Emocional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #3D8C6A;
+      --verde-escuro: #2D6B50;
+      --verde-claro: #EAF5EF;
+      --azul: #4A90D9;
+      --cinza-fundo: #F7F8FA;
+      --cinza-borda: #E5E7EB;
+      --texto: #1A2332;
+      --texto-sec: #5A6678;
+      --branco: #FFFFFF;
+      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--branco); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--cinza-borda);
+      padding: 0 24px;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.45rem; font-weight: 800; letter-spacing: -0.5px;
+      background: var(--gradiente);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      cursor: pointer; text-decoration: none;
+    }
+    nav { display: flex; align-items: center; gap: 28px; }
+    nav a {
+      font-size: 0.9rem; font-weight: 500; color: var(--texto-sec);
+      text-decoration: none; transition: color 0.2s;
+    }
+    nav a:hover { color: var(--verde); }
+    .btn-nav {
+      background: var(--verde); color: var(--branco);
+      padding: 9px 20px; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 600;
+      text-decoration: none; white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-nav:hover { background: var(--verde-escuro); }
+
+    /* hamburger */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--texto); border-radius: 2px; transition: all 0.3s; }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    .mobile-menu {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--branco); border-bottom: 1px solid var(--cinza-borda);
+      padding: 16px 24px 24px; z-index: 899;
+      flex-direction: column; gap: 4px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 0.95rem; font-weight: 500; color: var(--texto);
+      text-decoration: none; padding: 12px 0;
+      border-bottom: 1px solid var(--cinza-fundo);
+    }
+    .mobile-menu .btn-mobile {
+      margin-top: 12px; background: var(--verde); color: var(--branco);
+      text-align: center; padding: 14px; border-radius: 10px;
+      font-weight: 700; font-size: 1rem; border-bottom: none;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding-top: 64px;
+      min-height: 100svh;
+      background: var(--cinza-fundo);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      overflow: hidden;
+    }
+    .hero-text {
+      padding: 60px 40px 60px 6vw;
+    }
+    .hero-eyebrow {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--verde);
+      margin-bottom: 16px;
+    }
+    .hero-text h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; line-height: 1.18;
+      letter-spacing: -0.5px; color: var(--texto);
+      margin-bottom: 20px;
+    }
+    .hero-text p {
+      font-size: 1.05rem; line-height: 1.75;
+      color: var(--texto-sec); margin-bottom: 36px;
+      max-width: 440px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--verde); color: var(--branco);
+      padding: 15px 28px; border-radius: 10px;
+      font-size: 0.97rem; font-weight: 700;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(61,140,106,0.3);
+    }
+    .btn-primary:hover { background: var(--verde-escuro); transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--branco); color: var(--texto);
+      padding: 14px 26px; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 600;
+      text-decoration: none; border: 1.5px solid var(--cinza-borda);
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--verde); color: var(--verde); }
+    .hero-guarantees {
+      margin-top: 32px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .guarantee-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.88rem; color: var(--texto-sec);
+    }
+    .guarantee-item::before {
+      content: '';
+      display: block; width: 18px; height: 18px; flex-shrink: 0;
+      border-radius: 50%; background: var(--verde-claro);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233D8C6A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      background-size: 12px; background-repeat: no-repeat; background-position: center;
+    }
+
+    .hero-image {
+      height: 100svh;
+      position: relative; overflow: hidden;
+    }
+    .hero-image img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      display: block;
+    }
+    .hero-image::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to right, var(--cinza-fundo) 0%, transparent 15%);
+    }
+
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      background: var(--branco);
+      border-top: 1px solid var(--cinza-borda);
+      border-bottom: 1px solid var(--cinza-borda);
+      padding: 18px 24px;
+    }
+    .trust-inner {
+      max-width: 960px; margin: 0 auto;
+      display: flex; justify-content: center; align-items: center;
+      flex-wrap: wrap; gap: 8px 32px;
+    }
+    .trust-item {
+      font-size: 0.82rem; font-weight: 500; color: var(--texto-sec);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .trust-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--verde); flex-shrink: 0; }
+
+    /* ── SECÇÃO GENÉRICA ── */
+    .section { padding: 80px 24px; }
+    .section-inner { max-width: 960px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: var(--verde); margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800; letter-spacing: -0.3px; color: var(--texto);
+      margin-bottom: 12px; line-height: 1.25;
+    }
+    .section-sub {
+      font-size: 1rem; color: var(--texto-sec); line-height: 1.7;
+      max-width: 520px; margin-bottom: 48px;
+    }
+
+    /* ── COMO FUNCIONA ── */
+    .como-funciona { background: var(--cinza-fundo); text-align: center; }
+    .como-funciona .section-sub { margin-left: auto; margin-right: auto; }
+    .steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px; position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute; top: 28px; left: calc(33.33% - 10px); right: calc(33.33% - 10px);
+      height: 1px; background: var(--cinza-borda); z-index: 0;
+    }
+    .step {
+      background: var(--branco); border-radius: 14px;
+      padding: 32px 24px; border: 1px solid var(--cinza-borda);
+      position: relative; z-index: 1;
+      transition: box-shadow 0.2s, transform 0.2s;
+      text-align: left;
+    }
+    .step:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: var(--gradiente);
+      color: var(--branco); font-size: 1.1rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .step p { font-size: 0.88rem; color: var(--texto-sec); line-height: 1.6; }
+
+    /* ── SERVIÇOS ── */
+    .servicos { background: var(--branco); }
+    .servicos-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .servico-card {
+      padding: 28px 24px;
+      border: 1px solid var(--cinza-borda); border-radius: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .servico-card:hover { border-color: var(--verde); box-shadow: 0 4px 20px rgba(61,140,106,0.1); }
+    .servico-tag {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--verde);
+      background: var(--verde-claro); padding: 4px 10px; border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .servico-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .servico-card p { font-size: 0.88rem; color: var(--texto-sec); line-height: 1.6; }
+
+    /* ── PSICÓLOGOS ── */
+    .psicologos { background: var(--cinza-fundo); }
+    .psicologos-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; align-items: center;
+    }
+    .psicologos-img {
+      border-radius: 16px; overflow: hidden;
+      aspect-ratio: 4/5;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+    .psicologos-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .especialidades {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 32px;
+    }
+    .tag {
+      font-size: 0.8rem; font-weight: 500; color: var(--texto-sec);
+      background: var(--branco); border: 1px solid var(--cinza-borda);
+      padding: 6px 14px; border-radius: 50px;
+    }
+
+    /* ── TESTEMUNHOS ── */
+    .testimonials { background: var(--branco); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .testi-card {
+      background: var(--cinza-fundo); border-radius: 12px;
+      padding: 28px 24px; border: 1px solid var(--cinza-borda);
+    }
+    .stars {
+      display: flex; gap: 2px; margin-bottom: 14px;
+    }
+    .star {
+      width: 14px; height: 14px;
+      background: #F59E0B;
+      clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    }
+    .testi-card blockquote {
+      font-size: 0.9rem; color: var(--texto); line-height: 1.65;
+      margin-bottom: 18px; font-style: italic;
+    }
+    .testi-author { font-size: 0.82rem; font-weight: 700; color: var(--verde); }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      background: var(--gradiente); color: var(--branco);
+      padding: 80px 24px; text-align: center;
+    }
+    .cta-section h2 {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      font-weight: 800; margin-bottom: 14px; letter-spacing: -0.3px;
+    }
+    .cta-section p {
+      font-size: 1rem; opacity: 0.88; margin-bottom: 36px;
+      max-width: 440px; margin-left: auto; margin-right: auto; line-height: 1.7;
+    }
+    .btn-white {
+      display: inline-block; background: var(--branco); color: var(--verde);
+      padding: 15px 34px; border-radius: 10px;
+      font-size: 0.97rem; font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
+    .cta-fine {
+      margin-top: 16px; font-size: 0.82rem; opacity: 0.72;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── SOBRE ── */
+    .sobre { background: var(--cinza-fundo); }
+    .sobre-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: center;
+    }
+    .valores { display: flex; flex-direction: column; gap: 20px; margin-top: 28px; }
+    .valor {
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .valor-bar {
+      width: 3px; border-radius: 3px; flex-shrink: 0;
+      background: var(--gradiente); align-self: stretch; min-height: 40px;
+    }
+    .valor h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+    .valor p { font-size: 0.85rem; color: var(--texto-sec); line-height: 1.55; }
+    .stats { display: flex; flex-direction: column; gap: 16px; }
+    .stat {
+      background: var(--branco); border-radius: 12px;
+      padding: 24px 28px; border: 1px solid var(--cinza-borda);
+    }
+    .stat-num {
+      font-size: 2rem; font-weight: 800; letter-spacing: -1px;
+      background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--texto-sec); margin-top: 4px; }
+
+    /* ── CONTACTOS ── */
+    .contactos { background: var(--branco); text-align: center; }
+    .contacto-cards {
+      display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+    }
+    .contacto-card {
+      background: var(--cinza-fundo); border: 1px solid var(--cinza-borda);
+      border-radius: 12px; padding: 28px 32px;
+      text-decoration: none; color: var(--texto);
+      transition: border-color 0.2s, transform 0.2s;
+      min-width: 180px;
+    }
+    .contacto-card:hover { border-color: var(--verde); transform: translateY(-2px); }
+    .contacto-card .c-label { font-size: 0.78rem; color: var(--texto-sec); margin-bottom: 6px; letter-spacing: 0.5px; }
+    .contacto-card .c-value { font-size: 0.95rem; font-weight: 700; color: var(--texto); }
+    .aviso {
+      margin-top: 32px; font-size: 0.8rem; color: var(--texto-sec);
+      padding: 12px 20px; background: var(--cinza-fundo);
+      border-radius: 8px; display: inline-block; border: 1px solid var(--cinza-borda);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #111827; color: rgba(255,255,255,0.5);
+      padding: 36px 24px 48px; font-size: 0.82rem; line-height: 1.7;
+    }
+    .footer-inner {
+      max-width: 960px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-logo {
+      font-size: 1.3rem; font-weight: 800;
+      background: var(--gradiente);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: block; margin-bottom: 6px;
+    }
+    footer a { color: rgba(255,255,255,0.45); text-decoration: none; }
+    footer a:hover { color: rgba(255,255,255,0.8); }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+
+    /* ── MOBILE FIRST ── */
+    @media (max-width: 768px) {
+      nav, .btn-nav { display: none; }
+      .hamburger { display: flex; }
+
+      .hero {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding-bottom: 0;
+      }
+      .hero-image { display: none; }
+      .hero-text {
+        padding: 48px 24px 52px;
+      }
+      .hero-text h1 { font-size: 2rem; }
+      .hero-text p { font-size: 0.97rem; }
+      .btn-primary { width: 100%; text-align: center; padding: 16px; }
+      .btn-secondary { width: 100%; text-align: center; }
+
+      .section { padding: 56px 20px; }
+
+      .steps { grid-template-columns: 1fr; }
+      .steps::before { display: none; }
+
+      .servicos-grid { grid-template-columns: 1fr; }
+
+      .psicologos-inner { grid-template-columns: 1fr; }
+      .psicologos-img { aspect-ratio: 16/9; }
+
+      .testi-grid { grid-template-columns: 1fr; }
+
+      .sobre-inner { grid-template-columns: 1fr; gap: 36px; }
+      .stats { flex-direction: row; flex-wrap: wrap; }
+      .stat { flex: 1; min-width: 130px; padding: 18px 20px; }
+
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="/">Psiagora</a>
+  <nav>
+    <a href="#como-funciona">Como Funciona</a>
+    <a href="#servicos">Serviços</a>
+    <a href="#sobre">Sobre</a>
+    <a href="#contactos">Contactos</a>
+    <a href="agendar.html" class="btn-nav">Agendar Consulta</a>
+  </nav>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#como-funciona">Como Funciona</a>
+  <a href="#servicos">Serviços</a>
+  <a href="#sobre">Sobre</a>
+  <a href="#contactos">Contactos</a>
+  <a href="agendar.html" class="btn-mobile">Agendar Consulta</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-text">
+    <div class="hero-eyebrow">Psicologia Online</div>
+    <h1>Cuidar da mente é um ato de coragem</h1>
+    <p>Um espaço tranquilo, confidencial e humano para o seu equilíbrio emocional. Psicólogos certificados, marcação simples, resultados reais.</p>
+    <div class="hero-actions">
+      <a href="agendar.html" class="btn-primary">Agendar Consulta</a>
+      <a href="#como-funciona" class="btn-secondary">Como Funciona</a>
+    </div>
+    <div class="hero-guarantees">
+      <div class="guarantee-item">Psicólogos com cédula profissional</div>
+      <div class="guarantee-item">Sessão 100% confidencial e segura</div>
+      <div class="guarantee-item">Cancelamento gratuito até 24h antes</div>
+    </div>
+  </div>
+  <div class="hero-image">
+    <img
+      src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=900&q=80"
+      alt="Consulta de psicologia online"
+      loading="eager"
+    >
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item"><span class="trust-dot"></span>Sessões encriptadas e privadas</div>
+    <div class="trust-item"><span class="trust-dot"></span>Cédula profissional verificada</div>
+    <div class="trust-item"><span class="trust-dot"></span>Online, de qualquer dispositivo</div>
+    <div class="trust-item"><span class="trust-dot"></span>Cancelamento gratuito até 24h</div>
+    <div class="trust-item"><span class="trust-dot"></span>MB Way e Multibanco</div>
+  </div>
+</div>
+
+<!-- COMO FUNCIONA -->
+<section class="section como-funciona" id="como-funciona">
+  <div class="section-inner">
+    <div class="section-label">Processo</div>
+    <h2 class="section-title">Três passos para começar</h2>
+    <p class="section-sub">Aceder a apoio psicológico profissional nunca foi tão simples.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Escolha o Psicólogo</h3>
+        <p>Consulte perfis, especialidades, idiomas e disponibilidade dos nossos profissionais certificados.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Marque a Consulta</h3>
+        <p>Selecione o dia e hora que melhor se adapta à sua agenda. Confirmação imediata por e-mail.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Sessão Online</h3>
+        <p>Consulta por videochamada, segura e confidencial, de qualquer lugar no seu dispositivo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVIÇOS -->
+<section class="section servicos" id="servicos">
+  <div class="section-inner">
+    <div class="section-label">Serviços</div>
+    <h2 class="section-title">Acompanhamento para cada etapa</h2>
+    <p class="section-sub">Diferentes abordagens para responder às suas necessidades específicas.</p>
+    <div class="servicos-grid">
+      <div class="servico-card">
+        <div class="servico-tag">Individual</div>
+        <h3>Terapia Individual</h3>
+        <p>Sessões focadas em ansiedade, depressão, stress, autoestima e bem-estar emocional. Acompanhamento adaptado ao seu ritmo e objetivos.</p>
+      </div>
+      <div class="servico-card">
+        <div class="servico-tag">Casal</div>
+        <h3>Terapia de Casal</h3>
+        <p>Apoio especializado para melhorar a comunicação, resolver conflitos e fortalecer a ligação emocional na relação.</p>
+      </div>
+      <div class="servico-card">
+        <div class="servico-tag">Familiar</div>
+        <h3>Terapia Familiar</h3>
+        <p>Acompanhamento em dinâmicas familiares, parentalidade, transições de vida e gestão de conflitos no contexto familiar.</p>
+      </div>
+      <div class="servico-card">
+        <div class="servico-tag">Online</div>
+        <h3>Consulta Online</h3>
+        <p>Total comodidade e privacidade. Faça a sua consulta de casa, do trabalho ou de qualquer lugar, sem deslocações.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PSICÓLOGOS -->
+<section class="section psicologos" id="psicologos">
+  <div class="section-inner">
+    <div class="psicologos-inner">
+      <div class="psicologos-img">
+        <img
+          src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=80"
+          alt="Psicólogos certificados Psiagora"
+          loading="lazy"
+        >
+      </div>
+      <div>
+        <div class="section-label">Equipa</div>
+        <h2 class="section-title">Psicólogos certificados pela Ordem</h2>
+        <p class="section-sub" style="margin-bottom:24px;">Todos os profissionais Psiagora possuem cédula profissional válida da Ordem dos Psicólogos Portugueses e formação clínica comprovada.</p>
+        <div class="especialidades">
+          <span class="tag">Ansiedade</span>
+          <span class="tag">Depressão</span>
+          <span class="tag">Stress</span>
+          <span class="tag">Autoestima</span>
+          <span class="tag">Luto</span>
+          <span class="tag">Trauma</span>
+          <span class="tag">Burnout</span>
+          <span class="tag">Relacionamentos</span>
+          <span class="tag">Perturbações do sono</span>
+        </div>
+        <a href="agendar.html" class="btn-primary">Agendar Consulta</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTEMUNHOS -->
+<section class="section testimonials">
+  <div class="section-inner">
+    <div class="section-label">Testemunhos</div>
+    <h2 class="section-title">O que dizem os nossos clientes</h2>
+    <p class="section-sub">Experiências reais de quem já deu o primeiro passo.</p>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <blockquote>"Estava com receio de começar terapia online, mas foi muito mais simples do que esperava. A psicóloga é excelente e sinto-me muito melhor."</blockquote>
+        <div class="testi-author">Ana S. — Lisboa</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <blockquote>"A plataforma é intuitiva, a marcação foi rápida e a sessão decorreu sem qualquer problema. Recomendo a qualquer pessoa que precise de apoio."</blockquote>
+        <div class="testi-author">Miguel F. — Porto</div>
+      </div>
+      <div class="testi-card">
+        <div class="stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <blockquote>"A consulta inicial gratuita ajudou-me a decidir avançar. O psicólogo compreendeu-me desde o primeiro momento e sinto que estou no caminho certo."</blockquote>
+        <div class="testi-author">Carla M. — emigrante em França</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <h2>Dê o primeiro passo hoje</h2>
+  <p>Está a um passo de ter apoio psicológico profissional, confidencial e sem listas de espera.</p>
+  <a href="agendar.html" class="btn-white">Agendar Consulta</a>
+  <div class="cta-fine">Cancela até 24h antes &nbsp;·&nbsp; 100% confidencial &nbsp;·&nbsp; Sem esperas</div>
+</section>
+
+<!-- SOBRE -->
+<section class="section sobre" id="sobre">
+  <div class="section-inner">
+    <div class="sobre-inner">
+      <div>
+        <div class="section-label">Sobre</div>
+        <h2 class="section-title">Psicologia mais acessível, para todos</h2>
+        <p style="font-size:0.97rem;color:var(--texto-sec);line-height:1.75;margin-bottom:8px;">A Psiagora nasceu com uma missão clara: tornar o acesso à psicologia mais fácil, humano e acessível — sem listas de espera, sem burocracia.</p>
+        <p style="font-size:0.97rem;color:var(--texto-sec);line-height:1.75;">Acreditamos que cuidar da saúde mental é um direito, não um privilégio.</p>
+        <div class="valores">
+          <div class="valor">
+            <div class="valor-bar"></div>
+            <div>
+              <h4>Confidencialidade Total</h4>
+              <p>Toda a informação é protegida e nunca partilhada com terceiros, em conformidade com o RGPD.</p>
+            </div>
+          </div>
+          <div class="valor">
+            <div class="valor-bar"></div>
+            <div>
+              <h4>Resultados Mensuráveis</h4>
+              <p>Acompanhamento estruturado com objetivos claros e avaliação regular do progresso.</p>
+            </div>
+          </div>
+          <div class="valor">
+            <div class="valor-bar"></div>
+            <div>
+              <h4>Abordagem Humana</h4>
+              <p>Mais do que uma plataforma — um espaço de acolhimento, confiança e crescimento pessoal.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Psicólogos com cédula profissional</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">48h</div>
+          <div class="stat-label">Tempo médio até à primeira consulta</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">5 / 5</div>
+          <div class="stat-label">Avaliação média dos clientes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTOS -->
+<section class="section contactos" id="contactos">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-label">Contactos</div>
+    <h2 class="section-title">Fale connosco</h2>
+    <p class="section-sub" style="margin-left:auto;margin-right:auto;">Tem dúvidas antes de agendar? Estamos disponíveis para ajudar.</p>
+    <div class="contacto-cards">
+      <a href="mailto:info@psiagora.com" class="contacto-card">
+        <div class="c-label">E-mail</div>
+        <div class="c-value">info@psiagora.com</div>
+      </a>
+      <a href="https://wa.me/351000000000" class="contacto-card">
+        <div class="c-label">WhatsApp</div>
+        <div class="c-value">Enviar mensagem</div>
+      </a>
+      <a href="agendar.html" class="contacto-card" style="border-color:var(--verde);background:var(--verde-claro);">
+        <div class="c-label">Consulta</div>
+        <div class="c-value" style="color:var(--verde);">Agendar agora</div>
+      </a>
+    </div>
+    <div class="aviso">Nota: a Psiagora não é uma linha de apoio em crise. Em situação de emergência, contacte o SNS 24 (808 24 24 24).</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <span class="footer-logo">Psiagora</span>
+      <div>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Todos os direitos reservados</div>
+    </div>
+    <div class="footer-links">
+      <a href="/termos">Termos</a>
+      <a href="/privacidade">Privacidade</a>
+      <a href="/cookies">Cookies</a>
+      <a href="/consentimento-informado">Consentimento Informado</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>

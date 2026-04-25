@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6XZWPZP2N5');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Media & Sponsorship | Adventis</title>
+  <meta name="description" content="Adventis connects brands with audiences through TV, radio, print, sponsorships and influencer partnerships. We help brands grow awareness, credibility and measurable results across every media touchpoint.">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <style>
+    :root {
+      --primary-purple:#2A0753;
+      --stc-green:#00C48C;
+      --white:#fff;
+      --ink:#333;
+      --pad:clamp(16px,2vw,28px);
+      --title-size:clamp(26px,5.5vw,54px);
+      --subtitle-size:clamp(15px,2.2vw,20px);
+      --content-max-width:1000px;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{
+      font-family:'Lexend',sans-serif;
+      background:var(--primary-purple);
+      color:var(--white);
+      scroll-behavior:smooth;
+    }
+
+    header{
+      position:sticky;top:0;width:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--pad);
+      height:64px;
+      background:rgba(255,255,255,0.58);
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(255,255,255,0.25);
+      box-shadow:inset 0 -18px 18px -12px rgba(0,0,0,0.08);
+      z-index:1000;
+    }
+    .logo img{max-height:32px;display:block}
+    nav{display:flex;gap:min(3.2vw,24px);align-items:center}
+    nav a{color:var(--primary-purple);text-decoration:none;font-weight:600;font-size:clamp(14px,1.8vw,16px)}
+    nav a:hover{opacity:.78}
+    .burger{display:none;width:32px;height:24px;position:relative;cursor:pointer}
+    .burger span,.burger:before,.burger:after{
+      content:"";position:absolute;left:0;right:0;height:3px;background:var(--primary-purple);border-radius:3px;transition:.25s
+    }
+    .burger span{top:50%;transform:translateY(-50%)}
+    .burger:before{top:0}
+    .burger:after{bottom:0}
+    .burger.active span{opacity:0}
+    .burger.active:before{transform:translateY(10px) rotate(45deg)}
+    .burger.active:after{transform:translateY(-10px) rotate(-45deg)}
+    .drawer{
+      position:fixed;top:64px;right:var(--pad);
+      background:#fff;color:var(--primary-purple);
+      width:min(260px,80vw);
+      border-radius:14px;
+      box-shadow:0 16px 40px rgba(0,0,0,.18);
+      display:none;overflow:hidden;z-index:2000;
+    }
+    .drawer a{
+      display:block;padding:14px 18px;text-decoration:none;color:var(--primary-purple);
+      font-weight:600;font-size:clamp(14px,1.8vw,16px);border-bottom:1px solid #eee
+    }
+    .drawer a:last-child{border-bottom:none}
+    @media(max-width:960px){nav{display:none}.burger{display:block}}
+
+    main{display:flex;justify-content:center;padding:60px var(--pad)}
+    .content-box{
+      background:#fff;color:var(--ink);
+      max-width:var(--content-max-width);
+      padding:40px;
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,.12);
+    }
+    h1{color:var(--stc-green);font-size:var(--title-size);margin-bottom:20px;text-align:center}
+    h2{margin-top:36px;font-size:24px;color:var(--primary-purple)}
+    h3{margin-top:14px;font-size:18px;color:#222}
+    p{margin-bottom:18px;line-height:1.7;font-size:var(--subtitle-size)}
+    ul{margin:12px 0 24px 20px}
+    li{margin-bottom:8px}
+    img{width:100%;border-radius:8px;margin:16px 0;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+
+    .accordions{margin-top:20px}
+    .acc{
+      background:#fff;border:1.5px solid var(--stc-green);
+      border-radius:12px;margin:14px 0;box-shadow:0 6px 16px rgba(0,0,0,.06);
+      overflow:hidden;transition:border-color .2s ease, box-shadow .2s ease;
+    }
+    .acc:hover{box-shadow:0 10px 22px rgba(0,0,0,.10)}
+    .acc-btn{
+      width:100%;text-align:left;background:#fff;color:#111;
+      padding:18px;font-size:18px;font-weight:700;border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .acc-btn .icon{
+      width:28px;height:28px;border-radius:8px;border:2px solid var(--stc-green);
+      display:grid;place-items:center;font-size:18px;color:var(--stc-green);flex:0 0 28px;
+    }
+    .acc.open .acc-btn .icon{background:var(--stc-green);color:#fff}
+    .acc-panel{max-height:0;overflow:hidden;transition:max-height .35s ease;border-top:1px dashed #e8e8e8;background:#fff}
+    .acc-inner{padding:18px 18px 20px}
+
+    .process{margin-top:20px;display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start}
+    .step .dot{
+      width:40px;height:40px;border-radius:12px;border:2px solid var(--stc-green);
+      display:grid;place-items:center;font-weight:700;color:var(--primary-purple);background:#fff
+    }
+
+    footer{background:var(--primary-purple);color:#fff;text-align:center;padding:14px;margin-top:40px}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo"><img src="images/Website_Adventis_Logo.png" alt="Adventis Logo"></a>
+    <nav>
+      <a href="about.html">About Us</a>
+      <a href="analytics.html">Analytics & Data Science</a>
+      <a href="digital.html">Digital Advertising</a>
+      <a href="media.html" aria-current="page">Media & Sponsorship</a>
+      <a href="creative.html">Creative & Development</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+    <div id="burger" class="burger"><span></span></div>
+  </header>
+
+  <aside id="drawer" class="drawer">
+    <a href="about.html">About Us</a>
+    <a href="analytics.html">Analytics & Data Science</a>
+    <a href="digital.html">Digital Advertising</a>
+    <a href="media.html">Media & Sponsorship</a>
+    <a href="creative.html">Creative & Development</a>
+    <a href="contact.html">Contact Us</a>
+  </aside>
+
+  <main>
+    <div class="content-box">
+      <h1>Media & Sponsorship</h1>
+      <p>Adventis connects brands with audiences through strategic, multi-channel exposure across television, radio, print, events and influencer partnerships. We design campaigns that do more than reach people; they build recognition, trust and measurable growth.</p>
+      <p>Each project is planned to deliver real brand value. From a broadcast ad to a talent collaboration, everything we execute has a clear purpose: to strengthen visibility and inspire action.</p>
+
+      <div class="accordions">
+
+        <section class="acc">
+          <button class="acc-btn" type="button">Influencers & Talent Management <span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>Influencer marketing has become one of the most credible ways to reach people. At Adventis, we connect brands with creators who drive engagement and build authentic relationships with their audiences.</p>
+            <img src="images/Media/influencers.png" alt="Influencer marketing">
+            <p>Our team manages every stage of collaboration, from selection and briefing to content review and reporting. We combine creativity with clear data tracking so brands can see the direct impact of each partnership.</p>
+            <ul>
+              <li>Database of verified creators across YouTube, TikTok, Instagram and X</li>
+              <li>End-to-end management of outreach, contracts, content direction and approvals</li>
+              <li>Audience quality checks and brand safety validation</li>
+              <li>Integrated reporting with UTM tracking and performance metrics</li>
+              <li>Long-term brand ambassador programs for consistent visibility</li>
+            </ul>
+          </div></div>
+        </section>
+
+        <section class="acc">
+          <button class="acc-btn" type="button">Television <span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>Television remains one of the most powerful channels for mass awareness. We secure prime-time visibility and sponsorships that combine creative storytelling with measurable results.</p>
+            <img src="images/Media/tv.png" alt="TV advertising">
+            <ul>
+              <li>Audience-based channel mapping and planning</li>
+              <li>Custom sponsorships and integrations</li>
+              <li>Brand lift and GRP performance reporting</li>
+            </ul>
+          </div></div>
+        </section>
+
+        <section class="acc">
+          <button class="acc-btn" type="button">Radio <span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>Radio builds repetition and emotion through voice and consistency. We partner with leading presenters and stations to position brands in moments of attention and connection.</p>
+            <img src="images/Media/radio.png" alt="Radio advertising">
+            <ul>
+              <li>Coverage across regional and national stations</li>
+              <li>Host-read mentions and integrations</li>
+              <li>Optimized scheduling during listener peaks</li>
+            </ul>
+          </div></div>
+        </section>
+
+        <section class="acc">
+          <button class="acc-btn" type="button">Print <span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>Print media remains a premium space for credibility and design impact. We use creative layouts and publication partnerships to deliver strong brand presence and trust.</p>
+            <img src="images/Media/print.png" alt="Print advertising">
+            <ul>
+              <li>Strategic placement in leading newspapers and magazines</li>
+              <li>Advertorial collaborations and editorial features</li>
+              <li>Creative layout support for visual consistency</li>
+            </ul>
+          </div></div>
+        </section>
+
+        <section class="acc">
+          <button class="acc-btn" type="button">Sponsorships & Events <span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>We help brands connect with people in real life through experiences that create memories. From cultural events to sports and corporate sponsorships, we ensure every activation adds long-term value.</p>
+            <img src="images/Media/events.png" alt="Sponsorship events">
+            <ul>
+              <li>Sports, lifestyle and cultural partnerships</li>
+              <li>On-site activations and hospitality experiences</li>
+              <li>Cross-media amplification combining digital and physical exposure</li>
+            </ul>
+          </div></div>
+        </section>
+      </div>
+
+      <h2>Benefits for Brands</h2>
+      <p>Working with Adventis gives brands visibility that drives measurable business results. Each channel plays a role in building trust, awareness and performance.</p>
+      <ul>
+        <li><strong>Credibility:</strong> Partnerships with trusted voices and premium media build confidence in the brand.</li>
+        <li><strong>Reach:</strong> Combined use of traditional and digital channels ensures consistent exposure across audiences.</li>
+        <li><strong>Brand strength:</strong> Repetition and cross-platform storytelling increase recall and preference.</li>
+        <li><strong>Results:</strong> Transparent reporting connects visibility with performance outcomes.</li>
+        <li><strong>Efficiency:</strong> Integrated planning avoids duplication and maximizes media investment.</li>
+      </ul>
+
+      <h2>How We Work</h2>
+      <div class="process">
+        <div class="step"><div class="dot">1</div><div><h3>Plan</h3><p>We define objectives, target audiences and media strategy, selecting the right mix of channels and partners.</p></div></div>
+        <div class="step"><div class="dot">2</div><div><h3>Activate</h3><p>We negotiate and manage all placements, ensuring quality delivery and optimization throughout the campaign.</p></div></div>
+        <div class="step"><div class="dot">3</div><div><h3>Measure</h3><p>We provide post-buy analysis and actionable insights to guide future campaigns and improve results.</p></div></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 Adventis. All rights reserved.</footer>
+
+  <script>
+    const burger=document.getElementById('burger');
+    const drawer=document.getElementById('drawer');
+    burger.addEventListener('click',()=>{
+      const open=drawer.style.display==='block';
+      drawer.style.display=open?'none':'block';
+      burger.classList.toggle('active',!open);
+    });
+    drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+      drawer.style.display='none';
+      burger.classList.remove('active');
+    }));
+
+    const accs=document.querySelectorAll('.acc');
+    accs.forEach(acc=>{
+      const btn=acc.querySelector('.acc-btn');
+      const panel=acc.querySelector('.acc-panel');
+      btn.addEventListener('click',()=>{
+        const isOpen=acc.classList.contains('open');
+        accs.forEach(a=>{
+          a.classList.remove('open');
+          a.querySelector('.acc-panel').style.maxHeight=null;
+          a.querySelector('.icon').textContent='+';
+        });
+        if(!isOpen){
+          acc.classList.add('open');
+          panel.style.maxHeight=panel.scrollHeight+'px';
+          acc.querySelector('.icon').textContent='×';
+        }
+      });
+      window.addEventListener('resize',()=>{
+        if(acc.classList.contains('open')) panel.style.maxHeight=panel.scrollHeight+'px';
+      });
+    });
+  </script>
+</body>
+</html>

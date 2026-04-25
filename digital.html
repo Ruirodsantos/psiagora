@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6XZWPZP2N5');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digital Advertising – Adventis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <style>
+    :root {
+      --primary-purple:#2A0753;
+      --stc-green:#00C48C;
+      --white:#fff;
+      --ink:#333;
+      --pad:clamp(16px,2vw,28px);
+      --title-size:clamp(26px,5.5vw,54px);
+      --subtitle-size:clamp(15px,2.2vw,20px);
+      --content-max-width:1000px;
+      --radius:14px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      font-family:'Lexend',sans-serif;
+      background:var(--primary-purple);
+      color:var(--white);
+      scroll-behavior:smooth;
+    }
+
+    /* Header copied exactly from About */
+    header{
+      position:sticky;top:0;width:100%;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 var(--pad);
+      height:64px;
+
+      background:rgba(255,255,255,0.58);
+      backdrop-filter:blur(20px) saturate(180%);
+      -webkit-backdrop-filter:blur(20px) saturate(180%);
+
+      border-bottom:1px solid rgba(255,255,255,0.25);
+      box-shadow:inset 0 -18px 18px -12px rgba(0,0,0,0.08);
+      z-index:1000;
+    }
+    .logo img{max-height:32px;display:block}
+    nav{display:flex;gap:min(3.2vw,24px);align-items:center}
+    nav a{color:var(--primary-purple);text-decoration:none;font-weight:600;font-size:clamp(14px,1.8vw,16px)}
+    nav a:hover{opacity:.78}
+    .burger{display:none;width:32px;height:24px;position:relative;cursor:pointer}
+    .burger span,.burger:before,.burger:after{
+      content:"";position:absolute;left:0;right:0;height:3px;background:var(--primary-purple);border-radius:3px;transition:.25s
+    }
+    .burger span{top:50%;transform:translateY(-50%)}
+    .burger:before{top:0}
+    .burger:after{bottom:0}
+    .burger.active span{opacity:0}
+    .burger.active:before{transform:translateY(10px) rotate(45deg)}
+    .burger.active:after{transform:translateY(-10px) rotate(-45deg)}
+    .drawer{
+      position:fixed;top:64px;right:var(--pad);background:#fff;color:var(--primary-purple);
+      width:min(260px,80vw);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.18);
+      display:none;overflow:hidden;z-index:2000;
+    }
+    .drawer a{
+      display:block;padding:14px 18px;text-decoration:none;color:var(--primary-purple);
+      font-weight:600;font-size:clamp(14px,1.8vw,16px);border-bottom:1px solid #eee
+    }
+    .drawer a:last-child{border-bottom:none}
+    @media(max-width:960px){nav{display:none}.burger{display:block}}
+
+    main{display:flex;justify-content:center;padding:60px var(--pad)}
+    .content-box{
+      background:#fff;color:var(--ink);max-width:var(--content-max-width);
+      padding:40px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.12);
+    }
+    h1{font-size:var(--title-size);margin-bottom:20px;color:var(--stc-green);text-align:center}
+    h2{margin-top:28px;font-size:22px;color:var(--primary-purple)}
+    h3{margin-top:14px;font-size:18px;color:#222}
+    p{margin:12px 0;font-size:var(--subtitle-size);line-height:1.65}
+    ul{margin:12px 0 24px 20px}
+    li{margin-bottom:8px}
+
+    .accordions{margin-top:8px}
+    .acc{
+      background:#fff;border:1.5px solid var(--stc-green);
+      border-radius:12px;margin:14px 0;box-shadow:0 6px 16px rgba(0,0,0,.06);
+      overflow:hidden;transition:.3s;
+    }
+    .acc:hover{box-shadow:0 10px 22px rgba(0,0,0,.10)}
+    .acc-btn{
+      width:100%;text-align:left;background:#fff;color:#111;
+      padding:18px;font-size:18px;font-weight:700;border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .acc-btn .tag{font-weight:800;color:#2A0753;opacity:.85}
+    .acc-btn .icon{
+      width:28px;height:28px;border-radius:8px;border:2px solid var(--stc-green);
+      display:grid;place-items:center;font-size:18px;color:var(--stc-green);flex:0 0 28px;
+    }
+    .acc.open .acc-btn .icon{background:var(--stc-green);color:#fff}
+    .acc-panel{max-height:0;overflow:hidden;transition:max-height .35s ease;border-top:1px dashed #e8e8e8;background:#fff}
+    .acc-inner{padding:18px 18px 20px}
+    .acc-inner img{width:100%;border-radius:8px;margin:16px 0;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+    .pill{display:inline-block;margin:0 8px 8px 0;padding:6px 10px;background:#EEF9F5;color:#0a7a5f;border:1px solid #bfeedd;border-radius:999px;font-size:13px}
+
+    .process{margin-top:8px;display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:40px 1fr;align-items:start;gap:12px}
+    .step .dot{width:40px;height:40px;border-radius:12px;border:2px solid var(--stc-green);color:var(--primary-purple);display:grid;place-items:center;font-weight:800;background:#fff}
+    .step p{margin:2px 0 0}
+
+    footer{
+      padding:14px var(--pad);text-align:center;color:#fff;background:var(--primary-purple);
+      border-top:1px solid rgba(255,255,255,.1);margin-top:40px
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo"><img src="images/Website_Adventis_Logo.png" alt="Adventis Logo"></a>
+    <nav>
+      <a href="about.html">About Us</a>
+      <a href="analytics.html">Analytics & Data Science</a>
+      <a href="digital.html" aria-current="page">Digital Advertising</a>
+      <a href="media.html">Media & Sponsorship</a>
+      <a href="creative.html">Creative & Development</a>
+      <a href="contact.html">Contact Us</a>
+    </nav>
+    <div id="burger" class="burger"><span></span></div>
+  </header>
+
+  <aside id="drawer" class="drawer">
+    <a href="about.html">About Us</a>
+    <a href="analytics.html">Analytics & Data Science</a>
+    <a href="digital.html">Digital Advertising</a>
+    <a href="media.html">Media & Sponsorship</a>
+    <a href="creative.html">Creative & Development</a>
+    <a href="contact.html">Contact Us</a>
+  </aside>
+
+  <main>
+    <div class="content-box">
+      <h1>Digital Advertising</h1>
+      <p><strong>Performance with craft.</strong> We plan and run paid media that compounds, combining sharp audience strategy with disciplined testing and clear creative guidelines.</p>
+
+      <div class="accordions">
+        <section class="acc">
+          <button class="acc-btn"><span class="tag">01. Programmatic</span><span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>Premium and open-web buying across display, native and video with brand-safe delivery.</p>
+            <img src="images/Digital/programmatic.png" alt="Programmatic ads">
+            <span class="pill">Display</span><span class="pill">Native</span><span class="pill">Video</span>
+          </div></div>
+        </section>
+
+        <section class="acc">
+          <button class="acc-btn"><span class="tag">02. YouTube</span><span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>YouTube full-funnel campaigns aligned to objectives with creative best practices.</p>
+            <img src="images/Digital/youtube.png" alt="YouTube ads">
+            <span class="pill">Skippable</span><span class="pill">Bumper</span><span class="pill">Shorts</span>
+          </div></div>
+        </section>
+
+        <section class="acc">
+          <button class="acc-btn"><span class="tag">03. Direct Buys</span><span class="icon">+</span></button>
+          <div class="acc-panel"><div class="acc-inner">
+            <p>We negotiate and manage direct publisher deals for premium placements and sponsorships.</p>
+            <img src="images/Digital/direct.png" alt="Direct buys">
+            <span class="pill">Sponsorships</span><span class="pill">High-Impact</span><span class="pill">Negotiation</span>
+          </div></div>
+        </section>
+      </div>
+
+      <h2>How We Work</h2>
+      <div class="process">
+        <div class="step"><div class="dot">1</div><div><h3>Plan</h3><p>Objectives, audiences, inventory and testing plan. Clear metrics and governance.</p></div></div>
+        <div class="step"><div class="dot">2</div><div><h3>Launch & Learn</h3><p>Ship fast, protect quality, and iterate weekly on creative, bids and audiences.</p></div></div>
+        <div class="step"><div class="dot">3</div><div><h3>Scale</h3><p>Move budget to winners, add reach where it pays off, retire what doesn’t.</p></div></div>
+      </div>
+
+      <h2>Reporting</h2>
+      <p>Concise, outcome-focused reporting: what ran, what changed, what we’re doing next.</p>
+      <p style="margin-top:16px"><a href="contact.html" style="color:#00C48C;text-decoration:none;font-weight:700">Talk to us</a></p>
+    </div>
+  </main>
+
+  <footer>© 2025 Adventis. All rights reserved.</footer>
+
+  <script>
+    const burger=document.getElementById('burger');
+    const drawer=document.getElementById('drawer');
+    burger.addEventListener('click',()=>{
+      const opened=drawer.style.display==='block';
+      drawer.style.display=opened?'none':'block';
+      burger.classList.toggle('active',!opened);
+    });
+    drawer.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+      drawer.style.display='none';
+      burger.classList.remove('active');
+    }));
+
+    const accs=document.querySelectorAll('.acc');
+    accs.forEach(acc=>{
+      const btn=acc.querySelector('.acc-btn');
+      const panel=acc.querySelector('.acc-panel');
+      btn.addEventListener('click',()=>{
+        const open=acc.classList.contains('open');
+        accs.forEach(a=>{
+          a.classList.remove('open');
+          a.querySelector('.acc-panel').style.maxHeight=null;
+          a.querySelector('.icon').textContent='+';
+        });
+        if(!open){
+          acc.classList.add('open');
+          panel.style.maxHeight=panel.scrollHeight+'px';
+          acc.querySelector('.icon').textContent='×';
+        }
+      });
+      window.addEventListener('resize',()=>{
+        if(acc.classList.contains('open'))panel.style.maxHeight=panel.scrollHeight+'px';
+      });
+    });
+  </script>
+</body>
+</html>

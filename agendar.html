@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agendar Consulta | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #3D8C6A;
+      --verde-escuro: #2D6B50;
+      --verde-claro: #EAF5EF;
+      --cinza-fundo: #F7F8FA;
+      --cinza-borda: #E5E7EB;
+      --texto: #1A2332;
+      --texto-sec: #5A6678;
+      --branco: #FFFFFF;
+      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--texto);
+      background: var(--cinza-fundo);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      height: 56px;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--cinza-borda);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+    }
+    .logo {
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;
+      background: var(--gradiente);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .btn-voltar {
+      font-size: 0.85rem; font-weight: 500; color: var(--texto-sec);
+      text-decoration: none; display: flex; align-items: center; gap: 5px;
+    }
+
+    /* ── HERO STRIP ── */
+    .hero-strip {
+      margin-top: 56px;
+      background: var(--gradiente);
+      color: var(--branco);
+      padding: 28px 20px 24px;
+      text-align: center;
+    }
+    .hero-strip h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 6px; }
+    .hero-strip p { font-size: 0.9rem; opacity: 0.88; line-height: 1.5; }
+
+    /* ── TRUST PILLS ── */
+    .trust-pills {
+      background: var(--branco);
+      border-bottom: 1px solid var(--cinza-borda);
+      padding: 12px 16px;
+      display: flex; gap: 8px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .trust-pills::-webkit-scrollbar { display: none; }
+    .pill {
+      flex-shrink: 0;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--verde-escuro);
+      background: var(--verde-claro);
+      border: 1px solid rgba(61,140,106,0.2);
+      padding: 6px 12px; border-radius: 50px;
+      white-space: nowrap;
+    }
+
+    /* ── LAYOUT ── */
+    .page-wrap {
+      max-width: 1040px; margin: 0 auto;
+      padding: 20px 16px 60px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px; align-items: start;
+    }
+
+    /* ── BOOKING BOX ── */
+    .booking-box {
+      background: var(--branco);
+      border-radius: 12px;
+      border: 1px solid var(--cinza-borda);
+      overflow: hidden;
+    }
+    .booking-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--cinza-borda);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22C55E;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
+      flex-shrink: 0;
+    }
+    .booking-header-text h2 { font-size: 0.9rem; font-weight: 700; }
+    .booking-header-text p { font-size: 0.75rem; color: var(--texto-sec); margin-top: 1px; }
+
+    /* ── STEP INDICATOR ── */
+    .steps {
+      display: flex; padding: 16px 20px 0;
+      gap: 0; align-items: center;
+      font-size: 0.75rem; color: var(--texto-sec);
+    }
+    .step { display: flex; align-items: center; gap: 6px; }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--cinza-borda); color: var(--texto-sec);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.72rem;
+      transition: all .25s;
+    }
+    .step.active .step-num { background: var(--verde); color: var(--branco); box-shadow: 0 0 0 3px rgba(61,140,106,0.15); }
+    .step.done .step-num { background: var(--verde); color: var(--branco); }
+    .step-line { flex: 1; height: 1px; background: var(--cinza-borda); margin: 0 10px; }
+
+    /* ── STEP PANELS ── */
+    .step-panel { padding: 20px; display: none; }
+    .step-panel.active { display: block; }
+
+    /* ── CALENDAR ── */
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .cal-nav button {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid var(--cinza-borda);
+      background: var(--branco); cursor: pointer;
+      color: var(--texto); font-size: 1rem;
+      transition: all .15s;
+    }
+    .cal-nav button:hover:not(:disabled) { background: var(--verde-claro); border-color: var(--verde); color: var(--verde-escuro); }
+    .cal-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .cal-title { font-size: 0.95rem; font-weight: 700; text-transform: capitalize; }
+
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-dow {
+      font-size: 0.7rem; font-weight: 700; color: var(--texto-sec);
+      text-align: center; text-transform: uppercase;
+      padding: 6px 0;
+    }
+    .cal-day {
+      aspect-ratio: 1 / 1;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; color: var(--texto);
+      background: var(--branco);
+      transition: all .15s;
+      position: relative;
+    }
+    .cal-day.empty { visibility: hidden; }
+    .cal-day.disabled {
+      color: #CBD5E1; cursor: not-allowed;
+      text-decoration: line-through;
+    }
+    .cal-day.available {
+      background: var(--verde-claro); color: var(--verde-escuro);
+      font-weight: 600;
+    }
+    .cal-day.available:hover { background: var(--verde); color: var(--branco); }
+    .cal-day.selected { background: var(--verde); color: var(--branco); box-shadow: 0 0 0 3px rgba(61,140,106,0.25); }
+    .cal-day.today::after {
+      content: ''; position: absolute; bottom: 4px;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: currentColor; opacity: 0.55;
+    }
+
+    .cal-legend {
+      margin-top: 12px; display: flex; gap: 14px; flex-wrap: wrap;
+      font-size: 0.72rem; color: var(--texto-sec);
+    }
+    .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .cal-legend i {
+      width: 10px; height: 10px; border-radius: 3px; display: inline-block;
+    }
+    .leg-free { background: var(--verde-claro); border: 1px solid var(--verde); }
+    .leg-sel  { background: var(--verde); }
+    .leg-none { background: #F1F5F9; }
+
+    /* ── TIME SLOTS ── */
+    .slots-header {
+      font-size: 0.82rem; font-weight: 700; color: var(--texto-sec);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin: 4px 0 12px;
+    }
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+    }
+    .slot {
+      padding: 10px; border-radius: 8px;
+      border: 1px solid var(--cinza-borda);
+      background: var(--branco);
+      font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; text-align: center;
+      transition: all .15s;
+    }
+    .slot:hover { border-color: var(--verde); background: var(--verde-claro); color: var(--verde-escuro); }
+    .slot.selected { background: var(--verde); color: var(--branco); border-color: var(--verde); }
+    .empty-msg {
+      padding: 24px; text-align: center;
+      color: var(--texto-sec); font-size: 0.85rem;
+      background: var(--cinza-fundo); border-radius: 8px;
+    }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--texto-sec); margin-bottom: 4px;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--cinza-borda); border-radius: 8px;
+      font-family: inherit; font-size: 0.9rem;
+      background: var(--branco); color: var(--texto);
+      transition: border-color .15s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--verde);
+      box-shadow: 0 0 0 3px rgba(61,140,106,0.12);
+    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .form-check { display: flex; gap: 8px; align-items: flex-start; font-size: 0.78rem; color: var(--texto-sec); }
+    .form-check input { width: auto; margin-top: 2px; }
+
+    /* ── BUTTONS ── */
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    .btn {
+      flex: 1; padding: 12px 18px; border: none; border-radius: 8px;
+      font-family: inherit; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: all .15s;
+    }
+    .btn-primary {
+      background: var(--verde); color: var(--branco);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--verde-escuro); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent; color: var(--texto-sec);
+      border: 1px solid var(--cinza-borda);
+    }
+    .btn-ghost:hover { background: var(--cinza-fundo); }
+
+    /* ── SUMMARY ── */
+    .summary {
+      background: var(--verde-claro);
+      border: 1px solid rgba(61,140,106,0.2);
+      border-radius: 10px; padding: 14px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+    }
+    .summary strong { display: block; font-size: 0.95rem; margin-bottom: 4px; color: var(--verde-escuro); }
+    .summary-line { display: flex; justify-content: space-between; padding: 3px 0; }
+    .summary-line span:last-child { font-weight: 600; color: var(--texto); }
+
+    /* ── LOADER ── */
+    .loader {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: var(--branco);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .alert {
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 0.82rem; margin-bottom: 12px;
+    }
+    .alert-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { display: flex; flex-direction: column; gap: 14px; }
+    .card {
+      background: var(--branco);
+      border-radius: 12px;
+      border: 1px solid var(--cinza-borda);
+      padding: 18px;
+    }
+    .card-title {
+      font-size: 0.82rem; font-weight: 700;
+      color: var(--texto-sec);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--cinza-borda);
+    }
+    .checklist { display: flex; flex-direction: column; gap: 12px; }
+    .check-item { display: flex; gap: 10px; align-items: flex-start; }
+    .check-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--verde-claro); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .check-icon svg { width: 10px; height: 10px; }
+    .check-text strong { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 1px; }
+    .check-text span { font-size: 0.76rem; color: var(--texto-sec); line-height: 1.4; }
+
+    .quote-card {
+      background: var(--verde-claro);
+      border: 1px solid rgba(61,140,106,0.15);
+      border-left: 3px solid var(--verde);
+      border-radius: 12px; padding: 16px;
+    }
+    .quote-stars { display: flex; gap: 2px; margin-bottom: 8px; }
+    .star {
+      width: 11px; height: 11px; background: #F59E0B;
+      clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    }
+    .quote-card blockquote {
+      font-size: 0.8rem; color: var(--texto);
+      line-height: 1.6; font-style: italic; margin-bottom: 8px;
+    }
+    .quote-author { font-size: 0.75rem; font-weight: 700; color: var(--verde); }
+
+    .faq-list { display: flex; flex-direction: column; gap: 12px; }
+    .faq-item h4 { font-size: 0.8rem; font-weight: 700; margin-bottom: 3px; }
+    .faq-item p { font-size: 0.76rem; color: var(--texto-sec); line-height: 1.5; }
+
+    .rgpd {
+      font-size: 0.73rem; color: var(--texto-sec);
+      text-align: center; line-height: 1.5;
+      padding: 12px; background: var(--branco);
+      border: 1px solid var(--cinza-borda); border-radius: 10px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #111827;
+      color: rgba(255,255,255,0.4);
+      padding: 20px; text-align: center;
+      font-size: 0.76rem;
+    }
+    footer a { color: rgba(255,255,255,0.35); text-decoration: none; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 700px) {
+      .page-wrap {
+        grid-template-columns: 1fr;
+        padding: 16px 12px 48px; gap: 16px;
+      }
+      .sidebar { order: 2; }
+      .booking-box { order: 1; }
+      .sidebar .card:nth-child(3), .sidebar .quote-card { display: none; }
+      .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .hero-strip h1 { font-size: 1.3rem; }
+      .hero-strip p { font-size: 0.85rem; }
+      .step-line { margin: 0 6px; }
+    }
+    @media (max-width: 380px) {
+      .checklist { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a class="logo" href="/">Psiagora</a>
+  <a href="/" class="btn-voltar">&#8592; Voltar</a>
+</header>
+
+<!-- HERO -->
+<div class="hero-strip">
+  <h1>Agendar Consulta</h1>
+  <p>Escolha o dia e a hora que melhor se adapta a si.</p>
+</div>
+
+<!-- TRUST PILLS -->
+<div class="trust-pills">
+  <span class="pill">Sem lista de espera</span>
+  <span class="pill">100% Confidencial</span>
+  <span class="pill">Psicologo certificado</span>
+  <span class="pill">Cancelamento gratuito</span>
+  <span class="pill">MB Way e Multibanco</span>
+</div>
+
+<!-- LAYOUT -->
+<div class="page-wrap">
+
+  <!-- BOOKING -->
+  <div class="booking-box">
+    <div class="booking-header">
+      <div class="status-dot"></div>
+      <div class="booking-header-text">
+        <h2>Escolha a Data e Hora</h2>
+        <p>Disponibilidade atualizada em tempo real</p>
+      </div>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step active" data-step="1"><div class="step-num">1</div> Data</div>
+      <div class="step-line"></div>
+      <div class="step" data-step="2"><div class="step-num">2</div> Hora</div>
+      <div class="step-line"></div>
+      <div class="step" data-step="3"><div class="step-num">3</div> Dados</div>
+    </div>
+
+    <!-- STEP 1: CALENDAR -->
+    <div class="step-panel active" id="panel-1">
+      <div class="cal-nav">
+        <button type="button" id="prevMonth" aria-label="Mes anterior">&lsaquo;</button>
+        <div class="cal-title" id="calTitle">—</div>
+        <button type="button" id="nextMonth" aria-label="Mes seguinte">&rsaquo;</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span><i class="leg-free"></i> Disponivel</span>
+        <span><i class="leg-sel"></i> Selecionado</span>
+        <span><i class="leg-none"></i> Sem vagas</span>
+      </div>
+    </div>
+
+    <!-- STEP 2: TIME -->
+    <div class="step-panel" id="panel-2">
+      <div class="slots-header" id="slotsTitle">Horas disponiveis</div>
+      <div id="slotsGrid" class="slots-grid"></div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" data-goto="1">&larr; Trocar data</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: FORM -->
+    <div class="step-panel" id="panel-3">
+      <div class="summary" id="summary"></div>
+      <div id="formError"></div>
+      <form id="bookForm" autocomplete="on">
+        <div class="form-group">
+          <label for="f-nome">Nome completo *</label>
+          <input type="text" id="f-nome" name="nome" required minlength="3" maxlength="120">
+        </div>
+        <div class="form-group">
+          <label for="f-email">Email *</label>
+          <input type="email" id="f-email" name="email" required maxlength="160">
+        </div>
+        <div class="form-group">
+          <label for="f-tel">Telefone</label>
+          <input type="tel" id="f-tel" name="telefone" maxlength="30" placeholder="+351 ...">
+        </div>
+        <div class="form-group">
+          <label for="f-msg">Breve descricao (opcional)</label>
+          <textarea id="f-msg" name="mensagem" maxlength="600" placeholder="O que o traz a consulta?"></textarea>
+        </div>
+        <div class="form-group form-check">
+          <input type="checkbox" id="f-rgpd" required>
+          <label for="f-rgpd">Aceito que os meus dados sejam tratados ao abrigo do RGPD apenas para fins de agendamento da consulta.</label>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" data-goto="2">&larr; Trocar hora</button>
+          <button type="submit" class="btn btn-primary" id="btnPay">Avancar para pagamento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="card">
+      <div class="card-title">O que esta incluido</div>
+      <div class="checklist">
+        <div class="check-item">
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-text"><strong>Sessao de 50 min.</strong><span>Dedicado exclusivamente a si.</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-text"><strong>Psicologo certificado</strong><span>Cedula pela Ordem dos Psicologos.</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-text"><strong>Videochamada segura</strong><span>Encriptada e totalmente privada.</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-text"><strong>Sem espera</strong><span>Vaga nos proximos dias uteis.</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-text"><strong>Cancelamento gratis</strong><span>Ate 24h antes, sem custos.</span></div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-text"><strong>Confirmacao imediata</strong><span>Recebe o link por e-mail.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <div class="quote-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+      <blockquote>"Senti-me completamente a vontade desde a primeira sessao. A psicologa ajudou-me a perceber coisas que eu nao conseguia ver sozinha."</blockquote>
+      <div class="quote-author">Sofia R. — Lisboa</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Perguntas frequentes</div>
+      <div class="faq-list">
+        <div class="faq-item"><h4>Como decorre a sessao?</h4><p>Por videochamada. Enviamos o link por e-mail. Nao precisa de instalar nada.</p></div>
+        <div class="faq-item"><h4>E se precisar de remarcar?</h4><p>Pode reagendar atraves do link no e-mail de confirmacao, sem custos ate 24h antes.</p></div>
+        <div class="faq-item"><h4>Que formas de pagamento aceitam?</h4><p>MB Way, Multibanco e cartao de credito ou debito.</p></div>
+      </div>
+    </div>
+
+    <div class="rgpd">Os seus dados sao protegidos ao abrigo do RGPD e nao sao partilhados com terceiros.</div>
+  </div>
+</div>
+
+<footer>
+  <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="/privacidade">Privacidade</a></p>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  const API = {
+    availability: '/api/availability.php',
+    book: '/api/book.php',
+  };
+  const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
+  const MONTHS = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  const state = {
+    viewYear:  new Date().getFullYear(),
+    viewMonth: new Date().getMonth(), // 0-11
+    monthData: null,                  // { "2026-04-20": ["09:00","10:00"], ... }
+    selectedDate: null,               // "YYYY-MM-DD"
+    selectedTime: null,               // "HH:MM"
+  };
+
+  // ── STEP CONTROL ────────────────────────────────────────────
+  const goto = (n) => {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-'+n).classList.add('active');
+    document.querySelectorAll('.step').forEach(s => {
+      const idx = +s.dataset.step;
+      s.classList.toggle('active', idx === n);
+      s.classList.toggle('done', idx < n);
+    });
+    window.scrollTo({ top: document.querySelector('.booking-box').offsetTop - 70, behavior: 'smooth' });
+  };
+  document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => goto(+b.dataset.goto)));
+
+  // ── FETCH AVAILABILITY ──────────────────────────────────────
+  async function loadMonth(y, m) {
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:#64748B;font-size:.85rem">A carregar disponibilidade…</div>';
+    try {
+      const res = await fetch(`${API.availability}?year=${y}&month=${m+1}`);
+      const ctype = res.headers.get('content-type') || '';
+      if (!res.ok || !ctype.includes('application/json')) {
+        throw new Error('Backend indisponivel (HTTP ' + res.status + ')');
+      }
+      state.monthData = await res.json();
+    } catch (e) {
+      // Fallback: sem backend, mostramos dias como "disponiveis" para nao bloquear demo
+      console.warn('[agendar] availability fallback:', e.message);
+      state.monthData = { _fallback: true, days: {} };
+    }
+    renderCalendar();
+  }
+
+  // ── RENDER CALENDAR ─────────────────────────────────────────
+  function renderCalendar() {
+    const y = state.viewYear, m = state.viewMonth;
+    document.getElementById('calTitle').textContent = `${MONTHS[m]} ${y}`;
+    const first = new Date(y, m, 1);
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    const startDow = first.getDay(); // 0=Dom
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    // Headers
+    ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'].forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-dow'; el.textContent = d;
+      grid.appendChild(el);
+    });
+    // Empty cells
+    for (let i = 0; i < startDow; i++) {
+      const e = document.createElement('div'); e.className = 'cal-day empty'; grid.appendChild(e);
+    }
+    // Days
+    const today = new Date(); today.setHours(0,0,0,0);
+    const maxWindow = new Date(); maxWindow.setDate(maxWindow.getDate() + 60);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(y, m, d);
+      const iso  = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const btn  = document.createElement('div');
+      btn.className = 'cal-day'; btn.textContent = d; btn.dataset.date = iso;
+      if (date.toDateString() === new Date().toDateString()) btn.classList.add('today');
+
+      const isPast   = date < today;
+      const tooFar   = date > maxWindow;
+      const slots    = (state.monthData && state.monthData.days) ? state.monthData.days[iso] : null;
+      const fallback = state.monthData && state.monthData._fallback;
+
+      if (isPast || tooFar) {
+        btn.classList.add('disabled');
+      } else if (fallback) {
+        // demo: assume todos os dias uteis disponiveis
+        const dow = date.getDay();
+        if (dow === 0 || dow === 6) btn.classList.add('disabled');
+        else btn.classList.add('available');
+      } else if (slots && slots.length > 0) {
+        btn.classList.add('available');
+      } else {
+        btn.classList.add('disabled');
+      }
+
+      if (btn.classList.contains('available')) {
+        btn.addEventListener('click', () => selectDate(iso));
+      }
+      if (iso === state.selectedDate) btn.classList.add('selected');
+      grid.appendChild(btn);
+    }
+
+    // Nav limits
+    const now = new Date();
+    document.getElementById('prevMonth').disabled =
+      (y < now.getFullYear()) || (y === now.getFullYear() && m <= now.getMonth());
+  }
+
+  // ── SELECT DATE ─────────────────────────────────────────────
+  function selectDate(iso) {
+    state.selectedDate = iso; state.selectedTime = null;
+    renderCalendar();
+    renderSlots(iso);
+    goto(2);
+  }
+
+  function renderSlots(iso) {
+    const grid = document.getElementById('slotsGrid');
+    const title = document.getElementById('slotsTitle');
+    const [y,m,d] = iso.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
+
+    let slots = [];
+    if (state.monthData && state.monthData._fallback) {
+      slots = ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'];
+    } else if (state.monthData && state.monthData.days) {
+      slots = state.monthData.days[iso] || [];
+    }
+    if (!slots.length) {
+      grid.innerHTML = '<div class="empty-msg">Sem horas disponiveis neste dia.</div>';
+      return;
+    }
+    grid.innerHTML = '';
+    slots.forEach(t => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'slot'; b.textContent = t;
+      b.addEventListener('click', () => {
+        state.selectedTime = t;
+        [...grid.children].forEach(c => c.classList.remove('selected'));
+        b.classList.add('selected');
+        setTimeout(() => {
+          updateSummary();
+          goto(3);
+        }, 180);
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  function updateSummary() {
+    const [y,m,d] = state.selectedDate.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    const fmt = dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    document.getElementById('summary').innerHTML = `
+      <strong>A sua consulta</strong>
+      <div class="summary-line"><span>Data</span><span>${fmt}</span></div>
+      <div class="summary-line"><span>Hora</span><span>${state.selectedTime}</span></div>
+      <div class="summary-line"><span>Duracao</span><span>50 minutos</span></div>
+      <div class="summary-line"><span>Valor</span><span>60,00 €</span></div>
+    `;
+  }
+
+  // ── NAV ─────────────────────────────────────────────────────
+  document.getElementById('prevMonth').addEventListener('click', () => {
+    if (state.viewMonth === 0) { state.viewMonth = 11; state.viewYear--; }
+    else state.viewMonth--;
+    loadMonth(state.viewYear, state.viewMonth);
+  });
+  document.getElementById('nextMonth').addEventListener('click', () => {
+    if (state.viewMonth === 11) { state.viewMonth = 0; state.viewYear++; }
+    else state.viewMonth++;
+    loadMonth(state.viewYear, state.viewMonth);
+  });
+
+  // ── SUBMIT ──────────────────────────────────────────────────
+  document.getElementById('bookForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const btn = document.getElementById('btnPay');
+    const errBox = document.getElementById('formError');
+    errBox.innerHTML = '';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span> A reservar…';
+
+    const payload = {
+      date: state.selectedDate,
+      time: state.selectedTime,
+      nome: document.getElementById('f-nome').value.trim(),
+      email: document.getElementById('f-email').value.trim(),
+      telefone: document.getElementById('f-tel').value.trim(),
+      mensagem: document.getElementById('f-msg').value.trim(),
+    };
+
+    try {
+      const res = await fetch(API.book, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const ctype = res.headers.get('content-type') || '';
+      const raw = await res.text();
+      let data;
+      if (ctype.includes('application/json')) {
+        try { data = JSON.parse(raw); }
+        catch { throw new Error('Resposta invalida do servidor (HTTP ' + res.status + ').'); }
+      } else {
+        // Servidor devolveu HTML/texto — provavelmente erro do Apache/PHP
+        const snippet = raw.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0, 200);
+        throw new Error(
+          'O servidor nao devolveu JSON (HTTP ' + res.status + '). ' +
+          'Provavel: permissoes da pasta /api/ ou falta o vendor/ (Composer). ' +
+          (snippet ? 'Detalhe: ' + snippet : '')
+        );
+      }
+      if (!res.ok) throw new Error(data.error || 'Nao foi possivel criar a reserva.');
+      // Redirecciona para Stripe Checkout
+      window.location.href = data.checkout_url;
+    } catch (e) {
+      errBox.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
+      btn.disabled = false;
+      btn.textContent = 'Avancar para pagamento';
+    }
+  });
+
+  // ── INIT ────────────────────────────────────────────────────
+  loadMonth(state.viewYear, state.viewMonth);
+})();
+</script>
+
+</body>
+</html>
