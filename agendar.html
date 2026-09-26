@@ -462,6 +462,19 @@
           <input type="tel" id="f-tel" name="telefone" maxlength="30" placeholder="+351 ...">
         </div>
         <div class="form-group">
+          <label>Tipo de consulta *</label>
+          <div style="display:flex;gap:12px;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;padding:12px;border:1.5px solid var(--cinza-borda);border-radius:8px;" id="label-primeira">
+              <input type="radio" name="tipo" value="primeira" id="tipo-primeira" required style="accent-color:var(--verde);">
+              <span><strong>Primeira consulta</strong><br><small style="color:var(--texto-sec)">65,00 €</small></span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;padding:12px;border:1.5px solid var(--cinza-borda);border-radius:8px;" id="label-seguinte">
+              <input type="radio" name="tipo" value="seguinte" id="tipo-seguinte" style="accent-color:var(--verde);">
+              <span><strong>Consulta de seguimento</strong><br><small style="color:var(--texto-sec)">50,00 €</small></span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
           <label for="f-msg">Breve descricao (opcional)</label>
           <textarea id="f-msg" name="mensagem" maxlength="600" placeholder="O que o traz a consulta?"></textarea>
         </div>
@@ -542,7 +555,10 @@
 
     // Link de pagamento gerado no Stripe Dashboard → Payment Links
     // Substitui pelo teu link real antes de publicar.
-    stripeLink: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',
+    stripeLinkPrimeira: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',  // 65€ - primeira consulta
+    stripeLinkSeguinte: 'https://buy.stripe.com/6oUfZj9gj2dRcBDeFH9Zm02',  // 50€ - consultas seguintes
+    precoPrimeira: 65,
+    precoSeguinte: 50,
 
     // Dias da semana disponiveis (0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab)
     diasDisponiveis: [1, 2, 3, 4, 5],
@@ -685,7 +701,7 @@
       <div class="summary-line"><span>Data</span><span>${fmt}</span></div>
       <div class="summary-line"><span>Hora</span><span>${state.selectedTime}</span></div>
       <div class="summary-line"><span>Duracao</span><span>50 minutos</span></div>
-      <div class="summary-line"><span>Valor</span><span>60,00 €</span></div>
+      <div class="summary-line"><span>Valor</span><span id="summary-valor">${CONFIG.precoPrimeira.toFixed(2).replace('.',',')} €</span></div>
     `;
   }
 
@@ -717,9 +733,22 @@
     };
     try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
 
-    // Redireciona para o Stripe Payment Link
-    // O Stripe envia confirmacao por email automaticamente apos pagamento
-    window.location.href = CONFIG.stripeLink;
+    // Escolhe o link consoante o tipo de consulta
+    const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
+    const link = tipo === 'seguinte' ? CONFIG.stripeLinkSeguinte : CONFIG.stripeLinkPrimeira;
+    window.location.href = link;
+  });
+
+  // ── TIPO DE CONSULTA → actualiza preco no resumo ─────────────
+  document.querySelectorAll('input[name="tipo"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const preco = radio.value === 'seguinte' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira;
+      const el = document.getElementById('summary-valor');
+      if (el) el.textContent = preco.toFixed(2).replace('.',',') + ' €';
+      // destaca o label seleccionado
+      document.getElementById('label-primeira').style.borderColor = radio.value === 'primeira' ? 'var(--verde)' : 'var(--cinza-borda)';
+      document.getElementById('label-seguinte').style.borderColor = radio.value === 'seguinte' ? 'var(--verde)' : 'var(--cinza-borda)';
+    });
   });
 
   // ── INIT ─────────────────────────────────────────────────────
