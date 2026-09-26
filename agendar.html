@@ -407,7 +407,7 @@
       <div class="status-dot"></div>
       <div class="booking-header-text">
         <h2>Escolha a Data e Hora</h2>
-        <p>Disponibilidade atualizada em tempo real</p>
+        <p>Horarios atualizados regularmente</p>
       </div>
     </div>
 
@@ -536,22 +536,44 @@
 (() => {
   'use strict';
 
-  const API = {
-    availability: '/api/availability.php',
-    book: '/api/book.php',
+  // ── CONFIGURACAO ─────────────────────────────────────────────
+  // Edita esta secao para ajustar horarios e o link de pagamento Stripe.
+  const CONFIG = {
+
+    // Link de pagamento gerado no Stripe Dashboard → Payment Links
+    // Substitui pelo teu link real antes de publicar.
+    stripeLink: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',
+
+    // Dias da semana disponiveis (0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab)
+    diasDisponiveis: [1, 2, 3, 4, 5],
+
+    // Horas disponiveis por defeito (dias uteis)
+    horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'],
+
+    // Dias completamente bloqueados, ex: ferias ou feriados
+    // Formato: 'YYYY-MM-DD'
+    diasBloqueados: [],
+
+    // Horas bloqueadas em dias especificos (ex: consulta ja marcada)
+    // Formato: { 'YYYY-MM-DD': ['09:00', '10:00'] }
+    horasBloqueadas: {},
+
+    // Quantos dias a frente mostrar no calendario
+    janelaDias: 60,
   };
-  const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
-  const MONTHS = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  // ─────────────────────────────────────────────────────────────
+
+  const MONTHS = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho',
+                  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
   const state = {
     viewYear:  new Date().getFullYear(),
-    viewMonth: new Date().getMonth(), // 0-11
-    monthData: null,                  // { "2026-04-20": ["09:00","10:00"], ... }
-    selectedDate: null,               // "YYYY-MM-DD"
-    selectedTime: null,               // "HH:MM"
+    viewMonth: new Date().getMonth(),
+    selectedDate: null,
+    selectedTime: null,
   };
 
-  // ── STEP CONTROL ────────────────────────────────────────────
+  // ── STEP CONTROL ─────────────────────────────────────────────
   const goto = (n) => {
     document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-'+n).classList.add('active');
@@ -564,87 +586,63 @@
   };
   document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => goto(+b.dataset.goto)));
 
-  // ── FETCH AVAILABILITY ──────────────────────────────────────
-  async function loadMonth(y, m) {
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;color:#64748B;font-size:.85rem">A carregar disponibilidade…</div>';
-    try {
-      const res = await fetch(`${API.availability}?year=${y}&month=${m+1}`);
-      const ctype = res.headers.get('content-type') || '';
-      if (!res.ok || !ctype.includes('application/json')) {
-        throw new Error('Backend indisponivel (HTTP ' + res.status + ')');
-      }
-      state.monthData = await res.json();
-    } catch (e) {
-      // Fallback: sem backend, mostramos dias como "disponiveis" para nao bloquear demo
-      console.warn('[agendar] availability fallback:', e.message);
-      state.monthData = { _fallback: true, days: {} };
-    }
-    renderCalendar();
+  // ── DISPONIBILIDADE ESTATICA ──────────────────────────────────
+  function isDayAvailable(date) {
+    const iso = toISO(date);
+    if (CONFIG.diasBloqueados.includes(iso)) return false;
+    return CONFIG.diasDisponiveis.includes(date.getDay());
   }
 
-  // ── RENDER CALENDAR ─────────────────────────────────────────
+  function getSlotsForDay(iso) {
+    const bloqueadas = CONFIG.horasBloqueadas[iso] || [];
+    return CONFIG.horasPadrao.filter(h => !bloqueadas.includes(h));
+  }
+
+  function toISO(date) {
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  }
+
+  // ── RENDER CALENDAR ───────────────────────────────────────────
   function renderCalendar() {
     const y = state.viewYear, m = state.viewMonth;
     document.getElementById('calTitle').textContent = `${MONTHS[m]} ${y}`;
-    const first = new Date(y, m, 1);
     const daysInMonth = new Date(y, m+1, 0).getDate();
-    const startDow = first.getDay(); // 0=Dom
+    const startDow = new Date(y, m, 1).getDay();
 
     const grid = document.getElementById('calGrid');
     grid.innerHTML = '';
-    // Headers
     ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'].forEach(d => {
       const el = document.createElement('div');
       el.className = 'cal-dow'; el.textContent = d;
       grid.appendChild(el);
     });
-    // Empty cells
     for (let i = 0; i < startDow; i++) {
       const e = document.createElement('div'); e.className = 'cal-day empty'; grid.appendChild(e);
     }
-    // Days
     const today = new Date(); today.setHours(0,0,0,0);
-    const maxWindow = new Date(); maxWindow.setDate(maxWindow.getDate() + 60);
+    const maxWindow = new Date(); maxWindow.setDate(maxWindow.getDate() + CONFIG.janelaDias);
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(y, m, d);
-      const iso  = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const iso  = toISO(date);
       const btn  = document.createElement('div');
       btn.className = 'cal-day'; btn.textContent = d; btn.dataset.date = iso;
-      if (date.toDateString() === new Date().toDateString()) btn.classList.add('today');
+      if (date.toDateString() === today.toDateString()) btn.classList.add('today');
 
-      const isPast   = date < today;
-      const tooFar   = date > maxWindow;
-      const slots    = (state.monthData && state.monthData.days) ? state.monthData.days[iso] : null;
-      const fallback = state.monthData && state.monthData._fallback;
-
-      if (isPast || tooFar) {
+      if (date < today || date > maxWindow || !isDayAvailable(date)) {
         btn.classList.add('disabled');
-      } else if (fallback) {
-        // demo: assume todos os dias uteis disponiveis
-        const dow = date.getDay();
-        if (dow === 0 || dow === 6) btn.classList.add('disabled');
-        else btn.classList.add('available');
-      } else if (slots && slots.length > 0) {
-        btn.classList.add('available');
       } else {
-        btn.classList.add('disabled');
-      }
-
-      if (btn.classList.contains('available')) {
+        btn.classList.add('available');
         btn.addEventListener('click', () => selectDate(iso));
       }
       if (iso === state.selectedDate) btn.classList.add('selected');
       grid.appendChild(btn);
     }
-
-    // Nav limits
     const now = new Date();
     document.getElementById('prevMonth').disabled =
       (y < now.getFullYear()) || (y === now.getFullYear() && m <= now.getMonth());
   }
 
-  // ── SELECT DATE ─────────────────────────────────────────────
+  // ── SELECT DATE / SLOTS ───────────────────────────────────────
   function selectDate(iso) {
     state.selectedDate = iso; state.selectedTime = null;
     renderCalendar();
@@ -655,16 +653,11 @@
   function renderSlots(iso) {
     const grid = document.getElementById('slotsGrid');
     const title = document.getElementById('slotsTitle');
-    const [y,m,d] = iso.split('-').map(Number);
-    const dt = new Date(y, m-1, d);
+    const [y,mo,d] = iso.split('-').map(Number);
+    const dt = new Date(y, mo-1, d);
     title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
 
-    let slots = [];
-    if (state.monthData && state.monthData._fallback) {
-      slots = ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'];
-    } else if (state.monthData && state.monthData.days) {
-      slots = state.monthData.days[iso] || [];
-    }
+    const slots = getSlotsForDay(iso);
     if (!slots.length) {
       grid.innerHTML = '<div class="empty-msg">Sem horas disponiveis neste dia.</div>';
       return;
@@ -677,18 +670,15 @@
         state.selectedTime = t;
         [...grid.children].forEach(c => c.classList.remove('selected'));
         b.classList.add('selected');
-        setTimeout(() => {
-          updateSummary();
-          goto(3);
-        }, 180);
+        setTimeout(() => { updateSummary(); goto(3); }, 180);
       });
       grid.appendChild(b);
     });
   }
 
   function updateSummary() {
-    const [y,m,d] = state.selectedDate.split('-').map(Number);
-    const dt = new Date(y, m-1, d);
+    const [y,mo,d] = state.selectedDate.split('-').map(Number);
+    const dt = new Date(y, mo-1, d);
     const fmt = dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
     document.getElementById('summary').innerHTML = `
       <strong>A sua consulta</strong>
@@ -699,69 +689,41 @@
     `;
   }
 
-  // ── NAV ─────────────────────────────────────────────────────
+  // ── NAV ───────────────────────────────────────────────────────
   document.getElementById('prevMonth').addEventListener('click', () => {
     if (state.viewMonth === 0) { state.viewMonth = 11; state.viewYear--; }
     else state.viewMonth--;
-    loadMonth(state.viewYear, state.viewMonth);
+    renderCalendar();
   });
   document.getElementById('nextMonth').addEventListener('click', () => {
     if (state.viewMonth === 11) { state.viewMonth = 0; state.viewYear++; }
     else state.viewMonth++;
-    loadMonth(state.viewYear, state.viewMonth);
+    renderCalendar();
   });
 
-  // ── SUBMIT ──────────────────────────────────────────────────
-  document.getElementById('bookForm').addEventListener('submit', async (ev) => {
+  // ── SUBMIT → STRIPE PAYMENT LINK ─────────────────────────────
+  document.getElementById('bookForm').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const btn = document.getElementById('btnPay');
-    const errBox = document.getElementById('formError');
-    errBox.innerHTML = '';
     btn.disabled = true;
-    btn.innerHTML = '<span class="loader"></span> A reservar…';
+    btn.innerHTML = '<span class="loader"></span> A redirecionar…';
 
-    const payload = {
+    // Guarda os dados localmente para mostrar na pagina de sucesso
+    const booking = {
       date: state.selectedDate,
       time: state.selectedTime,
       nome: document.getElementById('f-nome').value.trim(),
       email: document.getElementById('f-email').value.trim(),
-      telefone: document.getElementById('f-tel').value.trim(),
-      mensagem: document.getElementById('f-msg').value.trim(),
     };
+    try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
 
-    try {
-      const res = await fetch(API.book, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      });
-      const ctype = res.headers.get('content-type') || '';
-      const raw = await res.text();
-      let data;
-      if (ctype.includes('application/json')) {
-        try { data = JSON.parse(raw); }
-        catch { throw new Error('Resposta invalida do servidor (HTTP ' + res.status + ').'); }
-      } else {
-        // Servidor devolveu HTML/texto — provavelmente erro do Apache/PHP
-        const snippet = raw.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0, 200);
-        throw new Error(
-          'O servidor nao devolveu JSON (HTTP ' + res.status + '). ' +
-          'Provavel: permissoes da pasta /api/ ou falta o vendor/ (Composer). ' +
-          (snippet ? 'Detalhe: ' + snippet : '')
-        );
-      }
-      if (!res.ok) throw new Error(data.error || 'Nao foi possivel criar a reserva.');
-      // Redirecciona para Stripe Checkout
-      window.location.href = data.checkout_url;
-    } catch (e) {
-      errBox.innerHTML = `<div class="alert alert-error">${e.message}</div>`;
-      btn.disabled = false;
-      btn.textContent = 'Avancar para pagamento';
-    }
+    // Redireciona para o Stripe Payment Link
+    // O Stripe envia confirmacao por email automaticamente apos pagamento
+    window.location.href = CONFIG.stripeLink;
   });
 
-  // ── INIT ────────────────────────────────────────────────────
-  loadMonth(state.viewYear, state.viewMonth);
+  // ── INIT ─────────────────────────────────────────────────────
+  renderCalendar();
 })();
 </script>
 
