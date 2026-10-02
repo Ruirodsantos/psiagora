@@ -554,25 +554,26 @@
   const CONFIG = {
 
     // Link de pagamento gerado no Stripe Dashboard → Payment Links
-    // Substitui pelo teu link real antes de publicar.
     stripeLinkPrimeira: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',  // 65€ - primeira consulta
     stripeLinkSeguinte: 'https://buy.stripe.com/6oUfZj9gj2dRcBDeFH9Zm02',  // 50€ - consultas seguintes
     precoPrimeira: 65,
     precoSeguinte: 50,
 
+    // URL do Google Apps Script
+    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbyG69ncj6b5somjIHQV25AlU3vq2Ns9Y8d7fYnkL2yopirKAd68lg5XokrNqMd9OPcI/exec',
+
+    // Token secreto — tem de ser igual ao SECRET_TOKEN no Apps Script
+    appsScriptToken: 'psiagora2026',
+
     // Dias da semana disponiveis (0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab)
     diasDisponiveis: [1, 2, 3, 4, 5],
 
-    // Horas disponiveis por defeito (dias uteis)
+    // Horas disponiveis por defeito — usadas como fallback se o Apps Script nao estiver configurado
     horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'],
 
     // Dias completamente bloqueados, ex: ferias ou feriados
     // Formato: 'YYYY-MM-DD'
     diasBloqueados: [],
-
-    // Horas bloqueadas em dias especificos (ex: consulta ja marcada)
-    // Formato: { 'YYYY-MM-DD': ['09:00', '10:00'] }
-    horasBloqueadas: {},
 
     // Quantos dias a frente mostrar no calendario
     janelaDias: 60,
@@ -602,16 +603,37 @@
   };
   document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => goto(+b.dataset.goto)));
 
-  // ── DISPONIBILIDADE ESTATICA ──────────────────────────────────
+  // ── DISPONIBILIDADE ───────────────────────────────────────────
   function isDayAvailable(date) {
     const iso = toISO(date);
     if (CONFIG.diasBloqueados.includes(iso)) return false;
     return CONFIG.diasDisponiveis.includes(date.getDay());
   }
 
-  function getSlotsForDay(iso) {
-    const bloqueadas = CONFIG.horasBloqueadas[iso] || [];
-    return CONFIG.horasPadrao.filter(h => !bloqueadas.includes(h));
+  // Cache de slots por data (evita chamadas repetidas ao Apps Script)
+  const slotsCache = {};
+
+  async function getSlotsForDay(iso) {
+    if (slotsCache[iso]) return slotsCache[iso];
+
+    // Se Apps Script configurado, buscar disponibilidade real do Calendar
+    if (CONFIG.appsScriptUrl) {
+      try {
+        const url = `${CONFIG.appsScriptUrl}?date=${iso}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        if (Array.isArray(json.available)) {
+          slotsCache[iso] = json.available;
+          return json.available;
+        }
+      } catch (err) {
+        console.warn('Apps Script indisponível, a usar horas padrão.', err);
+      }
+    }
+
+    // Fallback: horas padrão estáticas
+    slotsCache[iso] = CONFIG.horasPadrao;
+    return CONFIG.horasPadrao;
   }
 
   function toISO(date) {
@@ -659,21 +681,24 @@
   }
 
   // ── SELECT DATE / SLOTS ───────────────────────────────────────
-  function selectDate(iso) {
+  async function selectDate(iso) {
     state.selectedDate = iso; state.selectedTime = null;
     renderCalendar();
-    renderSlots(iso);
     goto(2);
+    await renderSlots(iso);
   }
 
-  function renderSlots(iso) {
+  async function renderSlots(iso) {
     const grid = document.getElementById('slotsGrid');
     const title = document.getElementById('slotsTitle');
     const [y,mo,d] = iso.split('-').map(Number);
     const dt = new Date(y, mo-1, d);
     title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
 
-    const slots = getSlotsForDay(iso);
+    // Mostrar loading enquanto busca disponibilidade
+    grid.innerHTML = '<div class="empty-msg" style="color:var(--roxo)">A verificar disponibilidade...</div>';
+
+    const slots = await getSlotsForDay(iso);
     if (!slots.length) {
       grid.innerHTML = '<div class="empty-msg">Sem horas disponiveis neste dia.</div>';
       return;
@@ -726,10 +751,13 @@
 
     // Guarda os dados localmente para mostrar na pagina de sucesso
     const booking = {
-      date: state.selectedDate,
-      time: state.selectedTime,
-      nome: document.getElementById('f-nome').value.trim(),
-      email: document.getElementById('f-email').value.trim(),
+      date:      state.selectedDate,
+      time:      state.selectedTime,
+      nome:      document.getElementById('f-nome').value.trim(),
+      email:     document.getElementById('f-email').value.trim(),
+      telefone:  document.getElementById('f-tel')?.value.trim() || '',
+      tipo:      document.querySelector('input[name="tipo"]:checked')?.value || 'primeira',
+      descricao: document.getElementById('f-msg')?.value.trim() || '',
     };
     try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
 
