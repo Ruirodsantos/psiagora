@@ -696,7 +696,10 @@
     title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
 
     // Mostrar loading enquanto busca disponibilidade
-    grid.innerHTML = '<div class="empty-msg" style="color:var(--roxo)">A verificar disponibilidade...</div>';
+    grid.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:16px 12px;color:var(--roxo);font-size:0.9rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      Aguarde, a verificar disponibilidade...
+    </div>`;
 
     const slots = await getSlotsForDay(iso);
     if (!slots.length) {
