@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consulta Confirmada | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --verde:#3D8C6A; --verde-claro:#EAF5EF; --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678; --gradiente:linear-gradient(135deg,#3D8C6A,#4A90D9); }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+    .card{background:#fff;border-radius:16px;border:1px solid var(--borda);padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+    .icon{width:64px;height:64px;background:var(--verde-claro);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    .icon svg{width:32px;height:32px;}
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:10px;letter-spacing:-.3px;}
+    p{font-size:0.92rem;color:var(--texto-sec);line-height:1.65;margin-bottom:8px;}
+    .booking-info{background:var(--verde-claro);border-radius:10px;padding:16px;margin:20px 0;text-align:left;font-size:0.85rem;}
+    .booking-info strong{display:block;color:var(--verde);font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .info-line{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(61,140,106,0.15);}
+    .info-line:last-child{border-bottom:none;}
+    .info-line span:last-child{font-weight:600;color:var(--texto);}
+    .btn{display:inline-block;margin-top:8px;background:var(--verde);color:#fff;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:0.9rem;}
+    footer{margin-top:32px;font-size:0.78rem;color:var(--texto-sec);}
+    footer a{color:var(--verde);text-decoration:none;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Consulta Confirmada</h1>
+    <p>O pagamento foi processado com sucesso. Vai receber um e-mail de confirmacao com todos os detalhes e o link da videochamada.</p>
+
+    <div class="booking-info" id="bookingInfo" style="display:none">
+      <strong>Resumo da sua marcacao</strong>
+      <div class="info-line"><span>Data</span><span id="bDate">—</span></div>
+      <div class="info-line"><span>Hora</span><span id="bTime">—</span></div>
+      <div class="info-line"><span>Nome</span><span id="bNome">—</span></div>
+    </div>
+
+    <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="mailto:info@psiagora.com" style="color:#3D8C6A">info@psiagora.com</a>.</p>
+    <a href="/" class="btn">Voltar ao inicio</a>
+  </div>
+  <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlLXWNog7Ov0t37uxSBTBiPDmS957hYaqqPmi7s7liEdHy6SOJOB4AeW203sZXjV3k/exec';
+    const APPS_SCRIPT_TOKEN = 'psiagora2026';
+
+    async function init() {
+      try {
+        const b = JSON.parse(sessionStorage.getItem('psiagora_booking') || '{}');
+        if (!b.date || !b.time) return;
+
+        const [y,mo,d] = b.date.split('-').map(Number);
+        const dt = new Date(y, mo-1, d);
+        document.getElementById('bDate').textContent = dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+        document.getElementById('bTime').textContent = b.time;
+        document.getElementById('bNome').textContent = b.nome || '—';
+        document.getElementById('bookingInfo').style.display = 'block';
+
+        // Criar evento no Google Calendar se Apps Script estiver configurado
+        if (APPS_SCRIPT_URL) {
+          try {
+            await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' }, // Apps Script requer text/plain para evitar preflight CORS
+              body: JSON.stringify({
+                token:     APPS_SCRIPT_TOKEN,
+                nome:      b.nome      || '',
+                email:     b.email     || '',
+                telefone:  b.telefone  || '',
+                data:      b.date,
+                hora:      b.time,
+                tipo:      b.tipo      || 'primeira',
+                descricao: b.descricao || '',
+              }),
+            });
+          } catch (err) {
+            // Falha silenciosa — o agendamento já foi pago, o evento será criado manualmente
+            console.warn('Erro ao criar evento no Calendar:', err);
+          }
+        }
+
+        // Limpar dados da sessão
+        sessionStorage.removeItem('psiagora_booking');
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
