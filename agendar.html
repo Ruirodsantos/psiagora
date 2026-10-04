@@ -769,10 +769,8 @@
     };
     try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
 
-    // Escolhe o link consoante o tipo de consulta
-    const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
-    const link = tipo === 'seguinte' ? CONFIG.stripeLinkSeguinte : CONFIG.stripeLinkPrimeira;
-    window.location.href = link;
+    // MODO TESTE — redireciona directamente para sucesso.html (sem pagamento)
+    window.location.href = '/sucesso.html';
   });
 
   // ── TIPO DE CONSULTA → actualiza preco no resumo ─────────────
