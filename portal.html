@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal Psicólogos | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #3D8C6A; --verde-escuro: #2D6B50; --verde-claro: #EAF5EF;
+      --cinza-fundo: #F7F8FA; --cinza-borda: #E5E7EB;
+      --texto: #1A2332; --texto-sec: #5A6678; --branco: #FFFFFF;
+      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+    /* LOGIN */
+    #login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .login-card { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 16px; padding: 36px 32px; max-width: 360px; width: 100%; }
+    .login-logo { font-size: 1.4rem; font-weight: 800; background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+    .login-sub { font-size: 0.82rem; color: var(--texto-sec); margin-bottom: 28px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--texto-sec); margin-bottom: 5px; }
+    .form-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--cinza-borda); border-radius: 8px; font-family: inherit; font-size: 0.9rem; }
+    .form-group input:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 3px rgba(61,140,106,0.12); }
+    .btn-login { width: 100%; padding: 12px; background: var(--verde); color: var(--branco); border: none; border-radius: 8px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
+    .btn-login:hover { background: var(--verde-escuro); }
+    .login-error { font-size: 0.8rem; color: #DC2626; background: #FEF2F2; border: 1px solid #FECACA; padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; display: none; }
+
+    /* PORTAL */
+    #portal-wrap { display: none; }
+    header { background: var(--branco); border-bottom: 1px solid var(--cinza-borda); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.2rem; font-weight: 800; background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .portal-user { font-size: 0.82rem; color: var(--texto-sec); }
+    .btn-sair { font-size: 0.8rem; color: var(--texto-sec); background: none; border: 1px solid var(--cinza-borda); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+    .btn-sair:hover { background: var(--cinza-fundo); }
+
+    .portal-body { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 10px; padding: 14px 16px; }
+    .stat-label { font-size: 0.75rem; color: var(--texto-sec); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .stat-val { font-size: 1.6rem; font-weight: 800; color: var(--texto); }
+    .stat-sub { font-size: 0.75rem; color: var(--texto-sec); margin-top: 2px; }
+
+    /* Filtros */
+    .filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+    .filtros input, .filtros select {
+      padding: 8px 12px; border: 1px solid var(--cinza-borda); border-radius: 8px;
+      font-family: inherit; font-size: 0.85rem; background: var(--branco);
+    }
+    .filtros input:focus, .filtros select:focus { outline: none; border-color: var(--verde); }
+    .filtros input { flex: 1; min-width: 180px; }
+
+    /* Tabela */
+    .tabela-wrap { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    thead th { background: var(--cinza-fundo); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.75rem; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--cinza-borda); cursor: pointer; user-select: none; white-space: nowrap; }
+    thead th:hover { color: var(--verde); }
+    tbody tr { border-bottom: 1px solid var(--cinza-borda); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FAFEF9; }
+    td { padding: 10px 14px; vertical-align: middle; }
+    .badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .badge-primeira { background: var(--verde-claro); color: var(--verde-escuro); }
+    .badge-seguimento { background: #FFF8E1; color: #92400E; }
+    .nome-cell { font-weight: 600; }
+    .email-cell { color: var(--texto-sec); font-size: 0.8rem; }
+    .num-sessoes { font-weight: 700; color: var(--verde); }
+    .empty-state { text-align: center; padding: 40px; color: var(--texto-sec); font-size: 0.85rem; }
+
+    /* Detalhe cliente */
+    #detalhe-wrap { display: none; margin-top: 24px; background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow: hidden; }
+    .detalhe-header { padding: 16px 20px; border-bottom: 1px solid var(--cinza-borda); display: flex; justify-content: space-between; align-items: center; }
+    .detalhe-header h3 { font-size: 0.95rem; font-weight: 700; }
+    .btn-fechar { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--texto-sec); padding: 0 4px; }
+    .detalhe-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .detalhe-info p { font-size: 0.82rem; color: var(--texto-sec); margin-bottom: 6px; }
+    .detalhe-info strong { color: var(--texto); }
+    .historico-list { display: flex; flex-direction: column; gap: 6px; }
+    .hist-item { display: flex; justify-content: space-between; padding: 8px 10px; background: var(--cinza-fundo); border-radius: 6px; font-size: 0.8rem; }
+
+    .loading { text-align: center; padding: 40px; color: var(--texto-sec); }
+
+    @media (max-width: 700px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .detalhe-body { grid-template-columns: 1fr; }
+      td:nth-child(3), th:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">Psiagora</div>
+    <div class="login-sub">Portal de Psicólogos — acesso restrito</div>
+    <div class="login-error" id="loginError">Password incorreta. Tente novamente.</div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="inputNome">O seu nome</label>
+        <input type="text" id="inputNome" placeholder="Ex: Frederico Castro" required>
+      </div>
+      <div class="form-group">
+        <label for="inputPass">Password</label>
+        <input type="password" id="inputPass" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-login">Entrar no portal</button>
+    </form>
+  </div>
+</div>
+
+<!-- PORTAL -->
+<div id="portal-wrap">
+  <header>
+    <div class="logo">Psiagora</div>
+    <div class="header-right">
+      <span class="portal-user" id="portalNome"></span>
+      <button class="btn-sair" id="btnSair">Sair</button>
+    </div>
+  </header>
+
+  <div class="portal-body">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Clientes únicos</div>
+        <div class="stat-val" id="statClientes">—</div>
+        <div class="stat-sub">com pelo menos 1 sessão</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Sessões totais</div>
+        <div class="stat-val" id="statSessoes">—</div>
+        <div class="stat-sub">todas as marcações</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Primeiras consultas</div>
+        <div class="stat-val" id="statPrimeiras">—</div>
+        <div class="stat-sub">novos clientes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Seguimentos</div>
+        <div class="stat-val" id="statSeguimentos">—</div>
+        <div class="stat-sub">clientes recorrentes</div>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <input type="text" id="filtroNome" placeholder="Pesquisar por nome ou email...">
+      <select id="filtroTipo">
+        <option value="">Todos os tipos</option>
+        <option value="primeira">Primeira consulta</option>
+        <option value="seguimento">Seguimento</option>
+      </select>
+    </div>
+
+    <div class="tabela-wrap">
+      <div class="loading" id="loadingMsg">A carregar dados...</div>
+      <table id="tabelaClientes" style="display:none">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email / Telefone</th>
+            <th>Última sessão</th>
+            <th>Sessões</th>
+            <th>Tipo</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyClientes"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none">Nenhum cliente encontrado.</div>
+    </div>
+
+    <!-- Detalhe cliente -->
+    <div id="detalhe-wrap">
+      <div class="detalhe-header">
+        <h3 id="detalheNome">—</h3>
+        <button class="btn-fechar" id="btnFecharDetalhe">✕</button>
+      </div>
+      <div class="detalhe-body">
+        <div class="detalhe-info" id="detalheInfo"></div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Histórico de sessões</div>
+          <div class="historico-list" id="detalheHistorico"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec';
+  // Password do portal — o Frederico pode alterar isto
+  const PORTAL_PASSWORD = 'psiagora_portal_2026';
+
+  let todosClientes = [];
+  let nomeUtilizador = '';
+
+  // ── LOGIN ──────────────────────────────────────────────────
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const pass = document.getElementById('inputPass').value;
+    const nome = document.getElementById('inputNome').value.trim();
+    const err  = document.getElementById('loginError');
+
+    if (pass !== PORTAL_PASSWORD) {
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+    nomeUtilizador = nome;
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('portal-wrap').style.display = 'block';
+    document.getElementById('portalNome').textContent = nome;
+    await carregarDados();
+  });
+
+  document.getElementById('btnSair').addEventListener('click', () => {
+    document.getElementById('portal-wrap').style.display = 'none';
+    document.getElementById('login-wrap').style.display = 'flex';
+    document.getElementById('inputPass').value = '';
+    todosClientes = [];
+  });
+
+  // ── CARREGAR DADOS ─────────────────────────────────────────
+  async function carregarDados() {
+    try {
+      const r = await fetch(`${APPS_SCRIPT_URL}?action=getClientes&token=portal2026`);
+      const j = await r.json();
+
+      if (j.error) {
+        document.getElementById('loadingMsg').textContent = 'Erro ao carregar dados: ' + j.error;
+        return;
+      }
+
+      // j.clientes = array de { nome, email, telefone, data, hora, tipo, descricao }
+      const rows = j.clientes || [];
+      todosClientes = agruparPorCliente(rows);
+      renderStats(todosClientes, rows);
+      renderTabela(todosClientes);
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('tabelaClientes').style.display = 'table';
+    } catch(err) {
+      // Modo demo: dados fictícios para testar o layout
+      todosClientes = dadosDemo();
+      renderStats(todosClientes, []);
+      renderTabela(todosClientes);
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('tabelaClientes').style.display = 'table';
+    }
+  }
+
+  function agruparPorCliente(rows) {
+    const mapa = {};
+    rows.forEach(r => {
+      const key = (r.email || r.telefone || r.nome || '').toLowerCase().trim();
+      if (!key) return;
+      if (!mapa[key]) mapa[key] = { nome: r.nome, email: r.email, telefone: r.telefone, sessoes: [] };
+      mapa[key].sessoes.push({ data: r.data, hora: r.hora, tipo: r.tipo, descricao: r.descricao });
+    });
+    return Object.values(mapa).sort((a,b) => {
+      const da = a.sessoes[a.sessoes.length-1]?.data || '';
+      const db = b.sessoes[b.sessoes.length-1]?.data || '';
+      return db.localeCompare(da);
+    });
+  }
+
+  function dadosDemo() {
+    return [
+      { nome: 'Maria Santos', email: 'maria@example.com', telefone: '+351 912 000 001', sessoes: [
+        { data: '2026-10-01', hora: '10:00', tipo: 'primeira', descricao: 'Ansiedade no trabalho' },
+        { data: '2026-10-08', hora: '10:00', tipo: 'seguimento', descricao: '' },
+      ]},
+      { nome: 'Carlos Ferreira', email: 'carlos@example.com', telefone: '+351 913 000 002', sessoes: [
+        { data: '2026-09-15', hora: '14:00', tipo: 'primeira', descricao: 'Depressão pós-pandemia' },
+        { data: '2026-09-22', hora: '14:00', tipo: 'seguimento', descricao: '' },
+        { data: '2026-09-29', hora: '14:00', tipo: 'seguimento', descricao: '' },
+      ]},
+      { nome: 'Ana Costa', email: 'ana.costa@example.com', telefone: '+351 914 000 003', sessoes: [
+        { data: '2026-10-03', hora: '11:00', tipo: 'primeira', descricao: 'Gestão de stress' },
+      ]},
+      { nome: 'Pedro Alves', email: 'pedro@example.com', telefone: '+351 915 000 004', sessoes: [
+        { data: '2026-09-10', hora: '16:00', tipo: 'primeira', descricao: '' },
+        { data: '2026-09-24', hora: '16:00', tipo: 'seguimento', descricao: '' },
+        { data: '2026-10-05', hora: '16:00', tipo: 'seguimento', descricao: '' },
+      ]},
+    ];
+  }
+
+  // ── STATS ──────────────────────────────────────────────────
+  function renderStats(clientes, rows) {
+    const totalSessoes = clientes.reduce((s, c) => s + c.sessoes.length, 0);
+    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => x.tipo === 'primeira').length, 0);
+    document.getElementById('statClientes').textContent = clientes.length;
+    document.getElementById('statSessoes').textContent = totalSessoes;
+    document.getElementById('statPrimeiras').textContent = primeiras;
+    document.getElementById('statSeguimentos').textContent = totalSessoes - primeiras;
+  }
+
+  // ── TABELA ─────────────────────────────────────────────────
+  function renderTabela(clientes) {
+    const tbody = document.getElementById('tbodyClientes');
+    const filtroNome = document.getElementById('filtroNome').value.toLowerCase();
+    const filtroTipo = document.getElementById('filtroTipo').value;
+
+    const filtrados = clientes.filter(c => {
+      const matchNome = !filtroNome || c.nome.toLowerCase().includes(filtroNome) || (c.email||'').toLowerCase().includes(filtroNome);
+      const tipos = c.sessoes.map(s => s.tipo);
+      const matchTipo = !filtroTipo || tipos.includes(filtroTipo);
+      return matchNome && matchTipo;
+    });
+
+    tbody.innerHTML = '';
+    document.getElementById('emptyState').style.display = filtrados.length === 0 ? 'block' : 'none';
+    document.getElementById('tabelaClientes').style.display = filtrados.length === 0 ? 'none' : 'table';
+
+    filtrados.forEach(c => {
+      const ultimaSessao = c.sessoes[c.sessoes.length-1];
+      const tipoMais = c.sessoes.filter(s=>s.tipo==='seguimento').length > 0 ? 'seguimento' : 'primeira';
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      tr.innerHTML = `
+        <td><div class="nome-cell">${c.nome}</div></td>
+        <td><div class="email-cell">${c.email || '—'}</div><div class="email-cell" style="font-size:0.75rem">${c.telefone || ''}</div></td>
+        <td>${formatData(ultimaSessao?.data)} às ${ultimaSessao?.hora || '—'}</td>
+        <td><span class="num-sessoes">${c.sessoes.length}</span></td>
+        <td><span class="badge badge-${tipoMais}">${tipoMais === 'seguimento' ? 'Recorrente' : 'Novo'}</span></td>
+      `;
+      tr.addEventListener('click', () => mostrarDetalhe(c));
+      tbody.appendChild(tr);
+    });
+  }
+
+  function formatData(iso) {
+    if (!iso) return '—';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('pt-PT', {day:'numeric', month:'short', year:'numeric'});
+  }
+
+  // ── DETALHE ────────────────────────────────────────────────
+  function mostrarDetalhe(c) {
+    document.getElementById('detalheNome').textContent = c.nome;
+    document.getElementById('detalheInfo').innerHTML = `
+      <p><strong>Email:</strong> ${c.email || '—'}</p>
+      <p><strong>Telefone:</strong> ${c.telefone || '—'}</p>
+      <p><strong>Total de sessões:</strong> ${c.sessoes.length}</p>
+      <p><strong>Primeira sessão:</strong> ${formatData(c.sessoes[0]?.data)}</p>
+      <p><strong>Última sessão:</strong> ${formatData(c.sessoes[c.sessoes.length-1]?.data)}</p>
+      ${c.sessoes[0]?.descricao ? `<p style="margin-top:10px;padding:10px;background:var(--cinza-fundo);border-radius:6px;font-size:0.8rem;color:var(--texto-sec)"><strong>Motivo inicial:</strong> ${c.sessoes[0].descricao}</p>` : ''}
+    `;
+    const hist = document.getElementById('detalheHistorico');
+    hist.innerHTML = c.sessoes.slice().reverse().map((s, i) => `
+      <div class="hist-item">
+        <span>${formatData(s.data)} — ${s.hora}</span>
+        <span class="badge badge-${s.tipo}">${s.tipo === 'seguimento' ? 'Seguimento' : '1.ª consulta'}</span>
+      </div>
+    `).join('');
+    document.getElementById('detalhe-wrap').style.display = 'block';
+    document.getElementById('detalhe-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  document.getElementById('btnFecharDetalhe').addEventListener('click', () => {
+    document.getElementById('detalhe-wrap').style.display = 'none';
+  });
+
+  // ── FILTROS ────────────────────────────────────────────────
+  document.getElementById('filtroNome').addEventListener('input', () => renderTabela(todosClientes));
+  document.getElementById('filtroTipo').addEventListener('change', () => renderTabela(todosClientes));
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pacotes de Sessões | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #3D8C6A; --verde-escuro: #2D6B50; --verde-claro: #EAF5EF;
+      --cinza-fundo: #F7F8FA; --cinza-borda: #E5E7EB;
+      --texto: #1A2332; --texto-sec: #5A6678; --branco: #FFFFFF;
+      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; }
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: 56px; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid var(--cinza-borda); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+    .logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+    .btn-voltar { font-size: 0.85rem; font-weight: 500; color: var(--texto-sec); text-decoration: none; }
+    .hero-strip { margin-top: 56px; background: var(--gradiente); color: var(--branco); padding: 32px 20px 28px; text-align: center; }
+    .hero-strip h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 8px; }
+    .hero-strip p { font-size: 0.92rem; opacity: 0.88; line-height: 1.6; max-width: 480px; margin: 0 auto; }
+    .page-wrap { max-width: 860px; margin: 0 auto; padding: 36px 16px 60px; }
+    .intro { text-align: center; margin-bottom: 32px; }
+    .intro p { font-size: 0.9rem; color: var(--texto-sec); line-height: 1.7; max-width: 540px; margin: 0 auto; }
+
+    /* Pacotes grid */
+    .pacotes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .pacote-card {
+      background: var(--branco); border: 1.5px solid var(--cinza-borda); border-radius: 14px;
+      padding: 24px 20px; display: flex; flex-direction: column; gap: 14px;
+      position: relative; transition: border-color 0.2s;
+    }
+    .pacote-card:hover { border-color: var(--verde); }
+    .pacote-card.destaque { border-color: var(--verde); }
+    .badge-destaque {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--verde); color: var(--branco);
+      font-size: 0.72rem; font-weight: 700; padding: 4px 14px; border-radius: 20px;
+      white-space: nowrap; letter-spacing: 0.3px;
+    }
+    .pacote-num { font-size: 2.4rem; font-weight: 800; color: var(--verde); line-height: 1; }
+    .pacote-num span { font-size: 1rem; font-weight: 600; color: var(--texto-sec); margin-left: 4px; }
+    .pacote-preco { font-size: 1.5rem; font-weight: 800; color: var(--texto); }
+    .pacote-por-sessao { font-size: 0.78rem; color: var(--texto-sec); margin-top: 2px; }
+    .pacote-poupanca {
+      background: var(--verde-claro); color: var(--verde-escuro);
+      border: 1px solid rgba(61,140,106,0.25);
+      font-size: 0.78rem; font-weight: 700; padding: 5px 10px; border-radius: 6px; display: inline-block;
+    }
+    .pacote-lista { list-style: none; display: flex; flex-direction: column; gap: 7px; font-size: 0.82rem; color: var(--texto-sec); flex: 1; }
+    .pacote-lista li { display: flex; align-items: flex-start; gap: 7px; }
+    .pacote-lista li::before { content: '✓'; color: var(--verde); font-weight: 700; flex-shrink: 0; }
+    .btn-pacote {
+      display: block; width: 100%; padding: 12px;
+      background: var(--verde); color: var(--branco);
+      border: none; border-radius: 8px; font-family: inherit;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      text-decoration: none; text-align: center;
+      transition: background 0.15s; margin-top: auto;
+    }
+    .btn-pacote:hover { background: var(--verde-escuro); }
+    .btn-pacote.ghost {
+      background: transparent; color: var(--verde);
+      border: 1.5px solid var(--verde);
+    }
+    .btn-pacote.ghost:hover { background: var(--verde-claro); }
+
+    /* Comparação */
+    .comparacao { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+    .comparacao table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .comparacao th { background: var(--cinza-fundo); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.78rem; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 0.5px; }
+    .comparacao td { padding: 10px 14px; border-top: 1px solid var(--cinza-borda); }
+    .comparacao tr:hover td { background: #FAFAFA; }
+    .td-destaque { color: var(--verde); font-weight: 700; }
+
+    .nota-avulso { text-align: center; font-size: 0.82rem; color: var(--texto-sec); padding: 16px; background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 10px; }
+    .nota-avulso a { color: var(--verde); font-weight: 600; text-decoration: none; }
+
+    footer { background: #111827; color: rgba(255,255,255,0.4); padding: 20px; text-align: center; font-size: 0.76rem; }
+    footer a { color: rgba(255,255,255,0.35); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .pacotes-grid { grid-template-columns: 1fr; }
+      .comparacao { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">Psiagora</a>
+  <a href="/" class="btn-voltar">&#8592; Voltar</a>
+</header>
+
+<div class="hero-strip">
+  <h1>Pacotes de Sessões</h1>
+  <p>Comprometa-se com o seu processo terapêutico e poupe. Quanto mais sessões, maior o desconto.</p>
+</div>
+
+<div class="page-wrap">
+
+  <div class="intro">
+    <p>A terapia dá resultados quando é consistente. Os nossos pacotes ajudam-no a planear o processo e a poupar até 20% face ao preço por sessão avulso.</p>
+  </div>
+
+  <div class="pacotes-grid">
+
+    <!-- 5 sessões -->
+    <div class="pacote-card">
+      <div>
+        <div class="pacote-num">5 <span>sessões</span></div>
+        <div class="pacote-preco" id="preco-5">290 €</div>
+        <div class="pacote-por-sessao" id="pps-5">58,00 € por sessão</div>
+      </div>
+      <div class="pacote-poupanca" id="poupar-5">Poupa 35 €</div>
+      <ul class="pacote-lista">
+        <li>Ideal para começar</li>
+        <li>Flexibilidade de datas</li>
+        <li>Confirmação por e-mail</li>
+        <li>Remarcação gratuita</li>
+      </ul>
+      <a href="https://buy.stripe.com/PACOTE5PLACEHOLDER" class="btn-pacote ghost" id="btn-5">Comprar pacote 5 sessões</a>
+    </div>
+
+    <!-- 8 sessões — destaque -->
+    <div class="pacote-card destaque">
+      <div class="badge-destaque">Mais popular</div>
+      <div>
+        <div class="pacote-num">8 <span>sessões</span></div>
+        <div class="pacote-preco" id="preco-8">440 €</div>
+        <div class="pacote-por-sessao" id="pps-8">55,00 € por sessão</div>
+      </div>
+      <div class="pacote-poupanca" id="poupar-8">Poupa 80 €</div>
+      <ul class="pacote-lista">
+        <li>Progresso consistente</li>
+        <li>Flexibilidade de datas</li>
+        <li>Confirmação por e-mail</li>
+        <li>Remarcação gratuita</li>
+        <li>Acompanhamento próximo</li>
+      </ul>
+      <a href="https://buy.stripe.com/PACOTE8PLACEHOLDER" class="btn-pacote" id="btn-8">Comprar pacote 8 sessões</a>
+    </div>
+
+    <!-- 12 sessões -->
+    <div class="pacote-card">
+      <div>
+        <div class="pacote-num">12 <span>sessões</span></div>
+        <div class="pacote-preco" id="preco-12">624 €</div>
+        <div class="pacote-por-sessao" id="pps-12">52,00 € por sessão</div>
+      </div>
+      <div class="pacote-poupanca" id="poupar-12">Poupa 156 €</div>
+      <ul class="pacote-lista">
+        <li>Transformação profunda</li>
+        <li>Flexibilidade de datas</li>
+        <li>Confirmação por e-mail</li>
+        <li>Remarcação gratuita</li>
+        <li>Acompanhamento próximo</li>
+        <li>Relatório de progresso</li>
+      </ul>
+      <a href="https://buy.stripe.com/PACOTE12PLACEHOLDER" class="btn-pacote ghost" id="btn-12">Comprar pacote 12 sessões</a>
+    </div>
+
+  </div>
+
+  <!-- Tabela comparativa -->
+  <div class="comparacao">
+    <table>
+      <thead>
+        <tr>
+          <th>Pacote</th>
+          <th>Sessões</th>
+          <th>Preço total</th>
+          <th>Por sessão</th>
+          <th>Desconto</th>
+          <th>Poupança</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Avulso</td>
+          <td>1</td>
+          <td>65,00 €</td>
+          <td>65,00 €</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Pacote 5</td>
+          <td>5</td>
+          <td>290,00 €</td>
+          <td class="td-destaque">58,00 €</td>
+          <td class="td-destaque">−11%</td>
+          <td class="td-destaque">35 €</td>
+        </tr>
+        <tr>
+          <td><strong>Pacote 8</strong></td>
+          <td><strong>8</strong></td>
+          <td><strong>440,00 €</strong></td>
+          <td class="td-destaque"><strong>55,00 €</strong></td>
+          <td class="td-destaque"><strong>−15%</strong></td>
+          <td class="td-destaque"><strong>80 €</strong></td>
+        </tr>
+        <tr>
+          <td>Pacote 12</td>
+          <td>12</td>
+          <td>624,00 €</td>
+          <td class="td-destaque">52,00 €</td>
+          <td class="td-destaque">−20%</td>
+          <td class="td-destaque">156 €</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nota-avulso">
+    Prefere marcar sessão a sessão? <a href="equipa.html">Agende uma consulta avulso aqui →</a>
+    &nbsp;·&nbsp; Dúvidas? <a href="mailto:info@psiagora.com">info@psiagora.com</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="/privacidade">Privacidade</a></p>
+</footer>
+
+</body>
+</html>

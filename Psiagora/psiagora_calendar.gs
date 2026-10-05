@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════╗
- * ║           PSIAGORA — Google Apps Script v2.1                ║
+ * ║           PSIAGORA — Google Apps Script v2.2                ║
  * ║                Desenvolvido por Adventis                    ║
  * ╚══════════════════════════════════════════════════════════════╝
  *
@@ -60,6 +60,65 @@ function doGet(e) {
       const raw = props.getProperty('booking_' + token);
       if (!raw) return jsonResponse({ error: 'Marcação não encontrada.' });
       return jsonResponse({ success: true, booking: JSON.parse(raw) });
+    }
+
+    // Verificar se cliente já tem marcações anteriores (para definir tipo automaticamente)
+    // ── Portal: listar todos os clientes ──────────────────────
+    if (e.parameter.action === 'getClientes') {
+      const portalToken = (e.parameter.token || '');
+      const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+      if (portalToken !== portalPass) return jsonResponse({ error: 'unauthorized' });
+      try {
+        const props   = PropertiesService.getScriptProperties();
+        const sheetId = props.getProperty('SHEET_ID');
+        if (!sheetId) return jsonResponse({ clientes: [] });
+        const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
+        if (!sheet) return jsonResponse({ clientes: [] });
+        const rows = sheet.getDataRange().getValues();
+        const clientes = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          clientes.push({
+            timestamp: r[0] ? r[0].toString() : '',
+            nome:      (r[1] || '').toString(),
+            email:     (r[2] || '').toString(),
+            telefone:  (r[3] || '').toString(),
+            data:      (r[4] || '').toString(),
+            hora:      (r[5] || '').toString(),
+            tipo:      (r[6] || '').toString(),
+            descricao: (r[7] || '').toString(),
+          });
+        }
+        return jsonResponse({ clientes });
+      } catch(err) {
+        return jsonResponse({ error: err.message });
+      }
+    }
+
+    if (e.parameter.action === 'verificarCliente') {
+      const email    = (e.parameter.email    || '').toLowerCase().trim();
+      const telefone = (e.parameter.telefone || '').replace(/\D/g, '');
+      if (!email && !telefone) return jsonResponse({ tipo: 'primeira' });
+      try {
+        const props   = PropertiesService.getScriptProperties();
+        const sheetId = props.getProperty('SHEET_ID');
+        if (!sheetId) return jsonResponse({ tipo: 'primeira' });
+        const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
+        if (!sheet) return jsonResponse({ tipo: 'primeira' });
+        const rows = sheet.getDataRange().getValues();
+        // Colunas: [0]=DataRegisto [1]=Nome [2]=Email [3]=Telefone ...
+        for (let i = 1; i < rows.length; i++) {
+          const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
+          const rowTel   = (rows[i][3] || '').toString().replace(/\D/g, '');
+          if ((email    && rowEmail === email)    ||
+              (telefone && telefone.length >= 9 && rowTel === telefone)) {
+            return jsonResponse({ tipo: 'seguimento' });
+          }
+        }
+        return jsonResponse({ tipo: 'primeira' });
+      } catch(err) {
+        return jsonResponse({ tipo: 'primeira' });
+      }
     }
 
     // Disponibilidade de um dia (uso existente)
@@ -311,7 +370,7 @@ function enviarEmailCliente({ nome, email, dataStr, hora, tipo, meetLink, bookin
 
   const preco     = tipo === 'seguinte' ? '50,00 €' : '65,00 €';
   const tipoTexto = tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
-  const geriURL = bookingToken ? `${SITE_URL}/gerir.html?token=${bookingToken}` : '';
+  const geriURL = bookingToken ? `${SITE_URL}/Psiagora/gerir.html?token=${bookingToken}` : '';
 
   const meetSection = meetLink
     ? `<tr><td style="padding:10px 16px;color:#5A6678;font-size:13px;">Link da videochamada</td><td style="padding:10px 16px;font-weight:600;font-size:13px;"><a href="${meetLink}" style="color:#3D8C6A;">Entrar no Google Meet</a></td></tr>`
@@ -380,7 +439,9 @@ function enviarEmailCliente({ nome, email, dataStr, hora, tipo, meetLink, bookin
 </body>
 </html>`;
 
-  GmailApp.sendEmail(email, `Consulta confirmada — ${dataFormatada} às ${hora}`, '', {
+  MailApp.sendEmail({
+    to: email,
+    subject: `Consulta confirmada — ${dataFormatada} às ${hora}`,
     htmlBody: html,
     name: `Psiagora — ${NOME_PSICOLOGA}`,
     replyTo: EMAIL_FREDERICO,
@@ -437,7 +498,6 @@ function enviarEmailFrederico({ nome, email, telefone, dataStr, hora, tipo, desc
 </body>
 </html>`;
 
-  // Usar MailApp em vez de GmailApp para garantir entrega mesmo quando remetente = destinatário
   MailApp.sendEmail({
     to: EMAIL_FREDERICO,
     subject: `🗓️ Nova consulta: ${nome} — ${dataFormatada} às ${hora}`,
@@ -456,7 +516,7 @@ function enviarEmailRemarcacao({ nome, email, dataStr, hora, tipo, meetLink, boo
   const dt = new Date(year, month - 1, day);
   const dataFormatada = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const tipoTexto = tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
-  const geriURL = `${SITE_URL}/gerir.html?token=${bookingToken}`;
+  const geriURL = `${SITE_URL}/Psiagora/gerir.html?token=${bookingToken}`;
 
   const html = `
 <!DOCTYPE html>
@@ -500,7 +560,9 @@ function enviarEmailRemarcacao({ nome, email, dataStr, hora, tipo, meetLink, boo
 </body>
 </html>`;
 
-  GmailApp.sendEmail(email, `Consulta remarcada — ${dataFormatada} às ${hora}`, '', {
+  MailApp.sendEmail({
+    to: email,
+    subject: `Consulta remarcada — ${dataFormatada} às ${hora}`,
     htmlBody: html,
     name: `Psiagora — ${NOME_PSICOLOGA}`,
     replyTo: EMAIL_FREDERICO,
@@ -622,7 +684,9 @@ function enviarLembrete() {
 </body>
 </html>`;
 
-    GmailApp.sendEmail(b.email, `Lembrete: consulta amanhã às ${b.hora}`, '', {
+    MailApp.sendEmail({
+      to: b.email,
+      subject: `Lembrete: consulta amanhã às ${b.hora}`,
       htmlBody: html,
       name: `Psiagora — ${NOME_PSICOLOGA}`,
       replyTo: EMAIL_FREDERICO,
@@ -682,4 +746,19 @@ function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  TESTE — corre directamente no editor para verificar envio de email
+// ══════════════════════════════════════════════════════════════════════════════
+
+function testEmail() {
+  MailApp.sendEmail({
+    to: 'rui@adventishub.com',
+    subject: 'Teste MailApp Psiagora v2.2',
+    htmlBody: '<p>Se recebeste este email, o <strong>MailApp funciona</strong> e os emails de confirmação vão chegar aos clientes!</p>',
+    name: 'Psiagora'
+  });
+  Logger.log('Email enviado via MailApp para rui@adventishub.com');
 }
