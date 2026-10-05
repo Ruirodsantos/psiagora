@@ -409,7 +409,7 @@
     <div class="booking-header">
       <div class="status-dot"></div>
       <div class="booking-header-text">
-        <h2>Escolha a Data e Hora</h2>
+        <h2>Agendar com <span id="psi-nome-header"></span></h2>
         <p>Horarios atualizados regularmente</p>
       </div>
     </div>
@@ -549,34 +549,60 @@
 (() => {
   'use strict';
 
+  // ── PSICOLOGOS ───────────────────────────────────────────────
+  // Para adicionar um novo psicólogo: copiar um bloco abaixo e
+  // substituir o appsScriptUrl pelo URL do script desse psicólogo.
+  const PSICOLOGOS = {
+    frederico: {
+      nome: 'Frederico Castro',
+      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
+      appsScriptToken: 'psiagora2026',
+      precoPrimeira: 65, precoSeguinte: 50,
+      diasDisponiveis: [1, 2, 3, 4, 5],
+      horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'],
+    },
+    susana: {
+      nome: 'Susana Ferreira',
+      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
+      appsScriptToken: 'psiagora2026',
+      precoPrimeira: 65, precoSeguinte: 50,
+      diasDisponiveis: [1, 2, 4, 5],
+      horasPadrao: ['10:00','11:00','12:00','15:00','16:00','17:00'],
+    },
+    ana: {
+      nome: 'Ana Melo',
+      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
+      appsScriptToken: 'psiagora2026',
+      precoPrimeira: 65, precoSeguinte: 50,
+      diasDisponiveis: [2, 3, 4, 5],
+      horasPadrao: ['09:00','10:00','11:00','15:00','16:00','17:00'],
+    },
+    joao: {
+      nome: 'João Oliveira',
+      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
+      appsScriptToken: 'psiagora2026',
+      precoPrimeira: 65, precoSeguinte: 50,
+      diasDisponiveis: [1, 3, 4, 5],
+      horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00'],
+    },
+  };
+
+  // Lê o psicólogo da URL (?psicologo=frederico)
+  const _slug = new URLSearchParams(window.location.search).get('psicologo') || 'frederico';
+  const _psi  = PSICOLOGOS[_slug] || PSICOLOGOS.frederico;
+
   // ── CONFIGURACAO ─────────────────────────────────────────────
-  // Edita esta secao para ajustar horarios e o link de pagamento Stripe.
   const CONFIG = {
-
-    // Link de pagamento gerado no Stripe Dashboard → Payment Links
-    stripeLinkPrimeira: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',  // 65€ - primeira consulta
-    stripeLinkSeguinte: 'https://buy.stripe.com/6oUfZj9gj2dRcBDeFH9Zm02',  // 50€ - consultas seguintes
-    precoPrimeira: 65,
-    precoSeguinte: 50,
-
-    // URL do Google Apps Script
-    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
-
-    // Token secreto — tem de ser igual ao SECRET_TOKEN no Apps Script
-    appsScriptToken: 'psiagora2026',
-
-    // Dias da semana disponiveis (0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab)
-    diasDisponiveis: [1, 2, 3, 4, 5],
-
-    // Horas disponiveis por defeito — usadas como fallback se o Apps Script nao estiver configurado
-    horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'],
-
-    // Dias completamente bloqueados, ex: ferias ou feriados
-    // Formato: 'YYYY-MM-DD'
-    diasBloqueados: [],
-
-    // Quantos dias a frente mostrar no calendario
-    janelaDias: 60,
+    stripeLinkPrimeira: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',
+    stripeLinkSeguinte: 'https://buy.stripe.com/6oUfZj9gj2dRcBDeFH9Zm02',
+    precoPrimeira:    _psi.precoPrimeira,
+    precoSeguinte:    _psi.precoSeguinte,
+    appsScriptUrl:    _psi.appsScriptUrl,
+    appsScriptToken:  _psi.appsScriptToken,
+    diasDisponiveis:  _psi.diasDisponiveis,
+    horasPadrao:      _psi.horasPadrao,
+    diasBloqueados:   [],
+    janelaDias:       60,
   };
   // ─────────────────────────────────────────────────────────────
 
@@ -871,6 +897,11 @@
   })();
 
   // ── INIT ─────────────────────────────────────────────────────
+  // Preenche nome do psicólogo e ajusta link voltar
+  document.getElementById('psi-nome-header').textContent = _psi.nome;
+  const btnVoltar = document.querySelector('.btn-voltar');
+  if (btnVoltar) { btnVoltar.href = 'equipa.html'; btnVoltar.textContent = '← Escolher outro psicólogo'; }
+
   renderCalendar();
 })();
 </script>
