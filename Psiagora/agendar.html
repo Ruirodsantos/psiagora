@@ -489,7 +489,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn btn-ghost" data-goto="2">&larr; Trocar hora</button>
-          <button type="submit" class="btn btn-primary" id="btnPay">Avancar para pagamento</button>
+          <button type="submit" class="btn btn-primary" id="btnPay">Confirmar marcação</button>
         </div>
       </form>
     </div>
@@ -750,7 +750,7 @@
     renderCalendar();
   });
 
-  // ── SUBMIT → STRIPE PAYMENT LINK ─────────────────────────────
+  // ── SUBMIT → sucesso.html (Stripe temporariamente desactivado para testes) ──
   document.getElementById('bookForm').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const btn = document.getElementById('btnPay');
@@ -769,10 +769,8 @@
     };
     try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
 
-    // Escolhe o link consoante o tipo de consulta
-    const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
-    const link = tipo === 'seguinte' ? CONFIG.stripeLinkSeguinte : CONFIG.stripeLinkPrimeira;
-    window.location.href = link;
+    // Vai directamente para sucesso.html (sem pagamento Stripe)
+    window.location.href = 'sucesso.html';
   });
 
   // ── TIPO DE CONSULTA → actualiza preco no resumo ─────────────
