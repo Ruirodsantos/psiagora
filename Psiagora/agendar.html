@@ -464,20 +464,15 @@
           <label for="f-tel">Telefone</label>
           <input type="tel" id="f-tel" name="telefone" maxlength="30" placeholder="+351 ...">
         </div>
-        <div class="form-group">
-          <label>Tipo de consulta *</label>
-          <div class="tipo-consulta-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
-            <label class="tipo-card" id="label-primeira" style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:12px 32px 12px 14px;border:1.5px solid var(--cinza-borda);border-radius:8px;position:relative;">
-              <input type="radio" name="tipo" value="primeira" id="tipo-primeira" required style="accent-color:var(--verde);position:absolute;top:50%;right:12px;transform:translateY(-50%);">
-              <strong style="font-size:0.88rem;">Primeira consulta</strong>
-              <span style="color:var(--verde);font-weight:700;font-size:0.95rem;">65,00 €</span>
-            </label>
-            <label class="tipo-card" id="label-seguinte" style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:12px 32px 12px 14px;border:1.5px solid var(--cinza-borda);border-radius:8px;position:relative;">
-              <input type="radio" name="tipo" value="seguinte" id="tipo-seguinte" style="accent-color:var(--verde);position:absolute;top:50%;right:12px;transform:translateY(-50%);">
-              <strong style="font-size:0.88rem;">Consulta de seguimento</strong>
-              <span style="color:var(--texto-sec);font-weight:700;font-size:0.95rem;">50,00 €</span>
-            </label>
+        <!-- Tipo detectado automaticamente com base no histórico -->
+        <input type="hidden" id="tipo-hidden" name="tipo" value="primeira">
+        <div class="form-group" id="tipo-badge-wrap" style="display:none;">
+          <label>Tipo de consulta</label>
+          <div id="tipo-badge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--verde-claro);border:1.5px solid var(--verde);font-size:0.9rem;margin-top:6px;">
+            <span id="tipo-badge-texto" style="font-weight:600;color:var(--verde);">Primeira consulta</span>
+            <span id="tipo-badge-preco" style="color:var(--verde);font-weight:700;margin-left:auto;">65,00 €</span>
           </div>
+          <p id="tipo-badge-info" style="font-size:0.78rem;color:var(--texto-sec);margin-top:5px;"></p>
         </div>
         <div class="form-group">
           <label for="f-msg">Breve descricao (opcional)</label>
@@ -764,7 +759,7 @@
       nome:      document.getElementById('f-nome').value.trim(),
       email:     document.getElementById('f-email').value.trim(),
       telefone:  document.getElementById('f-tel')?.value.trim() || '',
-      tipo:      document.querySelector('input[name="tipo"]:checked')?.value || 'primeira',
+      tipo:      document.getElementById('tipo-hidden').value || 'primeira',
       descricao: document.getElementById('f-msg')?.value.trim() || '',
     };
     try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
@@ -773,17 +768,91 @@
     window.location.href = 'sucesso.html';
   });
 
-  // ── TIPO DE CONSULTA → actualiza preco no resumo ─────────────
-  document.querySelectorAll('input[name="tipo"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      const preco = radio.value === 'seguinte' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira;
-      const el = document.getElementById('summary-valor');
-      if (el) el.textContent = preco.toFixed(2).replace('.',',') + ' €';
-      // destaca o label seleccionado
-      document.getElementById('label-primeira').style.borderColor = radio.value === 'primeira' ? 'var(--verde)' : 'var(--cinza-borda)';
-      document.getElementById('label-seguinte').style.borderColor = radio.value === 'seguinte' ? 'var(--verde)' : 'var(--cinza-borda)';
-    });
+  // ── DETECÇÃO AUTOMÁTICA DO TIPO DE CONSULTA ──────────────────
+  let tipoDetectado = 'primeira';
+  let verificacaoEmCurso = null;
+
+  function setTipo(tipo, fonte) {
+    tipoDetectado = tipo;
+    document.getElementById('tipo-hidden').value = tipo;
+    const wrap  = document.getElementById('tipo-badge-wrap');
+    const texto = document.getElementById('tipo-badge-texto');
+    const preco = document.getElementById('tipo-badge-preco');
+    const info  = document.getElementById('tipo-badge-info');
+    wrap.style.display = '';
+    if (tipo === 'seguimento') {
+      texto.textContent = 'Consulta de seguimento';
+      preco.textContent = CONFIG.precoSeguinte.toFixed(2).replace('.',',') + ' €';
+      info.textContent  = 'Cliente recorrente detectado — preço de seguimento aplicado automaticamente.';
+      document.getElementById('tipo-badge').style.background = '#FFF8E1';
+      document.getElementById('tipo-badge').style.borderColor = '#F59E0B';
+      texto.style.color = '#92400E';
+      preco.style.color = '#92400E';
+    } else {
+      texto.textContent = 'Primeira consulta';
+      preco.textContent = CONFIG.precoPrimeira.toFixed(2).replace('.',',') + ' €';
+      info.textContent  = fonte === 'detectado' ? 'Não encontramos registo anterior — preço de primeira consulta.' : '';
+      document.getElementById('tipo-badge').style.background = 'var(--verde-claro)';
+      document.getElementById('tipo-badge').style.borderColor = 'var(--verde)';
+      texto.style.color = 'var(--verde)';
+      preco.style.color = 'var(--verde)';
+    }
+    const el = document.getElementById('summary-valor');
+    if (el) el.textContent = (tipo === 'seguimento' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira).toFixed(2).replace('.',',') + ' €';
+  }
+
+  async function verificarCliente(email, telefone) {
+    const params = new URLSearchParams({ action: 'verificarCliente' });
+    if (email)    params.set('email', email);
+    if (telefone) params.set('telefone', telefone);
+    try {
+      const r = await fetch(`${CONFIG.appsScriptUrl}?${params}`);
+      const j = await r.json();
+      return j.tipo || 'primeira';
+    } catch(e) {
+      return 'primeira';
+    }
+  }
+
+  // Dispara quando o utilizador sai do campo email
+  document.getElementById('f-email').addEventListener('blur', async () => {
+    const email = document.getElementById('f-email').value.trim();
+    if (!email || !email.includes('@')) return;
+    verificacaoEmCurso = verificarCliente(email, '');
+    const tipo = await verificacaoEmCurso;
+    setTipo(tipo, 'detectado');
   });
+
+  // Dispara quando o utilizador sai do campo telefone
+  // (re-verifica se o email deu "primeira" — pode ter telefone diferente)
+  document.getElementById('f-tel').addEventListener('blur', async () => {
+    const tel   = document.getElementById('f-tel').value.replace(/\s/g,'').trim();
+    const email = document.getElementById('f-email').value.trim();
+    if (!tel || tel.replace(/\D/g,'').length < 9) return;
+    if (tipoDetectado === 'seguimento') return; // já confirmado
+    verificacaoEmCurso = verificarCliente(email, tel);
+    const tipo = await verificacaoEmCurso;
+    setTipo(tipo, 'detectado');
+  });
+
+  // ── PREFETCH — aquece o Apps Script na carga da página ───────
+  // Sem esperar pelo resultado: só serve para eliminar o cold start
+  // quando o utilizador clicar numa data (~1-2s ganhos)
+  (async () => {
+    try {
+      const amanha = new Date();
+      amanha.setDate(amanha.getDate() + 1);
+      // Avança para o próximo dia útil
+      while (!CONFIG.diasDisponiveis.includes(amanha.getDay())) {
+        amanha.setDate(amanha.getDate() + 1);
+      }
+      const iso = toISO(amanha);
+      // Faz o pedido em background — resultado vai para a cache
+      const r = await fetch(`${CONFIG.appsScriptUrl}?date=${iso}`);
+      const j = await r.json();
+      if (Array.isArray(j.available)) slotsCache[iso] = j.available;
+    } catch(e) { /* silencioso */ }
+  })();
 
   // ── INIT ─────────────────────────────────────────────────────
   renderCalendar();
