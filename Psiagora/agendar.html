@@ -688,28 +688,17 @@
     await renderSlots(iso);
   }
 
-  async function renderSlots(iso) {
-    const grid = document.getElementById('slotsGrid');
-    const title = document.getElementById('slotsTitle');
-    const [y,mo,d] = iso.split('-').map(Number);
-    const dt = new Date(y, mo-1, d);
-    title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
-
-    // Mostrar loading enquanto busca disponibilidade
-    grid.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:16px 12px;color:var(--roxo);font-size:0.9rem;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      Aguarde, a verificar disponibilidade...
-    </div>`;
-
-    const slots = await getSlotsForDay(iso);
+  function renderSlotButtons(grid, slots, iso) {
     if (!slots.length) {
       grid.innerHTML = '<div class="empty-msg">Sem horas disponiveis neste dia.</div>';
       return;
     }
+    const prevSelected = state.selectedTime;
     grid.innerHTML = '';
     slots.forEach(t => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'slot'; b.textContent = t;
+      if (t === prevSelected) b.classList.add('selected');
       b.addEventListener('click', () => {
         state.selectedTime = t;
         [...grid.children].forEach(c => c.classList.remove('selected'));
@@ -718,6 +707,33 @@
       });
       grid.appendChild(b);
     });
+  }
+
+  async function renderSlots(iso) {
+    const grid = document.getElementById('slotsGrid');
+    const title = document.getElementById('slotsTitle');
+    const [y,mo,d] = iso.split('-').map(Number);
+    const dt = new Date(y, mo-1, d);
+    title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
+
+    // 1. Mostra horas padrão imediatamente (sem esperar o servidor)
+    if (!slotsCache[iso]) {
+      renderSlotButtons(grid, CONFIG.horasPadrao, iso);
+      // Indicador subtil de que está a actualizar
+      const hint = document.createElement('p');
+      hint.id = 'slots-hint';
+      hint.style.cssText = 'font-size:0.75rem;color:var(--texto-sec);margin:6px 0 0;text-align:center;';
+      hint.textContent = 'A verificar disponibilidade real…';
+      grid.after(hint);
+    }
+
+    // 2. Busca disponibilidade real em background
+    const slots = await getSlotsForDay(iso);
+
+    // 3. Actualiza silenciosamente se diferente das padrão
+    const hint = document.getElementById('slots-hint');
+    if (hint) hint.remove();
+    renderSlotButtons(grid, slots, iso);
   }
 
   function updateSummary() {
