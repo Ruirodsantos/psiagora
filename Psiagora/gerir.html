@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Remarcar Consulta | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #3D8C6A;
+      --verde-escuro: #2D6B50;
+      --verde-claro: #EAF5EF;
+      --cinza-fundo: #F7F8FA;
+      --cinza-borda: #E5E7EB;
+      --texto: #1A2332;
+      --texto-sec: #5A6678;
+      --roxo: #2A0753;
+      --branco: #FFFFFF;
+      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--texto);
+      background: var(--cinza-fundo);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      height: 56px;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--cinza-borda);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+    }
+    .logo {
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;
+      background: var(--gradiente);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 80px 16px 40px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--cinza-borda);
+      padding: 28px 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--texto-sec);
+      margin-bottom: 16px;
+    }
+
+    /* Estado de carregamento / erro */
+    #estado-loading, #estado-erro, #estado-prazo, #estado-sucesso {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    #estado-erro h2, #estado-prazo h2 { color: #C0392B; margin-bottom: 8px; }
+    #estado-sucesso h2 { color: var(--verde); margin-bottom: 8px; }
+
+    /* Marcação actual */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--cinza-borda);
+      font-size: 0.88rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .label { color: var(--texto-sec); }
+    .info-row .value { font-weight: 600; text-transform: capitalize; }
+
+    /* Calendário */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .cal-header h3 { font-size: 0.95rem; font-weight: 700; }
+    .btn-nav {
+      background: none; border: 1px solid var(--cinza-borda);
+      border-radius: 6px; width: 32px; height: 32px;
+      cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-nav:hover { background: var(--cinza-fundo); }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day-name {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--texto-sec);
+      padding: 4px 0;
+    }
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all 0.15s;
+    }
+    .cal-day.vazio { cursor: default; }
+    .cal-day.passado { color: #C5CAD4; cursor: not-allowed; }
+    .cal-day.bloqueado { color: #C5CAD4; cursor: not-allowed; background: #F7F8FA; }
+    .cal-day.disponivel:hover { background: var(--verde-claro); border-color: var(--verde); color: var(--verde); }
+    .cal-day.selected { background: var(--verde); color: #fff; border-color: var(--verde); }
+    .cal-day.hoje { font-weight: 800; }
+
+    /* Slots de hora */
+    #slots-container { display: none; margin-top: 16px; }
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .slot-btn {
+      padding: 10px 6px;
+      border: 1.5px solid var(--cinza-borda);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .slot-btn:hover { border-color: var(--verde); color: var(--verde); background: var(--verde-claro); }
+    .slot-btn.selected { background: var(--verde); color: #fff; border-color: var(--verde); }
+
+    /* Botão confirmar */
+    #btn-confirmar {
+      display: none;
+      width: 100%;
+      padding: 14px;
+      background: var(--verde);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+    #btn-confirmar:hover { background: var(--verde-escuro); }
+    #btn-confirmar:disabled { background: var(--cinza-borda); cursor: not-allowed; }
+
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block; vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .aviso {
+      background: #FFF8E1;
+      border: 1px solid #FFD54F;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: #7B6000;
+      margin-top: 12px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: var(--texto-sec);
+    }
+    footer a { color: var(--verde); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">Psiagora</a>
+  </header>
+
+  <div class="container">
+
+    <!-- Estado: a carregar -->
+    <div id="estado-loading">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--texto-sec);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        A carregar a sua marcação…
+      </div>
+    </div>
+
+    <!-- Estado: token inválido -->
+    <div id="estado-erro" style="display:none">
+      <div class="card">
+        <h2>Link inválido</h2>
+        <p style="color:var(--texto-sec);font-size:0.9rem;margin-top:8px;">Este link de remarcação não é válido ou já expirou. Por favor contacte-nos em <a href="mailto:frederico.e@psiagora.com" style="color:var(--verde)">frederico.e@psiagora.com</a>.</p>
+      </div>
+    </div>
+
+    <!-- Estado: fora do prazo -->
+    <div id="estado-prazo" style="display:none">
+      <div class="card">
+        <h2>Prazo expirado</h2>
+        <p style="color:var(--texto-sec);font-size:0.9rem;margin-top:8px;" id="msg-prazo"></p>
+      </div>
+    </div>
+
+    <!-- Estado: sucesso -->
+    <div id="estado-sucesso" style="display:none">
+      <div class="card" style="text-align:center">
+        <div style="width:56px;height:56px;background:var(--verde-claro);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>Consulta remarcada!</h2>
+        <p style="color:var(--texto-sec);font-size:0.88rem;margin-top:8px;" id="msg-sucesso"></p>
+        <a href="/" style="display:inline-block;margin-top:20px;padding:10px 24px;background:var(--verde);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.88rem;">Voltar ao início</a>
+      </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div id="conteudo" style="display:none">
+
+      <!-- Marcação actual -->
+      <div class="card">
+        <div class="card-title">Marcação actual</div>
+        <div class="info-row"><span class="label">Nome</span><span class="value" id="b-nome">—</span></div>
+        <div class="info-row"><span class="label">Data</span><span class="value" id="b-data">—</span></div>
+        <div class="info-row"><span class="label">Hora</span><span class="value" id="b-hora">—</span></div>
+        <div class="info-row"><span class="label">Tipo</span><span class="value" id="b-tipo">—</span></div>
+        <div class="aviso">⚠️ Só é possível remarcar até <strong>4 horas antes</strong> da consulta.</div>
+      </div>
+
+      <!-- Escolher nova data -->
+      <div class="card">
+        <div class="card-title">Escolher nova data</div>
+        <div class="cal-header">
+          <button class="btn-nav" id="btn-prev">‹</button>
+          <h3 id="cal-mes">—</h3>
+          <button class="btn-nav" id="btn-next">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid">
+          <div class="cal-day-name">Dom</div>
+          <div class="cal-day-name">Seg</div>
+          <div class="cal-day-name">Ter</div>
+          <div class="cal-day-name">Qua</div>
+          <div class="cal-day-name">Qui</div>
+          <div class="cal-day-name">Sex</div>
+          <div class="cal-day-name">Sáb</div>
+        </div>
+
+        <!-- Slots de hora -->
+        <div id="slots-container">
+          <div class="card-title" style="margin-top:16px;margin-bottom:0">Escolher nova hora</div>
+          <div class="slots-grid" id="slots-grid"></div>
+        </div>
+
+        <button id="btn-confirmar">Confirmar remarcação</button>
+      </div>
+
+    </div>
+
+    <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
+    const DIAS_DISPONIVEIS = [1, 2, 3, 4, 5]; // seg=1 ... sex=5
+    const JANELA_DIAS = 60;
+
+    let bookingToken = '';
+    let booking = null;
+    let viewDate = new Date();
+    let selectedDate = null;
+    let selectedTime = null;
+    const slotsCache = {};
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      bookingToken = params.get('token') || '';
+
+      if (!bookingToken) { showEstado('erro'); return; }
+
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=getBooking&token=${bookingToken}`);
+        const json = await res.json();
+
+        if (!json.success || !json.booking) { showEstado('erro'); return; }
+
+        booking = json.booking;
+        preencherInfoActual();
+        showEstado('conteudo');
+        renderCalendario();
+
+      } catch(e) {
+        showEstado('erro');
+      }
+    }
+
+    function showEstado(id) {
+      ['loading','erro','prazo','sucesso','conteudo'].forEach(s => {
+        const el = document.getElementById('estado-' + s) || document.getElementById(s === 'conteudo' ? 'conteudo' : 'estado-' + s);
+        if (el) el.style.display = 'none';
+      });
+      const alvo = document.getElementById(id === 'conteudo' ? 'conteudo' : 'estado-' + id);
+      if (alvo) alvo.style.display = 'block';
+    }
+
+    function preencherInfoActual() {
+      const [y, mo, d] = booking.dataStr.split('-').map(Number);
+      const dt = new Date(y, mo - 1, d);
+      const dataFmt = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('b-nome').textContent = booking.nome;
+      document.getElementById('b-data').textContent = dataFmt;
+      document.getElementById('b-hora').textContent = booking.hora;
+      document.getElementById('b-tipo').textContent = booking.tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
+    }
+
+    // ── Calendário ────────────────────────────────────────────────────────────
+    function renderCalendario() {
+      const hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
+      const limite = new Date(hoje.getTime() + JANELA_DIAS * 24 * 60 * 60 * 1000);
+
+      const ano = viewDate.getFullYear();
+      const mes = viewDate.getMonth();
+
+      const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      document.getElementById('cal-mes').textContent = `${meses[mes]} ${ano}`;
+
+      const primeiroDia = new Date(ano, mes, 1).getDay();
+      const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+      const grid = document.getElementById('cal-grid');
+      // Manter cabeçalho
+      while (grid.children.length > 7) grid.removeChild(grid.lastChild);
+
+      for (let i = 0; i < primeiroDia; i++) {
+        const vazio = document.createElement('div');
+        vazio.className = 'cal-day vazio';
+        grid.appendChild(vazio);
+      }
+
+      for (let dia = 1; dia <= diasNoMes; dia++) {
+        const data = new Date(ano, mes, dia);
+        const isoStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+        const diaSemana = data.getDay();
+
+        const el = document.createElement('div');
+        el.className = 'cal-day';
+        el.textContent = dia;
+
+        if (data < hoje) {
+          el.classList.add('passado');
+        } else if (data > limite || !DIAS_DISPONIVEIS.includes(diaSemana)) {
+          el.classList.add('bloqueado');
+        } else {
+          el.classList.add('disponivel');
+          if (data.toDateString() === hoje.toDateString()) el.classList.add('hoje');
+          if (selectedDate === isoStr) el.classList.add('selected');
+          el.addEventListener('click', () => selectDia(isoStr, el));
+        }
+
+        grid.appendChild(el);
+      }
+    }
+
+    async function selectDia(iso, el) {
+      selectedDate = iso;
+      selectedTime = null;
+      document.querySelectorAll('.cal-day.selected').forEach(e => e.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('btn-confirmar').style.display = 'none';
+
+      // Mostrar slots
+      const slotsContainer = document.getElementById('slots-container');
+      const slotsGrid = document.getElementById('slots-grid');
+      slotsContainer.style.display = 'block';
+      slotsGrid.innerHTML = `<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:8px 0;color:var(--texto-sec);font-size:0.85rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        A verificar disponibilidade…
+      </div>`;
+
+      const slots = await getSlotsForDay(iso);
+      slotsGrid.innerHTML = '';
+
+      if (slots.length === 0) {
+        slotsGrid.innerHTML = `<div style="grid-column:1/-1;color:var(--texto-sec);font-size:0.85rem;padding:8px 0;">Sem horários disponíveis neste dia.</div>`;
+        return;
+      }
+
+      slots.forEach(hora => {
+        const btn = document.createElement('button');
+        btn.className = 'slot-btn';
+        btn.textContent = hora;
+        btn.addEventListener('click', () => selectHora(hora, btn));
+        slotsGrid.appendChild(btn);
+      });
+    }
+
+    async function getSlotsForDay(iso) {
+      if (slotsCache[iso]) return slotsCache[iso];
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?date=${iso}`);
+        const json = await res.json();
+        if (Array.isArray(json.available)) {
+          slotsCache[iso] = json.available;
+          return json.available;
+        }
+      } catch(e) {}
+      return [];
+    }
+
+    function selectHora(hora, el) {
+      selectedTime = hora;
+      document.querySelectorAll('.slot-btn.selected').forEach(e => e.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('btn-confirmar').style.display = 'block';
+    }
+
+    // ── Nav mês ───────────────────────────────────────────────────────────────
+    document.getElementById('btn-prev').addEventListener('click', () => {
+      viewDate.setMonth(viewDate.getMonth() - 1);
+      selectedDate = null; selectedTime = null;
+      document.getElementById('slots-container').style.display = 'none';
+      document.getElementById('btn-confirmar').style.display = 'none';
+      renderCalendario();
+    });
+    document.getElementById('btn-next').addEventListener('click', () => {
+      viewDate.setMonth(viewDate.getMonth() + 1);
+      selectedDate = null; selectedTime = null;
+      document.getElementById('slots-container').style.display = 'none';
+      document.getElementById('btn-confirmar').style.display = 'none';
+      renderCalendario();
+    });
+
+    // ── Confirmar remarcação ──────────────────────────────────────────────────
+    document.getElementById('btn-confirmar').addEventListener('click', async () => {
+      if (!selectedDate || !selectedTime) return;
+
+      const btn = document.getElementById('btn-confirmar');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>A remarcar…';
+
+      try {
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'remarcar',
+            bookingToken,
+            novaData: selectedDate,
+            novaHora: selectedTime,
+          }),
+        });
+        const json = await res.json();
+
+        if (json.error === 'prazo') {
+          document.getElementById('msg-prazo').textContent = json.message;
+          showEstado('prazo');
+          return;
+        }
+        if (json.error === 'slot') {
+          alert(json.message);
+          btn.disabled = false;
+          btn.innerHTML = 'Confirmar remarcação';
+          // Limpar cache deste dia e recarregar slots
+          delete slotsCache[selectedDate];
+          selectDia(selectedDate, document.querySelector('.cal-day.selected'));
+          return;
+        }
+        if (!json.success) {
+          alert('Ocorreu um erro. Por favor tente novamente ou contacte frederico.e@psiagora.com');
+          btn.disabled = false;
+          btn.innerHTML = 'Confirmar remarcação';
+          return;
+        }
+
+        // Sucesso
+        const [y, mo, d] = selectedDate.split('-').map(Number);
+        const dt = new Date(y, mo - 1, d);
+        const dataFmt = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('msg-sucesso').textContent = `Nova data: ${dataFmt} às ${selectedTime}. Vai receber um email de confirmação em breve.`;
+        showEstado('sucesso');
+
+      } catch(e) {
+        alert('Erro de ligação. Por favor tente novamente.');
+        btn.disabled = false;
+        btn.innerHTML = 'Confirmar remarcação';
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

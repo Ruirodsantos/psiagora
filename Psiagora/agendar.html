@@ -373,6 +373,9 @@
     @media (max-width: 380px) {
       .checklist { grid-template-columns: 1fr; }
     }
+    @media (max-width: 480px) {
+      .tipo-consulta-grid { grid-template-columns: 1fr !important; }
+    }
   </style>
 </head>
 <body>
@@ -463,14 +466,16 @@
         </div>
         <div class="form-group">
           <label>Tipo de consulta *</label>
-          <div style="display:flex;gap:12px;margin-top:6px;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;padding:12px;border:1.5px solid var(--cinza-borda);border-radius:8px;" id="label-primeira">
-              <input type="radio" name="tipo" value="primeira" id="tipo-primeira" required style="accent-color:var(--verde);">
-              <span><strong>Primeira consulta</strong><br><small style="color:var(--texto-sec)">65,00 €</small></span>
+          <div class="tipo-consulta-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
+            <label class="tipo-card" id="label-primeira" style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:12px 14px;border:1.5px solid var(--cinza-borda);border-radius:8px;position:relative;">
+              <input type="radio" name="tipo" value="primeira" id="tipo-primeira" required style="accent-color:var(--verde);position:absolute;top:12px;right:12px;">
+              <strong style="font-size:0.88rem;padding-right:20px;">Primeira consulta</strong>
+              <span style="color:var(--verde);font-weight:700;font-size:0.95rem;">65,00 €</span>
             </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;flex:1;padding:12px;border:1.5px solid var(--cinza-borda);border-radius:8px;" id="label-seguinte">
-              <input type="radio" name="tipo" value="seguinte" id="tipo-seguinte" style="accent-color:var(--verde);">
-              <span><strong>Consulta de seguimento</strong><br><small style="color:var(--texto-sec)">50,00 €</small></span>
+            <label class="tipo-card" id="label-seguinte" style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:12px 14px;border:1.5px solid var(--cinza-borda);border-radius:8px;position:relative;">
+              <input type="radio" name="tipo" value="seguinte" id="tipo-seguinte" style="accent-color:var(--verde);position:absolute;top:12px;right:12px;">
+              <strong style="font-size:0.88rem;padding-right:20px;">Consulta de seguimento</strong>
+              <span style="color:var(--texto-sec);font-weight:700;font-size:0.95rem;">50,00 €</span>
             </label>
           </div>
         </div>
@@ -560,7 +565,7 @@
     precoSeguinte: 50,
 
     // URL do Google Apps Script
-    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbyG69ncj6b5somjIHQV25AlU3vq2Ns9Y8d7fYnkL2yopirKAd68lg5XokrNqMd9OPcI/exec',
+    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
 
     // Token secreto — tem de ser igual ao SECRET_TOKEN no Apps Script
     appsScriptToken: 'psiagora2026',
@@ -696,7 +701,10 @@
     title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
 
     // Mostrar loading enquanto busca disponibilidade
-    grid.innerHTML = '<div class="empty-msg" style="color:var(--roxo)">A verificar disponibilidade...</div>';
+    grid.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:16px 12px;color:var(--roxo);font-size:0.9rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      Aguarde, a verificar disponibilidade...
+    </div>`;
 
     const slots = await getSlotsForDay(iso);
     if (!slots.length) {
