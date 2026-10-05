@@ -464,20 +464,15 @@
           <label for="f-tel">Telefone</label>
           <input type="tel" id="f-tel" name="telefone" maxlength="30" placeholder="+351 ...">
         </div>
-        <div class="form-group">
-          <label>Tipo de consulta *</label>
-          <div class="tipo-consulta-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
-            <label class="tipo-card" id="label-primeira" style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:12px 14px;border:1.5px solid var(--cinza-borda);border-radius:8px;position:relative;">
-              <input type="radio" name="tipo" value="primeira" id="tipo-primeira" required style="accent-color:var(--verde);position:absolute;top:12px;right:12px;">
-              <strong style="font-size:0.88rem;padding-right:20px;">Primeira consulta</strong>
-              <span style="color:var(--verde);font-weight:700;font-size:0.95rem;">65,00 €</span>
-            </label>
-            <label class="tipo-card" id="label-seguinte" style="display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:12px 14px;border:1.5px solid var(--cinza-borda);border-radius:8px;position:relative;">
-              <input type="radio" name="tipo" value="seguinte" id="tipo-seguinte" style="accent-color:var(--verde);position:absolute;top:12px;right:12px;">
-              <strong style="font-size:0.88rem;padding-right:20px;">Consulta de seguimento</strong>
-              <span style="color:var(--texto-sec);font-weight:700;font-size:0.95rem;">50,00 €</span>
-            </label>
+        <!-- Tipo detectado automaticamente com base no histórico -->
+        <input type="hidden" id="tipo-hidden" name="tipo" value="primeira">
+        <div class="form-group" id="tipo-badge-wrap" style="display:none;">
+          <label>Tipo de consulta</label>
+          <div id="tipo-badge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--verde-claro);border:1.5px solid var(--verde);font-size:0.9rem;margin-top:6px;">
+            <span id="tipo-badge-texto" style="font-weight:600;color:var(--verde);">Primeira consulta</span>
+            <span id="tipo-badge-preco" style="color:var(--verde);font-weight:700;margin-left:auto;">65,00 €</span>
           </div>
+          <p id="tipo-badge-info" style="font-size:0.78rem;color:var(--texto-sec);margin-top:5px;"></p>
         </div>
         <div class="form-group">
           <label for="f-msg">Breve descricao (opcional)</label>
@@ -489,7 +484,7 @@
         </div>
         <div class="btn-row">
           <button type="button" class="btn btn-ghost" data-goto="2">&larr; Trocar hora</button>
-          <button type="submit" class="btn btn-primary" id="btnPay">Avancar para pagamento</button>
+          <button type="submit" class="btn btn-primary" id="btnPay">Confirmar marcação</button>
         </div>
       </form>
     </div>
@@ -565,7 +560,7 @@
     precoSeguinte: 50,
 
     // URL do Google Apps Script
-    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec',
+    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec',
 
     // Token secreto — tem de ser igual ao SECRET_TOKEN no Apps Script
     appsScriptToken: 'psiagora2026',
@@ -693,28 +688,17 @@
     await renderSlots(iso);
   }
 
-  async function renderSlots(iso) {
-    const grid = document.getElementById('slotsGrid');
-    const title = document.getElementById('slotsTitle');
-    const [y,mo,d] = iso.split('-').map(Number);
-    const dt = new Date(y, mo-1, d);
-    title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
-
-    // Mostrar loading enquanto busca disponibilidade
-    grid.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:16px 12px;color:var(--roxo);font-size:0.9rem;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-      Aguarde, a verificar disponibilidade...
-    </div>`;
-
-    const slots = await getSlotsForDay(iso);
+  function renderSlotButtons(grid, slots, iso) {
     if (!slots.length) {
       grid.innerHTML = '<div class="empty-msg">Sem horas disponiveis neste dia.</div>';
       return;
     }
+    const prevSelected = state.selectedTime;
     grid.innerHTML = '';
     slots.forEach(t => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'slot'; b.textContent = t;
+      if (t === prevSelected) b.classList.add('selected');
       b.addEventListener('click', () => {
         state.selectedTime = t;
         [...grid.children].forEach(c => c.classList.remove('selected'));
@@ -723,6 +707,33 @@
       });
       grid.appendChild(b);
     });
+  }
+
+  async function renderSlots(iso) {
+    const grid = document.getElementById('slotsGrid');
+    const title = document.getElementById('slotsTitle');
+    const [y,mo,d] = iso.split('-').map(Number);
+    const dt = new Date(y, mo-1, d);
+    title.textContent = `Horas disponiveis — ${dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'})}`;
+
+    // 1. Mostra horas padrão imediatamente (sem esperar o servidor)
+    if (!slotsCache[iso]) {
+      renderSlotButtons(grid, CONFIG.horasPadrao, iso);
+      // Indicador subtil de que está a actualizar
+      const hint = document.createElement('p');
+      hint.id = 'slots-hint';
+      hint.style.cssText = 'font-size:0.75rem;color:var(--texto-sec);margin:6px 0 0;text-align:center;';
+      hint.textContent = 'A verificar disponibilidade real…';
+      grid.after(hint);
+    }
+
+    // 2. Busca disponibilidade real em background
+    const slots = await getSlotsForDay(iso);
+
+    // 3. Actualiza silenciosamente se diferente das padrão
+    const hint = document.getElementById('slots-hint');
+    if (hint) hint.remove();
+    renderSlotButtons(grid, slots, iso);
   }
 
   function updateSummary() {
@@ -750,7 +761,7 @@
     renderCalendar();
   });
 
-  // ── SUBMIT → STRIPE PAYMENT LINK ─────────────────────────────
+  // ── SUBMIT → sucesso.html (Stripe temporariamente desactivado para testes) ──
   document.getElementById('bookForm').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const btn = document.getElementById('btnPay');
@@ -764,28 +775,100 @@
       nome:      document.getElementById('f-nome').value.trim(),
       email:     document.getElementById('f-email').value.trim(),
       telefone:  document.getElementById('f-tel')?.value.trim() || '',
-      tipo:      document.querySelector('input[name="tipo"]:checked')?.value || 'primeira',
+      tipo:      document.getElementById('tipo-hidden').value || 'primeira',
       descricao: document.getElementById('f-msg')?.value.trim() || '',
     };
     try { sessionStorage.setItem('psiagora_booking', JSON.stringify(booking)); } catch(e) {}
 
-    // Escolhe o link consoante o tipo de consulta
-    const tipo = document.querySelector('input[name="tipo"]:checked')?.value;
-    const link = tipo === 'seguinte' ? CONFIG.stripeLinkSeguinte : CONFIG.stripeLinkPrimeira;
-    window.location.href = link;
+    // Vai directamente para sucesso.html (sem pagamento Stripe)
+    window.location.href = 'sucesso.html';
   });
 
-  // ── TIPO DE CONSULTA → actualiza preco no resumo ─────────────
-  document.querySelectorAll('input[name="tipo"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      const preco = radio.value === 'seguinte' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira;
-      const el = document.getElementById('summary-valor');
-      if (el) el.textContent = preco.toFixed(2).replace('.',',') + ' €';
-      // destaca o label seleccionado
-      document.getElementById('label-primeira').style.borderColor = radio.value === 'primeira' ? 'var(--verde)' : 'var(--cinza-borda)';
-      document.getElementById('label-seguinte').style.borderColor = radio.value === 'seguinte' ? 'var(--verde)' : 'var(--cinza-borda)';
-    });
+  // ── DETECÇÃO AUTOMÁTICA DO TIPO DE CONSULTA ──────────────────
+  let tipoDetectado = 'primeira';
+  let verificacaoEmCurso = null;
+
+  function setTipo(tipo, fonte) {
+    tipoDetectado = tipo;
+    document.getElementById('tipo-hidden').value = tipo;
+    const wrap  = document.getElementById('tipo-badge-wrap');
+    const texto = document.getElementById('tipo-badge-texto');
+    const preco = document.getElementById('tipo-badge-preco');
+    const info  = document.getElementById('tipo-badge-info');
+    wrap.style.display = '';
+    if (tipo === 'seguimento') {
+      texto.textContent = 'Consulta de seguimento';
+      preco.textContent = CONFIG.precoSeguinte.toFixed(2).replace('.',',') + ' €';
+      info.textContent  = 'Cliente recorrente detectado — preço de seguimento aplicado automaticamente.';
+      document.getElementById('tipo-badge').style.background = '#FFF8E1';
+      document.getElementById('tipo-badge').style.borderColor = '#F59E0B';
+      texto.style.color = '#92400E';
+      preco.style.color = '#92400E';
+    } else {
+      texto.textContent = 'Primeira consulta';
+      preco.textContent = CONFIG.precoPrimeira.toFixed(2).replace('.',',') + ' €';
+      info.textContent  = fonte === 'detectado' ? 'Não encontramos registo anterior — preço de primeira consulta.' : '';
+      document.getElementById('tipo-badge').style.background = 'var(--verde-claro)';
+      document.getElementById('tipo-badge').style.borderColor = 'var(--verde)';
+      texto.style.color = 'var(--verde)';
+      preco.style.color = 'var(--verde)';
+    }
+    const el = document.getElementById('summary-valor');
+    if (el) el.textContent = (tipo === 'seguimento' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira).toFixed(2).replace('.',',') + ' €';
+  }
+
+  async function verificarCliente(email, telefone) {
+    const params = new URLSearchParams({ action: 'verificarCliente' });
+    if (email)    params.set('email', email);
+    if (telefone) params.set('telefone', telefone);
+    try {
+      const r = await fetch(`${CONFIG.appsScriptUrl}?${params}`);
+      const j = await r.json();
+      return j.tipo || 'primeira';
+    } catch(e) {
+      return 'primeira';
+    }
+  }
+
+  // Dispara quando o utilizador sai do campo email
+  document.getElementById('f-email').addEventListener('blur', async () => {
+    const email = document.getElementById('f-email').value.trim();
+    if (!email || !email.includes('@')) return;
+    verificacaoEmCurso = verificarCliente(email, '');
+    const tipo = await verificacaoEmCurso;
+    setTipo(tipo, 'detectado');
   });
+
+  // Dispara quando o utilizador sai do campo telefone
+  // (re-verifica se o email deu "primeira" — pode ter telefone diferente)
+  document.getElementById('f-tel').addEventListener('blur', async () => {
+    const tel   = document.getElementById('f-tel').value.replace(/\s/g,'').trim();
+    const email = document.getElementById('f-email').value.trim();
+    if (!tel || tel.replace(/\D/g,'').length < 9) return;
+    if (tipoDetectado === 'seguimento') return; // já confirmado
+    verificacaoEmCurso = verificarCliente(email, tel);
+    const tipo = await verificacaoEmCurso;
+    setTipo(tipo, 'detectado');
+  });
+
+  // ── PREFETCH — aquece o Apps Script na carga da página ───────
+  // Sem esperar pelo resultado: só serve para eliminar o cold start
+  // quando o utilizador clicar numa data (~1-2s ganhos)
+  (async () => {
+    try {
+      const amanha = new Date();
+      amanha.setDate(amanha.getDate() + 1);
+      // Avança para o próximo dia útil
+      while (!CONFIG.diasDisponiveis.includes(amanha.getDay())) {
+        amanha.setDate(amanha.getDate() + 1);
+      }
+      const iso = toISO(amanha);
+      // Faz o pedido em background — resultado vai para a cache
+      const r = await fetch(`${CONFIG.appsScriptUrl}?date=${iso}`);
+      const j = await r.json();
+      if (Array.isArray(j.available)) slotsCache[iso] = j.available;
+    } catch(e) { /* silencioso */ }
+  })();
 
   // ── INIT ─────────────────────────────────────────────────────
   renderCalendar();
