@@ -102,6 +102,50 @@ function doGet(e) {
       }
     }
 
+    // ── Portal: notas + ficheiros de um cliente ───────────────
+    if (e.parameter.action === 'getNotasCliente') {
+      const portalToken = (e.parameter.token || '');
+      const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+      if (portalToken !== portalPass) return jsonResponse({ error: 'unauthorized' });
+
+      const emailCliente = (e.parameter.email || '').toLowerCase().trim();
+      if (!emailCliente) return jsonResponse({ sessoes: [], ficheiros: [] });
+
+      try {
+        const props = PropertiesService.getScriptProperties();
+        const sheetId = props.getProperty('SHEET_ID');
+        const sessoes = [];
+
+        if (sheetId) {
+          const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
+          if (sheet) {
+            const rows = sheet.getDataRange().getValues();
+            for (let i = 1; i < rows.length; i++) {
+              const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
+              if (rowEmail === emailCliente) {
+                sessoes.push({
+                  rowIndex: i + 1,
+                  data:  (rows[i][4]  || '').toString(),
+                  hora:  (rows[i][5]  || '').toString(),
+                  tipo:  (rows[i][6]  || '').toString(),
+                  notas: (rows[i][10] || '').toString(), // coluna K — Notas Clínicas
+                });
+              }
+            }
+          }
+        }
+
+        // Ficheiros guardados em ScriptProperties
+        const filesKey = 'files_' + emailCliente.replace(/[^a-z0-9]/g, '_');
+        let ficheiros = [];
+        try { ficheiros = JSON.parse(props.getProperty(filesKey) || '[]'); } catch(e2) { ficheiros = []; }
+
+        return jsonResponse({ sessoes, ficheiros });
+      } catch(err) {
+        return jsonResponse({ error: err.message, sessoes: [], ficheiros: [] });
+      }
+    }
+
     if (e.parameter.action === 'verificarCliente') {
       const email    = (e.parameter.email    || '').toLowerCase().trim();
       const telefone = (e.parameter.telefone || '').replace(/\D/g, '');
@@ -180,6 +224,155 @@ function doPost(e) {
     // ── Cancelamento pelo cliente ────────────────────────────────────────────
     if (data.action === 'cancelarConsulta') {
       return processarCancelamento(data);
+    }
+
+    // ── Guardar nota clínica ─────────────────────────────────────────────────
+    if (data.action === 'guardarNota') {
+      const portalToken = (data.token || '');
+      const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+      if (portalToken !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
+
+      const { email, dataConsulta, hora, nota } = data;
+      if (!email || !dataConsulta || !hora) return jsonResponse({ error: 'Dados em falta.' });
+
+      try {
+        const props   = PropertiesService.getScriptProperties();
+        const sheetId = props.getProperty('SHEET_ID');
+        if (!sheetId) return jsonResponse({ error: 'Sheet não configurada.' });
+
+        const ss    = SpreadsheetApp.openById(sheetId);
+        const sheet = ss.getSheetByName('Marcações');
+        if (!sheet) return jsonResponse({ error: 'Tab Marcações não encontrada.' });
+
+        // Garantir que a coluna K (índice 10) tem cabeçalho
+        const lastCol = sheet.getLastColumn();
+        if (lastCol < 11) {
+          sheet.getRange(1, 11).setValue('Notas Clínicas')
+            .setFontWeight('bold').setBackground('#2A0753').setFontColor('#ffffff');
+        }
+
+        const rows      = sheet.getDataRange().getValues();
+        const emailNorm = email.toLowerCase().trim();
+        let found       = false;
+
+        for (let i = 1; i < rows.length; i++) {
+          const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
+          const rowData  = (rows[i][4] || '').toString();
+          const rowHora  = (rows[i][5] || '').toString();
+          if (rowEmail === emailNorm && rowData === dataConsulta && rowHora === hora) {
+            sheet.getRange(i + 1, 11).setValue(nota || '');
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) return jsonResponse({ error: 'Sessão não encontrada na Sheet.' });
+        return jsonResponse({ success: true });
+      } catch(err) {
+        return jsonResponse({ error: err.message });
+      }
+    }
+
+    // ── Upload de ficheiro para Google Drive ─────────────────────────────────
+    if (data.action === 'uploadFicheiro') {
+      const portalToken = (data.token || '');
+      const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+      if (portalToken !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
+
+      const { email, nomeCliente, filename, mimetype, dataBase64 } = data;
+      if (!email || !filename || !dataBase64) return jsonResponse({ error: 'Dados em falta.' });
+
+      try {
+        // Criar/encontrar pasta raiz
+        const rootName = 'Psiagora — Documentos Clientes';
+        let rootFolder;
+        const rootSearch = DriveApp.getFoldersByName(rootName);
+        rootFolder = rootSearch.hasNext() ? rootSearch.next() : DriveApp.createFolder(rootName);
+
+        // Subpasta por cliente
+        const clientName = nomeCliente || email;
+        let clientFolder;
+        const clientSearch = rootFolder.getFoldersByName(clientName);
+        clientFolder = clientSearch.hasNext() ? clientSearch.next() : rootFolder.createFolder(clientName);
+
+        // Criar ficheiro
+        const decoded  = Utilities.base64Decode(dataBase64);
+        const blob     = Utilities.newBlob(decoded, mimetype || 'application/octet-stream', filename);
+        const file     = clientFolder.createFile(blob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+        const fileId      = file.getId();
+        const fileUrl     = file.getUrl();
+        const downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId;
+
+        // Guardar referência em ScriptProperties
+        const props    = PropertiesService.getScriptProperties();
+        const filesKey = 'files_' + email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        let ficheiros  = [];
+        try { ficheiros = JSON.parse(props.getProperty(filesKey) || '[]'); } catch(e2) { ficheiros = []; }
+
+        ficheiros.unshift({ fileId, filename, fileUrl, downloadUrl, uploadedAt: new Date().toISOString() });
+        if (ficheiros.length > 50) ficheiros = ficheiros.slice(0, 50);
+        props.setProperty(filesKey, JSON.stringify(ficheiros));
+
+        return jsonResponse({ success: true, fileId, fileUrl, downloadUrl, filename });
+      } catch(err) {
+        return jsonResponse({ error: err.message });
+      }
+    }
+
+    // ── Enviar documento ao cliente por email ────────────────────────────────
+    if (data.action === 'enviarDocumento') {
+      const portalToken = (data.token || '');
+      const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+      if (portalToken !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
+
+      const { emailCliente, nomeCliente, filename, fileUrl, downloadUrl, mensagem } = data;
+      if (!emailCliente || !filename || !fileUrl) return jsonResponse({ error: 'Dados em falta.' });
+
+      const msg = mensagem || `Segue em anexo o documento "${filename}".`;
+
+      const html = `
+<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"></head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+    <div style="background:#2A0753;padding:28px 32px;">
+      <div style="color:#00C48C;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora</div>
+      <h1 style="color:#fff;margin:0;font-size:20px;font-weight:800;">📎 Documento partilhado</h1>
+    </div>
+    <div style="padding:28px 32px;">
+      <p style="color:#1C1430;font-size:15px;margin:0 0 16px;">Olá <strong>${nomeCliente || ''}</strong>,</p>
+      <p style="color:#4A4263;font-size:14px;line-height:1.7;margin:0 0 20px;">${msg}</p>
+      <div style="background:#EAF5EF;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:24px;">📄</span>
+        <div><div style="font-weight:600;font-size:14px;color:#1C1430;">${filename}</div></div>
+      </div>
+      <div style="text-align:center;">
+        <a href="${downloadUrl || fileUrl}" style="background:#3D8C6A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;">Abrir documento</a>
+      </div>
+      <p style="color:#B8ADDA;font-size:12px;margin-top:24px;text-align:center;">Enviado pelo Dr. ${NOME_PSICOLOGA} via Psiagora</p>
+    </div>
+    <div style="background:#F5F3FA;padding:16px 32px;text-align:center;border-top:1px solid #E8E4F0;">
+      <span style="color:#B8ADDA;font-size:11px;">© 2026 Psiagora · <a href="${SITE_URL}" style="color:#B8ADDA;">${SITE_URL}</a></span>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      try {
+        MailApp.sendEmail({
+          to: emailCliente,
+          subject: `Documento de ${NOME_PSICOLOGA}: ${filename}`,
+          htmlBody: html,
+          name: `Psiagora — ${NOME_PSICOLOGA}`,
+          replyTo: EMAIL_FREDERICO,
+        });
+        return jsonResponse({ success: true });
+      } catch(err) {
+        return jsonResponse({ error: err.message });
+      }
     }
 
     // ── Reserva provisória pelo psicólogo ────────────────────────────────────
