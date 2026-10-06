@@ -106,7 +106,26 @@
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .detalhe-body { grid-template-columns: 1fr; }
-      td:nth-child(3), th:nth-child(3) { display: none; }
+      .portal-body { padding: 16px 12px 60px; }
+      /* Tabela mobile: esconder colunas desnecessárias, evitar scroll horizontal */
+      .tabela-wrap { overflow-x: hidden; }
+      table { table-layout: fixed; width: 100%; }
+      td:nth-child(3), th:nth-child(3),
+      td:nth-child(4), th:nth-child(4) { display: none; }
+      td:nth-child(1) { width: 55%; }
+      td:nth-child(2) { width: 30%; }
+      td:nth-child(5) { width: 15%; }
+      td:nth-child(2) .email-cell { font-size: 0.72rem; word-break: break-all; }
+      /* Filtros em coluna */
+      .filtros { flex-direction: column; }
+      .filtros input, .filtros select { width: 100%; min-width: unset; }
+      /* Formulário provisório em coluna */
+      #provisorioForm .form-row { grid-template-columns: 1fr; }
+      /* Detalhe: sem espaço extra */
+      #detalhe-wrap { margin-top: 16px; }
+      /* Header stats menos padding */
+      .stat-card { padding: 10px 12px; }
+      .stat-val { font-size: 1.3rem; }
     }
   </style>
 </head>
