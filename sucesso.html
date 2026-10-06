@@ -46,6 +46,13 @@
       <a id="btnPreForm" href="#" target="_blank" style="display:inline-block;background:#F59E0B;color:#fff;font-weight:700;font-size:0.82rem;padding:8px 16px;border-radius:7px;text-decoration:none;">Preencher formulário →</a>
     </div>
 
+    <!-- Pacotes: só aparece para consultas de seguimento -->
+    <div id="pacotesWrap" style="display:none;margin:16px 0;padding:16px;background:#EAF5EF;border:1.5px solid #3D8C6A;border-radius:10px;text-align:left;">
+      <div style="font-size:0.8rem;font-weight:700;color:#2D6B50;margin-bottom:6px;">💚 Poupe com um Pacote de Sessões</div>
+      <p style="font-size:0.82rem;color:#374151;line-height:1.6;margin-bottom:10px;">Continuar o processo terapêutico é o caminho certo. Com um pacote de sessões poupa até 20% e garante continuidade no seu acompanhamento.</p>
+      <a href="pacotes.html" style="display:inline-block;background:#3D8C6A;color:#fff;font-weight:700;font-size:0.82rem;padding:8px 16px;border-radius:7px;text-decoration:none;">Ver pacotes disponíveis →</a>
+    </div>
+
     <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="mailto:info@psiagora.com" style="color:#3D8C6A">info@psiagora.com</a>.</p>
     <a href="/" class="btn">Voltar ao inicio</a>
   </div>
@@ -92,10 +99,12 @@
           }
         }
 
-        // Mostrar pré-formulário se for primeira consulta
+        // Mostrar pré-formulário se for primeira consulta; pacotes se for seguimento
         if ((b.tipo || 'primeira') === 'primeira') {
           document.getElementById('preFormWrap').style.display = 'block';
           document.getElementById('btnPreForm').href = PRE_FORM_URL + '?nome=' + encodeURIComponent(b.nome || '') + '&email=' + encodeURIComponent(b.email || '');
+        } else {
+          document.getElementById('pacotesWrap').style.display = 'block';
         }
 
         // Limpar dados da sessão
