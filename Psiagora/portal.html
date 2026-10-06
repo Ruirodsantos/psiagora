@@ -441,7 +441,7 @@
   // ── STATS ──────────────────────────────────────────────────
   function renderStats(clientes, rows) {
     const totalSessoes = clientes.reduce((s, c) => s + c.sessoes.length, 0);
-    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => (x.tipo||'').toLowerCase().includes('prim')).length, 0);
+    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => !(x.tipo||'').toLowerCase().includes('seg')).length, 0);
     document.getElementById('statClientes').textContent = clientes.length;
     document.getElementById('statSessoes').textContent = totalSessoes;
     document.getElementById('statPrimeiras').textContent = primeiras;
@@ -467,7 +467,8 @@
 
     filtrados.forEach(c => {
       const ultimaSessao = c.sessoes[c.sessoes.length-1];
-      const tipoMais = c.sessoes.filter(s=>(s.tipo||'').toLowerCase().includes('seg')).length > 0 ? 'seguimento' : 'primeira';
+      const temSeguimento = c.sessoes.some(s=>(s.tipo||'').toLowerCase().includes('seg'));
+      const tipoMais = temSeguimento || c.sessoes.length > 1 ? 'seguimento' : 'primeira';
       const tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
       tr.innerHTML = `

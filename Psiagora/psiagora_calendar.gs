@@ -943,7 +943,7 @@ function enviarLembrete() {
 
 function registarNaSheet({ nome, email, telefone, dataStr, hora, tipo, descricao, meetLink }) {
   try {
-    const tipoTexto = tipo === 'seguinte' ? 'Seguimento' : 'Primeira';
+    const tipoTexto = (tipo === 'seguimento' || tipo === 'seguinte') ? 'Seguimento' : 'Primeira';
     const preco     = tipo === 'seguinte' ? 50 : 65;
     const agora     = new Date().toLocaleString('pt-PT', { timeZone: FUSO_HORARIO });
 
