@@ -7,11 +7,13 @@
  * FUNCIONALIDADES:
  *   1. Disponibilidade em tempo real (lê o Google Calendar)
  *   2. Cria evento no Calendar com link Google Meet
- *   3. Email de confirmação ao cliente (com link Meet + link remarcação)
+ *   3. Email de confirmação ao cliente (com link Meet + link remarcação + cancelar)
  *   4. Email de notificação ao Frederico
  *   5. Lembrete automático ao cliente 24h antes da consulta
  *   6. Registo de todas as marcações numa Google Sheet
  *   7. Remarcação pelo cliente (até 4h antes, sem intervenção)
+ *   8. Cancelamento pelo cliente (até 4h antes, sem intervenção)
+ *   9. Reserva provisória pelo psicólogo (48h para pagar ou liberta)
  *
  * DEPLOY:
  *   script.google.com → Implementar → Nova implementação
@@ -52,7 +54,12 @@ const HORAS_MIN_REMARCAR = 4;
 
 function doGet(e) {
   try {
-    // Buscar marcação por token (para página de remarcação)
+    // Confirmar reserva provisória (cliente pagou via link enviado por email)
+    if (e.parameter.action === 'confirmarProvisorio') {
+      return confirmarProvisorioFn(e.parameter.payToken || '');
+    }
+
+    // Buscar marcação por token (para página de remarcação/cancelamento)
     if (e.parameter.action === 'getBooking') {
       const token = e.parameter.token;
       if (!token) return jsonResponse({ error: 'Token em falta.' });
@@ -144,6 +151,16 @@ function doPost(e) {
     // ── Remarcação pelo cliente ──────────────────────────────────────────────
     if (data.action === 'remarcar') {
       return processarRemarcacao(data);
+    }
+
+    // ── Cancelamento pelo cliente ────────────────────────────────────────────
+    if (data.action === 'cancelarConsulta') {
+      return processarCancelamento(data);
+    }
+
+    // ── Reserva provisória pelo psicólogo ────────────────────────────────────
+    if (data.action === 'criarProvisorio') {
+      return processarProvisorio(data);
     }
 
     // ── Nova marcação ────────────────────────────────────────────────────────
@@ -370,7 +387,7 @@ function enviarEmailCliente({ nome, email, dataStr, hora, tipo, meetLink, bookin
 
   const preco     = tipo === 'seguinte' ? '50,00 €' : '65,00 €';
   const tipoTexto = tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
-  const geriURL = bookingToken ? `${SITE_URL}/Psiagora/gerir.html?token=${bookingToken}` : '';
+  const geriURL = bookingToken ? `${SITE_URL}/gerir.html?token=${bookingToken}` : '';
 
   const meetSection = meetLink
     ? `<tr><td style="padding:10px 16px;color:#5A6678;font-size:13px;">Link da videochamada</td><td style="padding:10px 16px;font-weight:600;font-size:13px;"><a href="${meetLink}" style="color:#3D8C6A;">Entrar no Google Meet</a></td></tr>`
@@ -423,9 +440,9 @@ function enviarEmailCliente({ nome, email, dataStr, hora, tipo, meetLink, bookin
       </div>` : ''}
       ${geriURL ? `
       <div style="margin-top:20px;padding:16px;background:#EAF5EF;border-radius:8px;border-left:3px solid #3D8C6A;">
-        <p style="color:#1C1430;font-size:13px;margin:0 0 8px;font-weight:600;">Precisa de alterar a data ou hora?</p>
-        <p style="color:#4A4263;font-size:12px;margin:0 0 10px;line-height:1.6;">Pode remarcar até ${HORAS_MIN_REMARCAR} horas antes da consulta, sem necessidade de contactar.</p>
-        <a href="${geriURL}" style="color:#3D8C6A;font-size:12px;font-weight:700;text-decoration:none;">→ Remarcar consulta</a>
+        <p style="color:#1C1430;font-size:13px;margin:0 0 8px;font-weight:600;">Precisa de alterar ou cancelar?</p>
+        <p style="color:#4A4263;font-size:12px;margin:0 0 10px;line-height:1.6;">Pode remarcar ou cancelar até ${HORAS_MIN_REMARCAR} horas antes da consulta, sem necessidade de contactar.</p>
+        <a href="${geriURL}" style="color:#3D8C6A;font-size:12px;font-weight:700;text-decoration:none;">→ Gerir marcação</a>
       </div>` : ''}
       <p style="color:#4A4263;font-size:13px;line-height:1.7;margin-top:24px;">
         Receberá um lembrete 24 horas antes da consulta. Se precisar de ajuda contacte-nos em
@@ -516,7 +533,7 @@ function enviarEmailRemarcacao({ nome, email, dataStr, hora, tipo, meetLink, boo
   const dt = new Date(year, month - 1, day);
   const dataFormatada = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const tipoTexto = tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
-  const geriURL = `${SITE_URL}/Psiagora/gerir.html?token=${bookingToken}`;
+  const geriURL = `${SITE_URL}/gerir.html?token=${bookingToken}`;
 
   const html = `
 <!DOCTYPE html>
@@ -746,6 +763,334 @@ function jsonResponse(obj) {
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  8. Cancelamento pelo cliente
+// ══════════════════════════════════════════════════════════════════════════════
+
+function processarCancelamento(data) {
+  const { bookingToken } = data;
+  if (!bookingToken) return jsonResponse({ error: 'Token em falta.' });
+
+  const props = PropertiesService.getScriptProperties();
+  const raw = props.getProperty('booking_' + bookingToken);
+  if (!raw) return jsonResponse({ error: 'Marcação não encontrada ou token inválido.' });
+
+  const booking = JSON.parse(raw);
+
+  // Verificar prazo (mínimo HORAS_MIN_REMARCAR horas antes)
+  const [y, mo, d] = booking.dataStr.split('-').map(Number);
+  const [h, m]     = booking.hora.split(':').map(Number);
+  const consultaTime = new Date(y, mo - 1, d, h, m, 0);
+  const horasRestantes = (consultaTime.getTime() - Date.now()) / (1000 * 60 * 60);
+
+  if (horasRestantes < HORAS_MIN_REMARCAR) {
+    return jsonResponse({
+      error: 'prazo',
+      message: `Só é possível cancelar até ${HORAS_MIN_REMARCAR} horas antes da consulta. Para cancelamentos de última hora contacte ${EMAIL_FREDERICO}.`
+    });
+  }
+
+  // Apagar evento do Calendar
+  try {
+    if (booking.eventoId) Calendar.Events.remove(CALENDAR_ID, booking.eventoId);
+  } catch(err) { Logger.log('Erro ao apagar evento (cancelamento): ' + err.message); }
+
+  // Marcar como cancelado na Sheet
+  try { marcarCanceladoNaSheet(booking); } catch(e) { Logger.log('Sheet cancel err: ' + e.message); }
+
+  // Emails de cancelamento
+  try { enviarEmailCancelamento(booking); } catch(e) { Logger.log('Email cancel cliente: ' + e.message); }
+  try { enviarEmailFredericoCancelamento(booking); } catch(e) { Logger.log('Email cancel Frederico: ' + e.message); }
+
+  // Remover token
+  props.deleteProperty('booking_' + bookingToken);
+
+  return jsonResponse({ success: true });
+}
+
+function marcarCanceladoNaSheet(booking) {
+  const props   = PropertiesService.getScriptProperties();
+  const sheetId = props.getProperty('SHEET_ID');
+  if (!sheetId) return;
+  const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
+  if (!sheet) return;
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if ((rows[i][2] || '').toString().toLowerCase() === (booking.email || '').toLowerCase() &&
+        (rows[i][4] || '').toString() === booking.dataStr &&
+        (rows[i][5] || '').toString() === booking.hora) {
+      // Coluna J (índice 9) = Notas — acrescenta "CANCELADO"
+      const notasCell = sheet.getRange(i + 1, 10);
+      notasCell.setValue('CANCELADO — ' + new Date().toLocaleString('pt-PT'));
+      break;
+    }
+  }
+}
+
+function enviarEmailCancelamento({ nome, email, dataStr, hora }) {
+  const [year, month, day] = dataStr.split('-').map(Number);
+  const dt = new Date(year, month - 1, day);
+  const dataFormatada = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  const html = `
+<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"></head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+    <div style="background:#2A0753;padding:28px 32px;">
+      <div style="color:#00C48C;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora</div>
+      <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;">Consulta cancelada</h1>
+    </div>
+    <div style="padding:28px 32px;">
+      <p style="color:#1C1430;font-size:15px;margin:0 0 16px;">Olá <strong>${nome}</strong>,</p>
+      <p style="color:#4A4263;font-size:14px;line-height:1.7;margin:0 0 16px;">
+        A sua consulta de <strong style="color:#1C1430;text-transform:capitalize;">${dataFormatada} às ${hora}</strong> foi cancelada com sucesso.
+      </p>
+      <p style="color:#4A4263;font-size:13px;line-height:1.7;margin:0 0 20px;">
+        Quando quiser marcar uma nova sessão, pode fazê-lo em qualquer altura em <a href="${SITE_URL}/equipa.html" style="color:#3D8C6A;font-weight:600;">psiagora.com</a>.
+      </p>
+      <div style="text-align:center;margin-top:8px;">
+        <a href="${SITE_URL}/equipa.html" style="background:#3D8C6A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;">Marcar nova consulta</a>
+      </div>
+    </div>
+    <div style="background:#F5F3FA;padding:16px 32px;text-align:center;border-top:1px solid #E8E4F0;">
+      <span style="color:#B8ADDA;font-size:11px;">© 2026 Psiagora · <a href="${SITE_URL}" style="color:#B8ADDA;">${SITE_URL}</a></span>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  MailApp.sendEmail({
+    to: email,
+    subject: `Consulta cancelada — ${dataFormatada} às ${hora}`,
+    htmlBody: html,
+    name: `Psiagora — ${NOME_PSICOLOGA}`,
+    replyTo: EMAIL_FREDERICO,
+  });
+}
+
+function enviarEmailFredericoCancelamento({ nome, email, dataStr, hora }) {
+  const [y, mo, d] = dataStr.split('-').map(Number);
+  const dataFormatada = new Date(y, mo-1, d).toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long' });
+
+  MailApp.sendEmail({
+    to: EMAIL_FREDERICO,
+    subject: `❌ Consulta cancelada: ${nome} — ${dataFormatada} às ${hora}`,
+    htmlBody: `<p style="font-family:sans-serif;font-size:14px;"><strong>${nome}</strong> (<a href="mailto:${email}">${email}</a>) cancelou a consulta de <strong>${dataFormatada} às ${hora}</strong>. O evento foi removido do Calendar.</p>`,
+    name: 'Psiagora Agendamentos',
+  });
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  9. Reserva provisória pelo psicólogo
+// ══════════════════════════════════════════════════════════════════════════════
+
+function processarProvisorio(data) {
+  const portalToken = (data.token || '');
+  const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+  if (portalToken !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
+
+  const { nome, email, telefone, dataStr, hora, tipo } = data;
+  if (!nome || !email || !dataStr || !hora)
+    return jsonResponse({ error: 'Campos obrigatórios em falta.' });
+
+  // Verificar disponibilidade
+  const slots = getAvailableSlots(dataStr);
+  if (!slots.includes(hora))
+    return jsonResponse({ error: 'slot', message: 'Este horário já não está disponível.' });
+
+  // Gerar token de pagamento único
+  const payToken = Utilities.getUuid();
+
+  // Calcular deadline: 48h antes da consulta
+  const [y, mo, d] = dataStr.split('-').map(Number);
+  const [h, m]     = hora.split(':').map(Number);
+  const consultaTime = new Date(y, mo - 1, d, h, m, 0);
+  const deadline     = new Date(consultaTime.getTime() - 48 * 60 * 60 * 1000);
+
+  // Guardar em Properties
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty('provisorio_' + payToken, JSON.stringify({
+    nome, email, telefone: telefone || '', dataStr, hora,
+    tipo: tipo || 'seguimento',
+    deadline: deadline.toISOString(),
+    status: 'provisorio',
+  }));
+
+  // Email ao cliente com link de pagamento
+  try { enviarEmailProvisorioCliente({ nome, email, dataStr, hora, tipo: tipo || 'seguimento', payToken, deadline }); }
+  catch(e) { Logger.log('Email provisorio: ' + e.message); }
+
+  // Notificar Frederico
+  const [yr2, mo2, d2] = dataStr.split('-').map(Number);
+  const dfmt = new Date(yr2, mo2-1, d2).toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long' });
+  try {
+    MailApp.sendEmail({
+      to: EMAIL_FREDERICO,
+      subject: `🕐 Reserva provisória criada: ${nome} — ${dfmt} às ${hora}`,
+      htmlBody: `<p style="font-family:sans-serif;font-size:14px;">Reserva provisória criada para <strong>${nome}</strong> (${email}) em <strong>${dfmt} às ${hora}</strong>.<br>Prazo de pagamento: <strong>${deadline.toLocaleString('pt-PT')}</strong>.<br>Se não pagar até essa hora, o horário será libertado automaticamente.</p>`,
+      name: 'Psiagora Agendamentos',
+    });
+  } catch(e) { Logger.log('Email Frederico provisorio: ' + e.message); }
+
+  return jsonResponse({ success: true, payToken, deadline: deadline.toISOString() });
+}
+
+function enviarEmailProvisorioCliente({ nome, email, dataStr, hora, tipo, payToken, deadline }) {
+  const [year, month, day] = dataStr.split('-').map(Number);
+  const dt = new Date(year, month - 1, day);
+  const dataFormatada = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const deadlineFmt   = deadline.toLocaleString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+  const preco         = tipo === 'seguimento' ? '50,00 €' : '65,00 €';
+  const tipoTexto     = tipo === 'seguimento' ? 'Consulta de seguimento' : 'Primeira consulta';
+  // Link: quando Stripe estiver activo, substituir pelo link Stripe + ?client_reference_id=payToken
+  // Por agora (modo de teste): link directo para confirmar
+  const payLink = `${SITE_URL}/sucesso.html?payToken=${payToken}`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8"></head>
+<body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
+  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+    <div style="background:#2A0753;padding:28px 32px;">
+      <div style="color:#F59E0B;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora — Reserva Provisória</div>
+      <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;">O Dr. Frederico reservou um horário para si</h1>
+    </div>
+    <div style="padding:28px 32px;">
+      <p style="color:#1C1430;font-size:15px;margin:0 0 16px;">Olá <strong>${nome}</strong>,</p>
+      <p style="color:#4A4263;font-size:14px;line-height:1.7;margin:0 0 20px;">
+        Foi reservado provisoriamente o seguinte horário para si. Para confirmar a sua sessão, efectue o pagamento antes do prazo indicado.
+      </p>
+      <table style="width:100%;border-collapse:collapse;background:#F5F3FA;border-radius:8px;overflow:hidden;margin-bottom:20px;">
+        <tr style="border-bottom:1px solid #E8E4F0;">
+          <td style="padding:10px 16px;color:#5A6678;font-size:13px;">Data</td>
+          <td style="padding:10px 16px;font-weight:600;font-size:13px;color:#1C1430;text-transform:capitalize;">${dataFormatada}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E8E4F0;">
+          <td style="padding:10px 16px;color:#5A6678;font-size:13px;">Hora</td>
+          <td style="padding:10px 16px;font-weight:600;font-size:13px;color:#1C1430;">${hora}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E8E4F0;">
+          <td style="padding:10px 16px;color:#5A6678;font-size:13px;">Tipo</td>
+          <td style="padding:10px 16px;font-weight:600;font-size:13px;color:#1C1430;">${tipoTexto}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #E8E4F0;">
+          <td style="padding:10px 16px;color:#5A6678;font-size:13px;">Valor</td>
+          <td style="padding:10px 16px;font-weight:600;font-size:13px;color:#3D8C6A;">${preco}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 16px;color:#DC2626;font-size:13px;font-weight:600;">Pagar até</td>
+          <td style="padding:10px 16px;font-weight:700;font-size:13px;color:#DC2626;text-transform:capitalize;">${deadlineFmt}</td>
+        </tr>
+      </table>
+      <div style="background:#FFF8E1;border:1.5px solid #F59E0B;border-radius:10px;padding:16px;margin-bottom:20px;">
+        <p style="color:#92400E;font-size:13px;font-weight:700;margin:0 0 4px;">⚠️ Atenção</p>
+        <p style="color:#78350F;font-size:12px;line-height:1.6;margin:0;">Se o pagamento não for efectuado até ao prazo indicado, o horário será automaticamente libertado.</p>
+      </div>
+      <div style="text-align:center;">
+        <a href="${payLink}" style="background:#3D8C6A;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;">Confirmar e Pagar — ${preco}</a>
+      </div>
+    </div>
+    <div style="background:#F5F3FA;padding:16px 32px;text-align:center;border-top:1px solid #E8E4F0;">
+      <span style="color:#B8ADDA;font-size:11px;">© 2026 Psiagora · <a href="${SITE_URL}" style="color:#B8ADDA;">${SITE_URL}</a></span>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  MailApp.sendEmail({
+    to: email,
+    subject: `Horário reservado para si — confirme até ${deadline.toLocaleDateString('pt-PT')}`,
+    htmlBody: html,
+    name: `Psiagora — ${NOME_PSICOLOGA}`,
+    replyTo: EMAIL_FREDERICO,
+  });
+}
+
+function confirmarProvisorioFn(payToken) {
+  if (!payToken) return jsonResponse({ error: 'Token de pagamento em falta.' });
+
+  const props = PropertiesService.getScriptProperties();
+  const raw   = props.getProperty('provisorio_' + payToken);
+  if (!raw) return jsonResponse({ error: 'Reserva não encontrada. Pode já ter sido confirmada ou expirado.' });
+
+  const b = JSON.parse(raw);
+  if (b.status !== 'provisorio') return jsonResponse({ error: 'Esta reserva já foi processada.' });
+
+  // Criar evento no Calendar com Meet
+  const { eventoId, meetLink } = criarEvento({
+    nome: b.nome, email: b.email, telefone: b.telefone,
+    dataStr: b.dataStr, hora: b.hora, tipo: b.tipo, descricao: 'Reserva provisória confirmada',
+  });
+
+  // Gerar bookingToken para gestão futura (remarcar/cancelar)
+  const bookingToken = Utilities.getUuid();
+  props.setProperty('booking_' + bookingToken, JSON.stringify({
+    nome: b.nome, email: b.email, telefone: b.telefone,
+    dataStr: b.dataStr, hora: b.hora, tipo: b.tipo, descricao: '',
+    meetLink, eventoId,
+  }));
+
+  // Registar na Sheet
+  try { registarNaSheet({ nome: b.nome, email: b.email, telefone: b.telefone, dataStr: b.dataStr, hora: b.hora, tipo: b.tipo, descricao: 'Provisório confirmado', meetLink }); }
+  catch(e) { Logger.log('Sheet provisorio: ' + e.message); }
+
+  // Email de confirmação ao cliente
+  try { enviarEmailCliente({ nome: b.nome, email: b.email, dataStr: b.dataStr, hora: b.hora, tipo: b.tipo, meetLink, bookingToken }); }
+  catch(e) { Logger.log('Email confirmação provisorio: ' + e.message); }
+
+  // Notificar Frederico
+  try { enviarEmailFrederico({ nome: b.nome, email: b.email, telefone: b.telefone, dataStr: b.dataStr, hora: b.hora, tipo: b.tipo, descricao: 'Reserva provisória paga e confirmada' }); }
+  catch(e) { Logger.log('Email Frederico provisorio confirmado: ' + e.message); }
+
+  // Remover a entrada provisória
+  props.deleteProperty('provisorio_' + payToken);
+
+  return jsonResponse({
+    success: true, meetLink, bookingToken,
+    nome: b.nome, dataStr: b.dataStr, hora: b.hora, tipo: b.tipo,
+  });
+}
+
+/**
+ * TRIGGER: Corre de hora em hora (configurar em Triggers no editor Apps Script).
+ * Liberta reservas provisórias cujo prazo de pagamento passou.
+ */
+function liberarProvisionaisExpirados() {
+  const props = PropertiesService.getScriptProperties();
+  const allProps = props.getProperties();
+  const agora = new Date();
+
+  Object.keys(allProps).forEach(key => {
+    if (!key.startsWith('provisorio_')) return;
+    try {
+      const b = JSON.parse(allProps[key]);
+      if (b.status !== 'provisorio') return;
+      const deadline = new Date(b.deadline);
+      if (agora >= deadline) {
+        // Prazo expirou — libertar
+        props.deleteProperty(key);
+        // Notificar Frederico
+        const [y,mo,d] = b.dataStr.split('-').map(Number);
+        const dfmt = new Date(y,mo-1,d).toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long' });
+        MailApp.sendEmail({
+          to: EMAIL_FREDERICO,
+          subject: `⏰ Reserva provisória expirada: ${b.nome} — ${dfmt} às ${b.hora}`,
+          htmlBody: `<p style="font-family:sans-serif;font-size:14px;">A reserva provisória de <strong>${b.nome}</strong> (${b.email}) para <strong>${dfmt} às ${b.hora}</strong> expirou sem pagamento. O horário está novamente disponível.</p>`,
+          name: 'Psiagora Agendamentos',
+        });
+        Logger.log('Provisório expirado e libertado: ' + b.nome + ' ' + b.dataStr);
+      }
+    } catch(e) {
+      Logger.log('Erro ao verificar provisório ' + key + ': ' + e.message);
+    }
+  });
 }
 
 

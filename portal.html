@@ -85,6 +85,24 @@
 
     .loading { text-align: center; padding: 40px; color: var(--texto-sec); }
 
+    /* Reserva Provisória */
+    .section-title { font-size: 0.78rem; font-weight: 700; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 0.5px; margin: 28px 0 12px; display: flex; align-items: center; gap: 10px; }
+    .section-title::after { content:''; flex:1; height:1px; background:var(--cinza-borda); }
+    .btn-provisorio-toggle { display: flex; align-items: center; gap: 8px; padding: 9px 16px; background: var(--branco); border: 1.5px dashed var(--verde); border-radius: 9px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--verde); cursor: pointer; transition: all 0.15s; }
+    .btn-provisorio-toggle:hover { background: var(--verde-claro); }
+    #provisorioForm { display: none; background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; padding: 20px; margin-top: 12px; }
+    #provisorioForm .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    #provisorioForm .form-row.single { grid-template-columns: 1fr; }
+    #provisorioForm label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--texto-sec); margin-bottom: 4px; }
+    #provisorioForm input, #provisorioForm select { width: 100%; padding: 9px 11px; border: 1px solid var(--cinza-borda); border-radius: 7px; font-family: inherit; font-size: 0.88rem; }
+    #provisorioForm input:focus, #provisorioForm select:focus { outline: none; border-color: var(--verde); }
+    .btn-enviar-provisorio { padding: 10px 20px; background: var(--verde); color: var(--branco); border: none; border-radius: 8px; font-family: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; }
+    .btn-enviar-provisorio:hover { background: var(--verde-escuro); }
+    .btn-enviar-provisorio:disabled { opacity: 0.5; }
+    .provisorio-msg { font-size: 0.82rem; padding: 10px 12px; border-radius: 7px; margin-top: 10px; display: none; }
+    .provisorio-msg.ok { background: var(--verde-claro); color: var(--verde-escuro); display: block; }
+    .provisorio-msg.err { background: #FEF2F2; color: #DC2626; display: block; }
+
     @media (max-width: 700px) {
       .stats-grid { grid-template-columns: 1fr 1fr; }
       .detalhe-body { grid-template-columns: 1fr; }
@@ -172,6 +190,40 @@
         <tbody id="tbodyClientes"></tbody>
       </table>
       <div class="empty-state" id="emptyState" style="display:none">Nenhum cliente encontrado.</div>
+    </div>
+
+    <!-- Reserva Provisória -->
+    <div class="section-title">Reserva Provisória</div>
+    <button class="btn-provisorio-toggle" onclick="toggleProvisorioForm()">🕐 Criar reserva provisória para cliente</button>
+    <div id="provisorioForm">
+      <p style="font-size:0.82rem;color:var(--texto-sec);margin-bottom:16px;line-height:1.6;">
+        Reserve um horário para um cliente no final da sessão. O cliente recebe um email com link de pagamento e tem <strong>48 horas</strong> antes da consulta para confirmar. Se não pagar dentro do prazo, o horário é libertado automaticamente.
+      </p>
+      <div class="form-row">
+        <div><label>Nome do cliente *</label><input type="text" id="pvNome" placeholder="Maria Silva"></div>
+        <div><label>Email do cliente *</label><input type="email" id="pvEmail" placeholder="maria@email.com"></div>
+      </div>
+      <div class="form-row">
+        <div><label>Telefone</label><input type="tel" id="pvTelefone" placeholder="+351 9xx xxx xxx"></div>
+        <div><label>Tipo de consulta</label>
+          <select id="pvTipo">
+            <option value="seguimento">Seguimento (50€)</option>
+            <option value="primeira">Primeira consulta (65€)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div><label>Data da consulta *</label><input type="date" id="pvData" min=""></div>
+        <div><label>Hora *</label>
+          <select id="pvHora">
+            <option value="">— Selecionar —</option>
+            <option>09:00</option><option>10:00</option><option>11:00</option>
+            <option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-enviar-provisorio" id="btnEnviarProvisorio" onclick="enviarProvisorio()">Enviar link de pagamento ao cliente</button>
+      <div class="provisorio-msg" id="provisorioMsg"></div>
     </div>
 
     <!-- Detalhe cliente -->
@@ -374,6 +426,72 @@
   document.getElementById('filtroTipo').addEventListener('change', () => renderTabela(todosClientes));
 
 })();
+
+// ── Reserva Provisória ────────────────────────────────────────────────────────
+window.toggleProvisorioForm = function() {
+  const form = document.getElementById('provisorioForm');
+  form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  if (form.style.display === 'block') {
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('pvData').min = today;
+    document.getElementById('pvData').value = '';
+    document.getElementById('pvNome').focus();
+  }
+};
+
+window.enviarProvisorio = async function() {
+  const nome     = document.getElementById('pvNome').value.trim();
+  const email    = document.getElementById('pvEmail').value.trim();
+  const telefone = document.getElementById('pvTelefone').value.trim();
+  const tipo     = document.getElementById('pvTipo').value;
+  const data     = document.getElementById('pvData').value;
+  const hora     = document.getElementById('pvHora').value;
+  const msg      = document.getElementById('provisorioMsg');
+  const btn      = document.getElementById('btnEnviarProvisorio');
+
+  msg.className = 'provisorio-msg';
+
+  if (!nome || !email || !data || !hora) {
+    msg.textContent = 'Preencha o nome, email, data e hora.';
+    msg.className = 'provisorio-msg err'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'A enviar...';
+
+  try {
+    const APPS_URL = document.querySelector('script').textContent.match(/APPS_SCRIPT_URL\s*=\s*'([^']+)'/)?.[1]
+      || 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec';
+
+    const r = await fetch(APPS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action: 'criarProvisorio',
+        token: 'portal2026',
+        nome, email, telefone, dataStr: data, hora, tipo,
+      }),
+    });
+    const d = await r.json();
+    if (d.success) {
+      const dl = new Date(d.deadline);
+      const dlFmt = dl.toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+      msg.textContent = `✓ Link de pagamento enviado para ${email}. Prazo: ${dlFmt}.`;
+      msg.className = 'provisorio-msg ok';
+      // Reset form
+      ['pvNome','pvEmail','pvTelefone','pvData'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('pvHora').value = '';
+      document.getElementById('pvTipo').value = 'seguimento';
+    } else {
+      msg.textContent = d.message || d.error || 'Erro ao criar reserva provisória.';
+      msg.className = 'provisorio-msg err';
+    }
+  } catch(e) {
+    msg.textContent = 'Erro de ligação. Tente novamente.';
+    msg.className = 'provisorio-msg err';
+  }
+  btn.disabled = false; btn.textContent = 'Enviar link de pagamento ao cliente';
+};
 </script>
 </body>
 </html>

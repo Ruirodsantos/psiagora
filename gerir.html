@@ -3,521 +3,382 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Remarcar Consulta | Psiagora</title>
+  <title>Gerir Marcação | Psiagora</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --verde: #3D8C6A;
-      --verde-escuro: #2D6B50;
-      --verde-claro: #EAF5EF;
-      --cinza-fundo: #F7F8FA;
-      --cinza-borda: #E5E7EB;
-      --texto: #1A2332;
-      --texto-sec: #5A6678;
-      --roxo: #2A0753;
-      --branco: #FFFFFF;
-      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+      --verde:#3D8C6A; --verde-claro:#EAF5EF; --verde-escuro:#2D6B50;
+      --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678;
+      --gradiente:linear-gradient(135deg,#3D8C6A,#4A90D9);
     }
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      color: var(--texto);
-      background: var(--cinza-fundo);
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh;padding:24px 16px;}
+    header{position:fixed;top:0;left:0;right:0;z-index:900;height:56px;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--borda);display:flex;align-items:center;padding:0 20px;}
+    .logo{font-size:1.3rem;font-weight:800;background:var(--gradiente);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
+    .main{max-width:520px;margin:72px auto 40px;}
+    .card{background:#fff;border-radius:16px;border:1px solid var(--borda);padding:28px 24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+    h2{font-size:1.1rem;font-weight:800;margin-bottom:4px;}
+    .sub{font-size:0.85rem;color:var(--texto-sec);margin-bottom:20px;}
+    .info-box{background:var(--verde-claro);border-radius:10px;padding:14px 16px;margin-bottom:20px;}
+    .info-box strong{display:block;font-size:0.72rem;color:var(--verde-escuro);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+    .info-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(61,140,106,0.15);font-size:0.85rem;}
+    .info-row:last-child{border-bottom:none;}
+    .info-row span:last-child{font-weight:600;}
 
-    header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
-      height: 56px;
-      background: rgba(255,255,255,0.97);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--cinza-borda);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px;
-    }
-    .logo {
-      font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;
-      background: var(--gradiente);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-decoration: none;
-    }
+    /* Tabs */
+    .tabs{display:flex;gap:8px;margin-bottom:20px;}
+    .tab-btn{flex:1;padding:9px;border:1.5px solid var(--borda);border-radius:8px;background:#fff;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.15s;color:var(--texto-sec);}
+    .tab-btn.active{background:var(--verde);border-color:var(--verde);color:#fff;}
+    .tab-btn:hover:not(.active){border-color:var(--verde);color:var(--verde);}
+    .tab-btn.danger.active{background:#DC2626;border-color:#DC2626;}
+    .tab-btn.danger:hover:not(.active){border-color:#DC2626;color:#DC2626;}
 
-    .container {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 80px 16px 40px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid var(--cinza-borda);
-      padding: 28px 24px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--texto-sec);
-      margin-bottom: 16px;
-    }
-
-    /* Estado de carregamento / erro */
-    #estado-loading, #estado-erro, #estado-prazo, #estado-sucesso {
-      text-align: center;
-      padding: 48px 24px;
-    }
-    #estado-erro h2, #estado-prazo h2 { color: #C0392B; margin-bottom: 8px; }
-    #estado-sucesso h2 { color: var(--verde); margin-bottom: 8px; }
-
-    /* Marcação actual */
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--cinza-borda);
-      font-size: 0.88rem;
-    }
-    .info-row:last-child { border-bottom: none; }
-    .info-row .label { color: var(--texto-sec); }
-    .info-row .value { font-weight: 600; text-transform: capitalize; }
+    /* Conteúdo tabs */
+    .tab-content{display:none;}
+    .tab-content.visible{display:block;}
 
     /* Calendário */
-    .cal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .cal-header h3 { font-size: 0.95rem; font-weight: 700; }
-    .btn-nav {
-      background: none; border: 1px solid var(--cinza-borda);
-      border-radius: 6px; width: 32px; height: 32px;
-      cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-    }
-    .btn-nav:hover { background: var(--cinza-fundo); }
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-    .cal-day-name {
-      text-align: center;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--texto-sec);
-      padding: 4px 0;
-    }
-    .cal-day {
-      aspect-ratio: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      transition: all 0.15s;
-    }
-    .cal-day.vazio { cursor: default; }
-    .cal-day.passado { color: #C5CAD4; cursor: not-allowed; }
-    .cal-day.bloqueado { color: #C5CAD4; cursor: not-allowed; background: #F7F8FA; }
-    .cal-day.disponivel:hover { background: var(--verde-claro); border-color: var(--verde); color: var(--verde); }
-    .cal-day.selected { background: var(--verde); color: #fff; border-color: var(--verde); }
-    .cal-day.hoje { font-weight: 800; }
+    .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .cal-header h3{font-size:0.95rem;font-weight:700;}
+    .cal-nav{background:none;border:1px solid var(--borda);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+    .cal-nav:hover{background:var(--cinza);}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:0.78rem;}
+    .cal-grid .day-name{font-weight:700;color:var(--texto-sec);padding:4px 0;}
+    .cal-grid .day-btn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;border:none;background:none;font-family:inherit;font-size:0.82rem;transition:all 0.1s;}
+    .cal-grid .day-btn:hover:not(:disabled){background:var(--verde-claro);color:var(--verde);}
+    .cal-grid .day-btn.selected{background:var(--verde);color:#fff;font-weight:700;}
+    .cal-grid .day-btn:disabled{color:#CBD5E1;cursor:default;}
+    .cal-grid .day-btn.hoje{font-weight:800;color:var(--verde);}
+    .cal-grid .empty{background:none;cursor:default;}
 
-    /* Slots de hora */
-    #slots-container { display: none; margin-top: 16px; }
-    .slots-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .slot-btn {
-      padding: 10px 6px;
-      border: 1.5px solid var(--cinza-borda);
-      border-radius: 8px;
-      background: #fff;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s;
-    }
-    .slot-btn:hover { border-color: var(--verde); color: var(--verde); background: var(--verde-claro); }
-    .slot-btn.selected { background: var(--verde); color: #fff; border-color: var(--verde); }
+    /* Slots */
+    .slots-wrap{margin-top:16px;}
+    .slots-label{font-size:0.78rem;font-weight:700;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+    .slots-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+    .slot-btn{padding:9px 4px;border:1.5px solid var(--borda);border-radius:7px;background:#fff;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.15s;}
+    .slot-btn:hover{border-color:var(--verde);color:var(--verde);}
+    .slot-btn.selected{background:var(--verde);border-color:var(--verde);color:#fff;}
+    .slot-btn.loading-anim{opacity:0.5;pointer-events:none;}
+    .no-slots{font-size:0.82rem;color:var(--texto-sec);padding:12px 0;}
 
-    /* Botão confirmar */
-    #btn-confirmar {
-      display: none;
-      width: 100%;
-      padding: 14px;
-      background: var(--verde);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 16px;
-      transition: background 0.2s;
-    }
-    #btn-confirmar:hover { background: var(--verde-escuro); }
-    #btn-confirmar:disabled { background: var(--cinza-borda); cursor: not-allowed; }
+    /* Botões de acção */
+    .btn-primary{display:block;width:100%;padding:12px;background:var(--verde);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:16px;transition:background 0.15s;}
+    .btn-primary:hover{background:var(--verde-escuro);}
+    .btn-primary:disabled{opacity:0.5;cursor:default;}
+    .btn-cancel-confirm{display:block;width:100%;padding:12px;background:#DC2626;color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:16px;transition:background 0.15s;}
+    .btn-cancel-confirm:hover{background:#B91C1C;}
 
-    .spinner {
-      width: 20px; height: 20px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: inline-block; vertical-align: middle; margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Mensagens */
+    .msg{padding:12px 14px;border-radius:8px;font-size:0.85rem;margin-top:12px;display:none;}
+    .msg.erro{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;}
+    .msg.sucesso{background:var(--verde-claro);border:1px solid rgba(61,140,106,0.3);color:var(--verde-escuro);}
+    .msg.visivel{display:block;}
 
-    .aviso {
-      background: #FFF8E1;
-      border: 1px solid #FFD54F;
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 0.82rem;
-      color: #7B6000;
-      margin-top: 12px;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 32px;
-      font-size: 0.75rem;
-      color: var(--texto-sec);
-    }
-    footer a { color: var(--verde); text-decoration: none; }
+    .loading-state{text-align:center;padding:32px;color:var(--texto-sec);font-size:0.9rem;}
+    .error-state{text-align:center;padding:32px;}
+    .error-state h3{color:#DC2626;margin-bottom:8px;}
+    .error-state p{font-size:0.85rem;color:var(--texto-sec);}
   </style>
 </head>
 <body>
-  <header>
-    <a href="/" class="logo">Psiagora</a>
-  </header>
+<header>
+  <a class="logo" href="/">Psiagora</a>
+</header>
 
-  <div class="container">
-
-    <!-- Estado: a carregar -->
-    <div id="estado-loading">
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--texto-sec);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        A carregar a sua marcação…
-      </div>
-    </div>
-
-    <!-- Estado: token inválido -->
-    <div id="estado-erro" style="display:none">
-      <div class="card">
-        <h2>Link inválido</h2>
-        <p style="color:var(--texto-sec);font-size:0.9rem;margin-top:8px;">Este link de remarcação não é válido ou já expirou. Por favor contacte-nos em <a href="mailto:frederico.e@psiagora.com" style="color:var(--verde)">frederico.e@psiagora.com</a>.</p>
-      </div>
-    </div>
-
-    <!-- Estado: fora do prazo -->
-    <div id="estado-prazo" style="display:none">
-      <div class="card">
-        <h2>Prazo expirado</h2>
-        <p style="color:var(--texto-sec);font-size:0.9rem;margin-top:8px;" id="msg-prazo"></p>
-      </div>
-    </div>
-
-    <!-- Estado: sucesso -->
-    <div id="estado-sucesso" style="display:none">
-      <div class="card" style="text-align:center">
-        <div style="width:56px;height:56px;background:var(--verde-claro);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
-        <h2>Consulta remarcada!</h2>
-        <p style="color:var(--texto-sec);font-size:0.88rem;margin-top:8px;" id="msg-sucesso"></p>
-        <a href="/" style="display:inline-block;margin-top:20px;padding:10px 24px;background:var(--verde);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.88rem;">Voltar ao início</a>
-      </div>
-    </div>
-
-    <!-- Conteúdo principal -->
-    <div id="conteudo" style="display:none">
-
-      <!-- Marcação actual -->
-      <div class="card">
-        <div class="card-title">Marcação actual</div>
-        <div class="info-row"><span class="label">Nome</span><span class="value" id="b-nome">—</span></div>
-        <div class="info-row"><span class="label">Data</span><span class="value" id="b-data">—</span></div>
-        <div class="info-row"><span class="label">Hora</span><span class="value" id="b-hora">—</span></div>
-        <div class="info-row"><span class="label">Tipo</span><span class="value" id="b-tipo">—</span></div>
-        <div class="aviso">⚠️ Só é possível remarcar até <strong>4 horas antes</strong> da consulta.</div>
-      </div>
-
-      <!-- Escolher nova data -->
-      <div class="card">
-        <div class="card-title">Escolher nova data</div>
-        <div class="cal-header">
-          <button class="btn-nav" id="btn-prev">‹</button>
-          <h3 id="cal-mes">—</h3>
-          <button class="btn-nav" id="btn-next">›</button>
-        </div>
-        <div class="cal-grid" id="cal-grid">
-          <div class="cal-day-name">Dom</div>
-          <div class="cal-day-name">Seg</div>
-          <div class="cal-day-name">Ter</div>
-          <div class="cal-day-name">Qua</div>
-          <div class="cal-day-name">Qui</div>
-          <div class="cal-day-name">Sex</div>
-          <div class="cal-day-name">Sáb</div>
-        </div>
-
-        <!-- Slots de hora -->
-        <div id="slots-container">
-          <div class="card-title" style="margin-top:16px;margin-bottom:0">Escolher nova hora</div>
-          <div class="slots-grid" id="slots-grid"></div>
-        </div>
-
-        <button id="btn-confirmar">Confirmar remarcação</button>
-      </div>
-
-    </div>
-
-    <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
+<div class="main">
+  <!-- Estado de carregamento -->
+  <div id="loadingState" class="card loading-state">A carregar a sua marcação...</div>
+  <div id="errorState" class="card error-state" style="display:none">
+    <h3>Marcação não encontrada</h3>
+    <p>O link pode ter expirado ou já ter sido utilizado. Para alterar a sua consulta contacte <a href="mailto:info@psiagora.com" style="color:var(--verde)">info@psiagora.com</a>.</p>
   </div>
 
-  <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
-    const DIAS_DISPONIVEIS = [1, 2, 3, 4, 5]; // seg=1 ... sex=5
-    const JANELA_DIAS = 60;
+  <!-- Conteúdo principal (após carregar) -->
+  <div id="mainContent" style="display:none">
+    <div class="card">
+      <h2>Gerir marcação</h2>
+      <p class="sub">Pode remarcar ou cancelar a sua consulta até 4 horas antes do horário agendado.</p>
 
-    let bookingToken = '';
-    let booking = null;
-    let viewDate = new Date();
-    let selectedDate = null;
-    let selectedTime = null;
-    const slotsCache = {};
+      <div class="info-box">
+        <strong>A sua consulta</strong>
+        <div class="info-row"><span>Data</span><span id="infoData">—</span></div>
+        <div class="info-row"><span>Hora</span><span id="infoHora">—</span></div>
+        <div class="info-row"><span>Nome</span><span id="infoNome">—</span></div>
+        <div class="info-row"><span>Tipo</span><span id="infoTipo">—</span></div>
+      </div>
 
-    // ── Init ──────────────────────────────────────────────────────────────────
-    async function init() {
-      const params = new URLSearchParams(window.location.search);
-      bookingToken = params.get('token') || '';
+      <div class="tabs">
+        <button class="tab-btn active" id="tabRemarcar" onclick="mostrarTab('remarcar')">🗓 Remarcar</button>
+        <button class="tab-btn danger" id="tabCancelar" onclick="mostrarTab('cancelar')">✕ Cancelar</button>
+      </div>
 
-      if (!bookingToken) { showEstado('erro'); return; }
+      <!-- Tab: Remarcar -->
+      <div class="tab-content visible" id="contentRemarcar">
+        <div class="cal-header">
+          <button class="cal-nav" id="btnPrevMes" onclick="navegarMes(-1)">‹</button>
+          <h3 id="calTitulo"></h3>
+          <button class="cal-nav" id="btnNextMes" onclick="navegarMes(1)">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="slots-wrap" id="slotsWrap" style="display:none">
+          <div class="slots-label">Horários disponíveis</div>
+          <div class="slots-grid" id="slotsGrid"></div>
+          <div class="no-slots" id="noSlots" style="display:none">Sem horários disponíveis neste dia.</div>
+        </div>
+        <div class="msg erro" id="msgRemarcarErro"></div>
+        <div class="msg sucesso" id="msgRemarcarSucesso"></div>
+        <button class="btn-primary" id="btnConfirmarRemarcacao" disabled onclick="confirmarRemarcacao()">Confirmar nova data</button>
+      </div>
 
-      try {
-        const res = await fetch(`${APPS_SCRIPT_URL}?action=getBooking&token=${bookingToken}`);
-        const json = await res.json();
+      <!-- Tab: Cancelar -->
+      <div class="tab-content" id="contentCancelar">
+        <p style="font-size:0.88rem;color:var(--texto-sec);line-height:1.7;margin-bottom:12px;">
+          Tem a certeza que quer cancelar a sua consulta? Esta acção não pode ser desfeita.
+        </p>
+        <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;font-size:0.83rem;color:#7F1D1D;">
+          Após o cancelamento receberá um email de confirmação. Pode sempre marcar uma nova sessão em <a href="/equipa.html" style="color:#DC2626;font-weight:600">psiagora.com/equipa</a>.
+        </div>
+        <div class="msg erro" id="msgCancelarErro"></div>
+        <div class="msg sucesso" id="msgCancelarSucesso"></div>
+        <button class="btn-cancel-confirm" id="btnConfirmarCancelamento" onclick="confirmarCancelamento()">Cancelar consulta definitivamente</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        if (!json.success || !json.booking) { showEstado('erro'); return; }
+<script>
+(() => {
+  'use strict';
 
-        booking = json.booking;
-        preencherInfoActual();
-        showEstado('conteudo');
-        renderCalendario();
+  const APPS_SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec';
+  const DIAS_DISPONIVEIS = [1, 2, 3, 4, 5]; // seg-sex
+  const DIAS_BLOQUEADOS  = [];
+  const JANELA_DIAS      = 60;
 
-      } catch(e) {
-        showEstado('erro');
-      }
+  let bookingToken  = '';
+  let booking       = null;
+  let mesAtual      = new Date();
+  let dataSelecionada = null;
+  let horaSelecionada = null;
+  let slotsCache    = {};
+
+  // ── Inicializar ──────────────────────────────────────────────────────────────
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    bookingToken = params.get('token') || '';
+    if (!bookingToken) { mostrarErro(); return; }
+
+    try {
+      const r = await fetch(`${APPS_SCRIPT_URL}?action=getBooking&token=${encodeURIComponent(bookingToken)}`);
+      const d = await r.json();
+      if (!d.success || !d.booking) { mostrarErro(); return; }
+      booking = d.booking;
+      preencherInfo();
+      mesAtual = new Date(); // começa no mês actual
+      renderCal();
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('mainContent').style.display  = 'block';
+    } catch(e) {
+      mostrarErro();
+    }
+  }
+
+  function mostrarErro() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display   = 'block';
+  }
+
+  function preencherInfo() {
+    const [y,mo,d] = booking.dataStr.split('-').map(Number);
+    const dt = new Date(y, mo-1, d);
+    document.getElementById('infoData').textContent = dt.toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('infoHora').textContent = booking.hora;
+    document.getElementById('infoNome').textContent = booking.nome || '—';
+    document.getElementById('infoTipo').textContent = booking.tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
+  }
+
+  // ── Tabs ─────────────────────────────────────────────────────────────────────
+  window.mostrarTab = function(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('visible'));
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('visible');
+  };
+
+  // ── Calendário ───────────────────────────────────────────────────────────────
+  window.navegarMes = function(delta) {
+    mesAtual = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + delta, 1);
+    renderCal();
+  };
+
+  function renderCal() {
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const limite = new Date(hoje.getTime() + JANELA_DIAS * 24 * 60 * 60 * 1000);
+    const ano  = mesAtual.getFullYear();
+    const mes  = mesAtual.getMonth();
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+    document.getElementById('calTitulo').textContent = `${meses[mes]} ${ano}`;
+    document.getElementById('btnPrevMes').disabled = (new Date(ano, mes, 1) <= new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+    document.getElementById('btnNextMes').disabled = (new Date(ano, mes + 1, 1) > limite);
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].forEach(n => {
+      const el = document.createElement('div'); el.className = 'day-name'; el.textContent = n; grid.appendChild(el);
+    });
+
+    const primeiroDia = new Date(ano, mes, 1);
+    const offsetISO  = (primeiroDia.getDay() + 6) % 7;
+    for (let i = 0; i < offsetISO; i++) {
+      const el = document.createElement('div'); el.className = 'empty'; grid.appendChild(el);
     }
 
-    function showEstado(id) {
-      ['loading','erro','prazo','sucesso','conteudo'].forEach(s => {
-        const el = document.getElementById('estado-' + s) || document.getElementById(s === 'conteudo' ? 'conteudo' : 'estado-' + s);
-        if (el) el.style.display = 'none';
+    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+      const dt = new Date(ano, mes, dia); dt.setHours(0,0,0,0);
+      const iso = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+      const btn = document.createElement('button');
+      btn.className = 'day-btn';
+      btn.textContent = dia;
+      const diaSemana = dt.getDay(); // 0=Dom
+      const diaSemanaISO = diaSemana === 0 ? 7 : diaSemana; // 1=Seg...7=Dom
+      const bloqueado = DIAS_BLOQUEADOS.includes(iso);
+      if (dt < hoje || dt > limite || !DIAS_DISPONIVEIS.includes(diaSemanaISO) || bloqueado) {
+        btn.disabled = true;
+      } else {
+        if (dt.toDateString() === hoje.toDateString()) btn.classList.add('hoje');
+        if (iso === dataSelecionada) btn.classList.add('selected');
+        btn.onclick = () => selecionarDia(iso, btn);
+      }
+      grid.appendChild(btn);
+    }
+  }
+
+  function selecionarDia(iso, btn) {
+    dataSelecionada = iso; horaSelecionada = null;
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('btnConfirmarRemarcacao').disabled = true;
+    carregarSlots(iso);
+  }
+
+  async function carregarSlots(iso) {
+    const wrap  = document.getElementById('slotsWrap');
+    const grid  = document.getElementById('slotsGrid');
+    const noSlots = document.getElementById('noSlots');
+    wrap.style.display = 'block';
+    grid.innerHTML = '<div style="font-size:0.82rem;color:var(--texto-sec);padding:8px 0">A carregar horários...</div>';
+    noSlots.style.display = 'none';
+
+    if (slotsCache[iso]) { renderSlots(slotsCache[iso]); return; }
+
+    try {
+      const r = await fetch(`${APPS_SCRIPT_URL}?date=${iso}`);
+      const d = await r.json();
+      slotsCache[iso] = d.available || [];
+      renderSlots(slotsCache[iso]);
+    } catch(e) {
+      grid.innerHTML = '<div style="font-size:0.82rem;color:#DC2626">Erro ao carregar horários.</div>';
+    }
+  }
+
+  function renderSlots(slots) {
+    const grid   = document.getElementById('slotsGrid');
+    const noSlots = document.getElementById('noSlots');
+    grid.innerHTML = '';
+    if (!slots || slots.length === 0) { noSlots.style.display = 'block'; return; }
+    noSlots.style.display = 'none';
+    slots.forEach(hora => {
+      const btn = document.createElement('button');
+      btn.className = 'slot-btn';
+      btn.textContent = hora;
+      if (hora === horaSelecionada) btn.classList.add('selected');
+      btn.onclick = () => selecionarHora(hora, btn);
+      grid.appendChild(btn);
+    });
+  }
+
+  function selecionarHora(hora, btn) {
+    horaSelecionada = hora;
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('btnConfirmarRemarcacao').disabled = false;
+  }
+
+  // ── Confirmar remarcação ─────────────────────────────────────────────────────
+  window.confirmarRemarcacao = async function() {
+    if (!dataSelecionada || !horaSelecionada) return;
+    const btn = document.getElementById('btnConfirmarRemarcacao');
+    const msgErro    = document.getElementById('msgRemarcarErro');
+    const msgSucesso = document.getElementById('msgRemarcarSucesso');
+    msgErro.classList.remove('visivel'); msgSucesso.classList.remove('visivel');
+    btn.disabled = true; btn.textContent = 'A remarcar...';
+
+    try {
+      const r = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'remarcar', bookingToken, novaData: dataSelecionada, novaHora: horaSelecionada }),
       });
-      const alvo = document.getElementById(id === 'conteudo' ? 'conteudo' : 'estado-' + id);
-      if (alvo) alvo.style.display = 'block';
-    }
-
-    function preencherInfoActual() {
-      const [y, mo, d] = booking.dataStr.split('-').map(Number);
-      const dt = new Date(y, mo - 1, d);
-      const dataFmt = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      document.getElementById('b-nome').textContent = booking.nome;
-      document.getElementById('b-data').textContent = dataFmt;
-      document.getElementById('b-hora').textContent = booking.hora;
-      document.getElementById('b-tipo').textContent = booking.tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
-    }
-
-    // ── Calendário ────────────────────────────────────────────────────────────
-    function renderCalendario() {
-      const hoje = new Date();
-      hoje.setHours(0, 0, 0, 0);
-      const limite = new Date(hoje.getTime() + JANELA_DIAS * 24 * 60 * 60 * 1000);
-
-      const ano = viewDate.getFullYear();
-      const mes = viewDate.getMonth();
-
-      const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-      document.getElementById('cal-mes').textContent = `${meses[mes]} ${ano}`;
-
-      const primeiroDia = new Date(ano, mes, 1).getDay();
-      const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-
-      const grid = document.getElementById('cal-grid');
-      // Manter cabeçalho
-      while (grid.children.length > 7) grid.removeChild(grid.lastChild);
-
-      for (let i = 0; i < primeiroDia; i++) {
-        const vazio = document.createElement('div');
-        vazio.className = 'cal-day vazio';
-        grid.appendChild(vazio);
+      const d = await r.json();
+      if (d.success) {
+        // Atualizar info exibida
+        booking.dataStr = dataSelecionada; booking.hora = horaSelecionada;
+        preencherInfo();
+        slotsCache = {}; dataSelecionada = null; horaSelecionada = null;
+        renderCal();
+        document.getElementById('slotsWrap').style.display = 'none';
+        msgSucesso.textContent = 'Consulta remarcada com sucesso! Vai receber um email de confirmação.';
+        msgSucesso.classList.add('visivel');
+        btn.textContent = 'Confirmar nova data'; btn.disabled = true;
+      } else {
+        msgErro.textContent = d.message || d.error || 'Erro ao remarcar. Tente novamente.';
+        msgErro.classList.add('visivel');
+        btn.textContent = 'Confirmar nova data'; btn.disabled = false;
       }
-
-      for (let dia = 1; dia <= diasNoMes; dia++) {
-        const data = new Date(ano, mes, dia);
-        const isoStr = `${ano}-${String(mes+1).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-        const diaSemana = data.getDay();
-
-        const el = document.createElement('div');
-        el.className = 'cal-day';
-        el.textContent = dia;
-
-        if (data < hoje) {
-          el.classList.add('passado');
-        } else if (data > limite || !DIAS_DISPONIVEIS.includes(diaSemana)) {
-          el.classList.add('bloqueado');
-        } else {
-          el.classList.add('disponivel');
-          if (data.toDateString() === hoje.toDateString()) el.classList.add('hoje');
-          if (selectedDate === isoStr) el.classList.add('selected');
-          el.addEventListener('click', () => selectDia(isoStr, el));
-        }
-
-        grid.appendChild(el);
-      }
+    } catch(e) {
+      msgErro.textContent = 'Erro de ligação. Tente novamente.';
+      msgErro.classList.add('visivel');
+      btn.textContent = 'Confirmar nova data'; btn.disabled = false;
     }
+  };
 
-    async function selectDia(iso, el) {
-      selectedDate = iso;
-      selectedTime = null;
-      document.querySelectorAll('.cal-day.selected').forEach(e => e.classList.remove('selected'));
-      el.classList.add('selected');
-      document.getElementById('btn-confirmar').style.display = 'none';
+  // ── Confirmar cancelamento ───────────────────────────────────────────────────
+  window.confirmarCancelamento = async function() {
+    const btn = document.getElementById('btnConfirmarCancelamento');
+    const msgErro    = document.getElementById('msgCancelarErro');
+    const msgSucesso = document.getElementById('msgCancelarSucesso');
+    msgErro.classList.remove('visivel'); msgSucesso.classList.remove('visivel');
+    btn.disabled = true; btn.textContent = 'A cancelar...';
 
-      // Mostrar slots
-      const slotsContainer = document.getElementById('slots-container');
-      const slotsGrid = document.getElementById('slots-grid');
-      slotsContainer.style.display = 'block';
-      slotsGrid.innerHTML = `<div style="grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:8px 0;color:var(--texto-sec);font-size:0.85rem;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;flex-shrink:0"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        A verificar disponibilidade…
-      </div>`;
-
-      const slots = await getSlotsForDay(iso);
-      slotsGrid.innerHTML = '';
-
-      if (slots.length === 0) {
-        slotsGrid.innerHTML = `<div style="grid-column:1/-1;color:var(--texto-sec);font-size:0.85rem;padding:8px 0;">Sem horários disponíveis neste dia.</div>`;
-        return;
-      }
-
-      slots.forEach(hora => {
-        const btn = document.createElement('button');
-        btn.className = 'slot-btn';
-        btn.textContent = hora;
-        btn.addEventListener('click', () => selectHora(hora, btn));
-        slotsGrid.appendChild(btn);
+    try {
+      const r = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'cancelarConsulta', bookingToken }),
       });
-    }
-
-    async function getSlotsForDay(iso) {
-      if (slotsCache[iso]) return slotsCache[iso];
-      try {
-        const res = await fetch(`${APPS_SCRIPT_URL}?date=${iso}`);
-        const json = await res.json();
-        if (Array.isArray(json.available)) {
-          slotsCache[iso] = json.available;
-          return json.available;
-        }
-      } catch(e) {}
-      return [];
-    }
-
-    function selectHora(hora, el) {
-      selectedTime = hora;
-      document.querySelectorAll('.slot-btn.selected').forEach(e => e.classList.remove('selected'));
-      el.classList.add('selected');
-      document.getElementById('btn-confirmar').style.display = 'block';
-    }
-
-    // ── Nav mês ───────────────────────────────────────────────────────────────
-    document.getElementById('btn-prev').addEventListener('click', () => {
-      viewDate.setMonth(viewDate.getMonth() - 1);
-      selectedDate = null; selectedTime = null;
-      document.getElementById('slots-container').style.display = 'none';
-      document.getElementById('btn-confirmar').style.display = 'none';
-      renderCalendario();
-    });
-    document.getElementById('btn-next').addEventListener('click', () => {
-      viewDate.setMonth(viewDate.getMonth() + 1);
-      selectedDate = null; selectedTime = null;
-      document.getElementById('slots-container').style.display = 'none';
-      document.getElementById('btn-confirmar').style.display = 'none';
-      renderCalendario();
-    });
-
-    // ── Confirmar remarcação ──────────────────────────────────────────────────
-    document.getElementById('btn-confirmar').addEventListener('click', async () => {
-      if (!selectedDate || !selectedTime) return;
-
-      const btn = document.getElementById('btn-confirmar');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span>A remarcar…';
-
-      try {
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'remarcar',
-            bookingToken,
-            novaData: selectedDate,
-            novaHora: selectedTime,
-          }),
-        });
-        const json = await res.json();
-
-        if (json.error === 'prazo') {
-          document.getElementById('msg-prazo').textContent = json.message;
-          showEstado('prazo');
-          return;
-        }
-        if (json.error === 'slot') {
-          alert(json.message);
-          btn.disabled = false;
-          btn.innerHTML = 'Confirmar remarcação';
-          // Limpar cache deste dia e recarregar slots
-          delete slotsCache[selectedDate];
-          selectDia(selectedDate, document.querySelector('.cal-day.selected'));
-          return;
-        }
-        if (!json.success) {
-          alert('Ocorreu um erro. Por favor tente novamente ou contacte frederico.e@psiagora.com');
-          btn.disabled = false;
-          btn.innerHTML = 'Confirmar remarcação';
-          return;
-        }
-
-        // Sucesso
-        const [y, mo, d] = selectedDate.split('-').map(Number);
-        const dt = new Date(y, mo - 1, d);
-        const dataFmt = dt.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('msg-sucesso').textContent = `Nova data: ${dataFmt} às ${selectedTime}. Vai receber um email de confirmação em breve.`;
-        showEstado('sucesso');
-
-      } catch(e) {
-        alert('Erro de ligação. Por favor tente novamente.');
-        btn.disabled = false;
-        btn.innerHTML = 'Confirmar remarcação';
+      const d = await r.json();
+      if (d.success) {
+        msgSucesso.textContent = 'Consulta cancelada. Vai receber um email de confirmação.';
+        msgSucesso.classList.add('visivel');
+        btn.style.display = 'none';
+        document.getElementById('tabRemarcar').disabled = true;
+        document.getElementById('tabCancelar').disabled = true;
+      } else {
+        msgErro.textContent = d.message || d.error || 'Erro ao cancelar. Tente novamente.';
+        msgErro.classList.add('visivel');
+        btn.disabled = false; btn.textContent = 'Cancelar consulta definitivamente';
       }
-    });
+    } catch(e) {
+      msgErro.textContent = 'Erro de ligação. Tente novamente.';
+      msgErro.classList.add('visivel');
+      btn.disabled = false; btn.textContent = 'Cancelar consulta definitivamente';
+    }
+  };
 
-    init();
-  </script>
+  init();
+})();
+</script>
 </body>
 </html>

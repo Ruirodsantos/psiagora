@@ -59,13 +59,23 @@
   <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
+    const APPS_SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
+    const APPS_SCRIPT_URL_V2 = 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec';
     const APPS_SCRIPT_TOKEN = 'psiagora2026';
     // URL do Google Form de pré-consulta (substituir pelo URL real depois de criar o Form)
     const PRE_FORM_URL = 'https://forms.gle/SUBSTITUIR_PELO_URL_REAL';
 
     async function init() {
       try {
+        // ── Reserva provisória confirmada via payToken ───────────────────
+        const urlParams = new URLSearchParams(window.location.search);
+        const payToken  = urlParams.get('payToken');
+        if (payToken) {
+          await confirmarProvisorio(payToken);
+          return;
+        }
+
+        // ── Fluxo normal (agendar.html → sucesso.html) ───────────────────
         const b = JSON.parse(sessionStorage.getItem('psiagora_booking') || '{}');
         if (!b.date || !b.time) return;
 
@@ -111,6 +121,40 @@
         sessionStorage.removeItem('psiagora_booking');
       } catch(e) {
         console.error(e);
+      }
+    }
+
+    async function confirmarProvisorio(payToken) {
+      try {
+        document.querySelector('h1').textContent = 'A confirmar a sua reserva...';
+        document.querySelector('p').textContent = 'Por favor aguarde um momento.';
+
+        const r = await fetch(`${APPS_SCRIPT_URL_V2}?action=confirmarProvisorio&payToken=${encodeURIComponent(payToken)}`);
+        const d = await r.json();
+
+        if (d.success) {
+          document.querySelector('h1').textContent = 'Consulta Confirmada';
+          document.querySelector('p').textContent = 'O pagamento foi processado com sucesso. Vai receber um email de confirmação com todos os detalhes e o link da videochamada.';
+
+          const [y,mo,dy] = d.dataStr.split('-').map(Number);
+          const dt = new Date(y, mo-1, dy);
+          document.getElementById('bDate').textContent = dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+          document.getElementById('bTime').textContent = d.hora;
+          document.getElementById('bNome').textContent = d.nome || '—';
+          document.getElementById('bookingInfo').style.display = 'block';
+
+          if ((d.tipo || 'seguimento') !== 'primeira') {
+            document.getElementById('pacotesWrap').style.display = 'block';
+          }
+        } else {
+          document.querySelector('h1').textContent = 'Erro na confirmação';
+          document.querySelector('p').textContent = d.error || 'Não foi possível confirmar a reserva. Contacte info@psiagora.com.';
+          document.querySelector('.icon svg').setAttribute('stroke', '#DC2626');
+          document.querySelector('.icon').style.background = '#FEF2F2';
+        }
+      } catch(e) {
+        document.querySelector('h1').textContent = 'Erro de ligação';
+        document.querySelector('p').textContent = 'Não foi possível contactar o servidor. Tente novamente ou contacte info@psiagora.com.';
       }
     }
 
