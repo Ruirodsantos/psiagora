@@ -13,7 +13,8 @@
       --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    html { overflow-x: hidden; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden; }
 
     /* LOGIN */
     #login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
@@ -104,30 +105,35 @@
     .provisorio-msg.err { background: #FEF2F2; color: #DC2626; display: block; }
 
     @media (max-width: 700px) {
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .detalhe-body { grid-template-columns: 1fr; }
-      .portal-body { padding: 16px 12px 60px; }
-      /* Tabela mobile: 3 colunas — Nome | Sessões | Tipo */
-      .tabela-wrap { overflow-x: hidden; }
+      /* Layout geral: espaço nas margens como o login card */
+      .portal-body { padding: 16px 16px 80px; max-width: 100%; }
+      header { padding: 0 16px; }
+
+      /* Stats: 2 colunas */
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-card { padding: 10px 12px; }
+      .stat-val { font-size: 1.3rem; }
+
+      /* Tabela: 3 colunas — Nome | Sessões | Tipo */
+      .tabela-wrap { overflow: hidden; border-radius: 10px; }
       table { table-layout: fixed; width: 100%; }
-      /* Esconder: Email/Tel (col2) e Última sessão (col3) */
       td:nth-child(2), th:nth-child(2),
       td:nth-child(3), th:nth-child(3) { display: none; }
       td:nth-child(1), th:nth-child(1) { width: 55%; }
       td:nth-child(4), th:nth-child(4) { width: 15%; text-align: center; }
       td:nth-child(5), th:nth-child(5) { width: 30%; }
+
       /* Filtros em coluna */
       .filtros { flex-direction: column; gap: 8px; }
-      .filtros input, .filtros select { width: 100%; min-width: unset; }
+      .filtros input, .filtros select { width: 100%; min-width: unset; box-sizing: border-box; }
+
       /* Formulário provisório em coluna */
       #provisorioForm .form-row { grid-template-columns: 1fr; }
-      /* Detalhe: sem espaço extra */
-      #detalhe-wrap { margin-top: 16px; }
-      /* Header stats menos padding */
-      .stat-card { padding: 10px 12px; }
-      .stat-val { font-size: 1.3rem; }
-      /* Botão "Criar reserva" sempre visível */
-      .portal-fab { font-size: 0.82rem; padding: 10px 16px; }
+      #provisorioForm { padding: 16px; }
+
+      /* Detalhe */
+      .detalhe-body { grid-template-columns: 1fr; }
+      #detalhe-wrap { margin-top: 12px; }
     }
   </style>
 </head>
