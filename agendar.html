@@ -468,11 +468,11 @@
         <input type="hidden" id="tipo-hidden" name="tipo" value="primeira">
         <div class="form-group" id="tipo-badge-wrap">
           <label>Tipo de consulta</label>
-          <div id="tipo-badge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--verde-claro);border:1.5px solid var(--verde);font-size:0.9rem;margin-top:6px;">
-            <span id="tipo-badge-texto" style="font-weight:600;color:var(--verde);">Primeira consulta</span>
-            <span id="tipo-badge-preco" style="color:var(--verde);font-weight:700;margin-left:auto;">65,00 €</span>
+          <div id="tipo-badge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--cinza-fundo);border:1.5px solid var(--cinza-borda);font-size:0.9rem;margin-top:6px;">
+            <span id="tipo-badge-texto" style="font-weight:500;color:var(--texto-sec);">Por favor preencha os dados em baixo</span>
+            <span id="tipo-badge-preco" style="font-weight:700;margin-left:auto;"></span>
           </div>
-          <p id="tipo-badge-info" style="font-size:0.78rem;color:var(--texto-sec);margin-top:5px;">Clientes recorrentes pagam 50,00 € — detectado automaticamente pelo email.</p>
+          <p id="tipo-badge-info" style="font-size:0.78rem;color:var(--texto-sec);margin-top:5px;"></p>
         </div>
         <div class="form-group">
           <label for="f-msg">Breve descricao (opcional)</label>
@@ -771,7 +771,7 @@
       <div class="summary-line"><span>Data</span><span>${fmt}</span></div>
       <div class="summary-line"><span>Hora</span><span>${state.selectedTime}</span></div>
       <div class="summary-line"><span>Duracao</span><span>50 minutos</span></div>
-      <div class="summary-line"><span>Valor</span><span id="summary-valor">${CONFIG.precoPrimeira.toFixed(2).replace('.',',')} €</span></div>
+      <div class="summary-line"><span>Valor</span><span id="summary-valor" style="color:var(--texto-sec);">—</span></div>
     `;
   }
 
