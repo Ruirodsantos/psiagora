@@ -113,7 +113,8 @@ function doGet(e) {
         const sheetId = props.getProperty('SHEET_ID');
         if (sheetId) {
           try {
-            const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
+            const ss    = SpreadsheetApp.openById(sheetId);
+            const sheet = ss.getSheetByName('Marcações') || ss.getSheets()[0];
             if (sheet) {
               const rows = sheet.getDataRange().getValues();
               // Colunas: [0]=DataRegisto [1]=Nome [2]=Email [3]=Telefone ...
