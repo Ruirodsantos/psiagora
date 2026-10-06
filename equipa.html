@@ -4,18 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>A Nossa Equipa | Psiagora</title>
+  <meta name="description" content="Conheça os psicólogos da Psiagora — certificados pela Ordem dos Psicólogos de Portugal. Escolha o profissional que melhor se adapta ao que procura.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --verde: #3D8C6A;
-      --verde-escuro: #2D6B50;
-      --verde-claro: #EAF5EF;
+      --verde: #00C48C;
+      --verde-escuro: #009B72;
+      --verde-claro: #E6F8F4;
       --cinza-fundo: #F7F8FA;
       --cinza-borda: #E5E7EB;
       --texto: #1A2332;
       --texto-sec: #5A6678;
       --branco: #FFFFFF;
-      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+      --gradiente: linear-gradient(135deg, #00C48C 0%, #2CC7C8 100%);
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; }
@@ -35,7 +37,7 @@
 
     .trust-pills { background: var(--branco); border-bottom: 1px solid var(--cinza-borda); padding: 12px 16px; display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .trust-pills::-webkit-scrollbar { display: none; }
-    .pill { flex-shrink: 0; font-size: 0.78rem; font-weight: 600; color: var(--verde-escuro); background: var(--verde-claro); border: 1px solid rgba(61,140,106,0.2); padding: 6px 12px; border-radius: 50px; white-space: nowrap; }
+    .pill { flex-shrink: 0; font-size: 0.78rem; font-weight: 600; color: var(--verde-escuro); background: var(--verde-claro); border: 1px solid rgba(0,196,140,0.2); padding: 6px 12px; border-radius: 50px; white-space: nowrap; }
 
     .page-wrap { max-width: 900px; margin: 0 auto; padding: 36px 16px 60px; }
 
@@ -71,7 +73,7 @@
     .tag {
       font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px;
       background: var(--verde-claro); color: var(--verde-escuro);
-      border: 1px solid rgba(61,140,106,0.2);
+      border: 1px solid rgba(0,196,140,0.2);
     }
 
     .psi-desc { font-size: 0.85rem; color: var(--texto-sec); line-height: 1.65; flex: 1; }
@@ -237,5 +239,19 @@
   <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="/privacidade">Privacidade</a></p>
 </footer>
 
+<script>
+  // Randomizar ordem dos psicólogos a cada visita — sem bias para o primeiro
+  document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.querySelector('.equipa-grid');
+    if (!grid) return;
+    const cards = Array.from(grid.children);
+    // Fisher-Yates shuffle
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      grid.appendChild(cards[j]);
+      cards.splice(j, 1);
+    }
+  });
+</script>
 </body>
 </html>

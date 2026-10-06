@@ -396,8 +396,35 @@
   });
 
   // ── CARREGAR DADOS ─────────────────────────────────────────
+  const CACHE_KEY = 'psiagora_clientes';
+  const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
+  function getCacheClientes() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL) { sessionStorage.removeItem(CACHE_KEY); return null; }
+      return data;
+    } catch(e) { return null; }
+  }
+
+  function setCacheClientes(data) {
+    try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+  }
+
   async function carregarDados() {
     try {
+      // Verificar cache primeiro
+      const cached = getCacheClientes();
+      if (cached) {
+        document.getElementById('loadingMsg').style.display = 'none';
+        todosClientes = agruparPorCliente(cached);
+        renderStats(todosClientes, cached);
+        renderTabela(todosClientes);
+        return;
+      }
+
       const r = await fetch(`${APPS_SCRIPT_URL}?action=getClientes&token=${PORTAL_TOKEN}`);
       const j = await r.json();
 
@@ -407,6 +434,7 @@
       }
 
       const rows = j.clientes || [];
+      setCacheClientes(rows); // guardar em cache
       todosClientes = agruparPorCliente(rows);
       renderStats(todosClientes, rows);
       renderTabela(todosClientes);
