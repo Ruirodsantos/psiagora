@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Cookies | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #3D8C6A; --verde-claro: #EAF5EF;
+      --cinza-fundo: #F7F8FA; --cinza-borda: #E5E7EB;
+      --texto: #1A2332; --texto-sec: #5A6678;
+      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); }
+    header {
+      background: #fff; border-bottom: 1px solid var(--cinza-borda);
+      padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-size: 1.3rem; font-weight: 800; background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+    .back { font-size: 0.85rem; color: var(--verde); text-decoration: none; font-weight: 600; }
+    .back:hover { text-decoration: underline; }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .meta { color: var(--texto-sec); font-size: 0.875rem; margin-bottom: 40px; }
+    h2 { font-size: 1.1rem; font-weight: 700; margin: 32px 0 12px; color: var(--texto); }
+    p { line-height: 1.75; color: var(--texto-sec); font-size: 0.95rem; margin-bottom: 12px; }
+    ul { margin: 8px 0 12px 20px; }
+    ul li { line-height: 1.75; color: var(--texto-sec); font-size: 0.95rem; margin-bottom: 6px; }
+    .cookie-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+    .cookie-table th { background: var(--cinza-fundo); padding: 10px 14px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--cinza-borda); }
+    .cookie-table td { padding: 10px 14px; border-bottom: 1px solid var(--cinza-borda); color: var(--texto-sec); vertical-align: top; }
+    .cookie-table tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .badge-essencial { background: #DCFCE7; color: #166534; }
+    .badge-funcional { background: #DBEAFE; color: #1E40AF; }
+    a { color: var(--verde); }
+    footer { text-align: center; padding: 32px 24px; font-size: 0.8rem; color: var(--texto-sec); border-top: 1px solid var(--cinza-borda); background: #fff; }
+    @media (max-width: 600px) {
+      h1 { font-size: 1.5rem; }
+      .cookie-table th:nth-child(3), .cookie-table td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <a href="/" class="logo">Psiagora</a>
+  <a href="/" class="back">← Voltar ao início</a>
+</header>
+
+<main>
+  <h1>Política de Cookies</h1>
+  <p class="meta">Última actualização: Outubro de 2026</p>
+
+  <h2>O que são cookies?</h2>
+  <p>Cookies são pequenos ficheiros de texto que os websites guardam no seu dispositivo quando os visita. Servem para que o site funcione correctamente e para melhorar a sua experiência.</p>
+
+  <h2>Que cookies utilizamos?</h2>
+  <p>O site Psiagora utiliza apenas cookies estritamente necessários ao funcionamento e cookies funcionais que melhoram a experiência de agendamento. <strong>Não utilizamos cookies de rastreamento, publicidade ou análise de comportamento.</strong></p>
+
+  <table class="cookie-table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Finalidade</th>
+        <th>Duração</th>
+        <th>Tipo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>sessionStorage</code></td>
+        <td>Guarda temporariamente os dados do agendamento em curso (data, hora, nome) para navegar entre os passos do formulário.</td>
+        <td>Sessão (apagado ao fechar o tab)</td>
+        <td><span class="badge badge-essencial">Essencial</span></td>
+      </tr>
+      <tr>
+        <td><code>vc_*</code></td>
+        <td>Memoriza se já foi verificado como cliente recorrente durante a sessão, para evitar chamadas repetidas.</td>
+        <td>Sessão (apagado ao fechar o tab)</td>
+        <td><span class="badge badge-funcional">Funcional</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Cookies de terceiros</h2>
+  <p>O Psiagora utiliza os seguintes serviços externos que podem definir os seus próprios cookies:</p>
+  <ul>
+    <li><strong>Google Fonts</strong> — carrega as fontes tipográficas do site. Consulte a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">política de privacidade da Google</a>.</li>
+    <li><strong>Stripe</strong> — plataforma de pagamento utilizada no checkout das consultas. Consulte a <a href="https://stripe.com/privacy" target="_blank" rel="noopener">política de privacidade da Stripe</a>.</li>
+    <li><strong>Google Meet</strong> — videochamada utilizada nas sessões online. Consulte a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">política de privacidade da Google</a>.</li>
+  </ul>
+
+  <h2>Como gerir ou desactivar cookies</h2>
+  <p>Pode controlar e eliminar cookies através das definições do seu browser:</p>
+  <ul>
+    <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener">Google Chrome</a></li>
+    <li><a href="https://support.mozilla.org/pt-PT/kb/cookies-informacoes-armazenadas" target="_blank" rel="noopener">Mozilla Firefox</a></li>
+    <li><a href="https://support.apple.com/pt-pt/guide/safari/sfri11471/mac" target="_blank" rel="noopener">Apple Safari</a></li>
+  </ul>
+  <p>Tenha em atenção que desactivar os cookies essenciais pode impedir o correcto funcionamento do processo de agendamento.</p>
+
+  <h2>Consentimento</h2>
+  <p>Ao utilizar o website Psiagora, consente a utilização dos cookies essenciais e funcionais descritos nesta política. Não utilizamos cookies que requeiram consentimento explícito adicional ao abrigo do RGPD.</p>
+
+  <h2>Contacto</h2>
+  <p>Para qualquer questão sobre esta política, contacte-nos através de <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a>.</p>
+</main>
+
+<footer>
+  <strong>Psiagora</strong> &nbsp;·&nbsp;
+  <a href="/privacidade">Privacidade</a> &nbsp;·&nbsp;
+  <a href="/termos">Termos</a> &nbsp;·&nbsp;
+  <a href="/consentimento-informado">Consentimento Informado</a>
+  <br><br>
+  Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora
+</footer>
+</body>
+</html>
