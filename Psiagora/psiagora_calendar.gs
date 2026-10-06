@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════╗
- * ║           PSIAGORA — Google Apps Script v2.2                ║
+ * ║           PSIAGORA — Google Apps Script v3.0                ║
  * ║                Desenvolvido por Adventis                    ║
  * ╚══════════════════════════════════════════════════════════════╝
  *
@@ -107,21 +107,44 @@ function doGet(e) {
       const telefone = (e.parameter.telefone || '').replace(/\D/g, '');
       if (!email && !telefone) return jsonResponse({ tipo: 'primeira' });
       try {
-        const props   = PropertiesService.getScriptProperties();
+        const props = PropertiesService.getScriptProperties();
+
+        // 1. Verificar na Google Sheet
         const sheetId = props.getProperty('SHEET_ID');
-        if (!sheetId) return jsonResponse({ tipo: 'primeira' });
-        const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
-        if (!sheet) return jsonResponse({ tipo: 'primeira' });
-        const rows = sheet.getDataRange().getValues();
-        // Colunas: [0]=DataRegisto [1]=Nome [2]=Email [3]=Telefone ...
-        for (let i = 1; i < rows.length; i++) {
-          const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
-          const rowTel   = (rows[i][3] || '').toString().replace(/\D/g, '');
-          if ((email    && rowEmail === email)    ||
-              (telefone && telefone.length >= 9 && rowTel === telefone)) {
-            return jsonResponse({ tipo: 'seguimento' });
-          }
+        if (sheetId) {
+          try {
+            const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('Marcações');
+            if (sheet) {
+              const rows = sheet.getDataRange().getValues();
+              // Colunas: [0]=DataRegisto [1]=Nome [2]=Email [3]=Telefone ...
+              for (let i = 1; i < rows.length; i++) {
+                const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
+                const rowTel   = (rows[i][3] || '').toString().replace(/\D/g, '');
+                if ((email    && rowEmail === email)    ||
+                    (telefone && telefone.length >= 9 && rowTel === telefone)) {
+                  return jsonResponse({ tipo: 'seguimento' });
+                }
+              }
+            }
+          } catch(sheetErr) { Logger.log('Sheet verificar err: ' + sheetErr.message); }
         }
+
+        // 2. Fallback: verificar booking_ tokens em ScriptProperties
+        // (cobre casos em que a Sheet não tem registo mas o cliente já agendou)
+        const allProps = props.getProperties();
+        for (const key of Object.keys(allProps)) {
+          if (!key.startsWith('booking_')) continue;
+          try {
+            const b      = JSON.parse(allProps[key]);
+            const bEmail = (b.email    || '').toLowerCase().trim();
+            const bTel   = (b.telefone || '').replace(/\D/g, '');
+            if ((email    && bEmail === email)    ||
+                (telefone && telefone.length >= 9 && bTel === telefone)) {
+              return jsonResponse({ tipo: 'seguimento' });
+            }
+          } catch(e2) { /* ignora entradas corrompidas */ }
+        }
+
         return jsonResponse({ tipo: 'primeira' });
       } catch(err) {
         return jsonResponse({ tipo: 'primeira' });
