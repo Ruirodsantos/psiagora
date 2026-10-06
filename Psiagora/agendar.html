@@ -817,20 +817,46 @@
     if (el) el.textContent = (tipo === 'seguimento' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira).toFixed(2).replace('.',',') + ' €';
   }
 
+  // Cache em sessionStorage para não repetir chamadas
+  const _vcCache = {};
+  function _vcKey(email, tel) { return (email + '|' + tel).toLowerCase(); }
+
   async function verificarCliente(email, telefone) {
+    const key = _vcKey(email, telefone);
+    if (_vcCache[key]) return _vcCache[key];
+    // sessionStorage persiste enquanto o tab estiver aberto
+    const cached = sessionStorage.getItem('vc_' + key);
+    if (cached) { _vcCache[key] = cached; return cached; }
+
     const params = new URLSearchParams({ action: 'verificarCliente' });
     if (email)    params.set('email', email);
     if (telefone) params.set('telefone', telefone);
     try {
       const r = await fetch(`${CONFIG.appsScriptUrl}?${params}`);
       const j = await r.json();
-      return j.tipo || 'primeira';
+      const tipo = j.tipo || 'primeira';
+      _vcCache[key] = tipo;
+      try { sessionStorage.setItem('vc_' + key, tipo); } catch(e) {}
+      return tipo;
     } catch(e) {
       return 'primeira';
     }
   }
 
-  // Dispara quando o utilizador sai do campo email
+  // Dispara enquanto o utilizador escreve o email (debounce 600ms)
+  let _emailDebounce;
+  document.getElementById('f-email').addEventListener('input', () => {
+    clearTimeout(_emailDebounce);
+    const email = document.getElementById('f-email').value.trim();
+    if (!email || !email.includes('@') || !email.includes('.')) return;
+    _emailDebounce = setTimeout(async () => {
+      verificacaoEmCurso = verificarCliente(email, '');
+      const tipo = await verificacaoEmCurso;
+      setTipo(tipo, 'detectado');
+    }, 600);
+  });
+
+  // Blur como fallback (garante que dispara mesmo sem debounce)
   document.getElementById('f-email').addEventListener('blur', async () => {
     const email = document.getElementById('f-email').value.trim();
     if (!email || !email.includes('@')) return;
