@@ -2,11 +2,13 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Consulta Confirmada | Psiagora</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --verde:#3D8C6A; --verde-claro:#EAF5EF; --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678; --gradiente:linear-gradient(135deg,#3D8C6A,#4A90D9); }
+    :root { --verde:#00C48C; --verde-claro:#E6F8F4; --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678; --gradiente:linear-gradient(135deg,#00C48C,#4A90D9); }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
     .card{background:#fff;border-radius:16px;border:1px solid var(--borda);padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
@@ -20,6 +22,10 @@
     .info-line:last-child{border-bottom:none;}
     .info-line span:last-child{font-weight:600;color:var(--texto);}
     .btn{display:inline-block;margin-top:8px;background:var(--verde);color:#fff;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:0.9rem;}
+    .btn-outline{display:inline-block;margin-top:8px;background:#fff;color:var(--verde);padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:0.9rem;border:2px solid var(--verde);}
+    .form-cta{background:#F0FBF6;border:1px solid #B6E4CE;border-radius:12px;padding:18px 20px;margin:20px 0;text-align:left;}
+    .form-cta h3{font-size:0.9rem;font-weight:700;color:var(--texto);margin-bottom:6px;}
+    .form-cta p{font-size:0.82rem;color:var(--texto-sec);margin-bottom:12px;}
     footer{margin-top:32px;font-size:0.78rem;color:var(--texto-sec);}
     footer a{color:var(--verde);text-decoration:none;}
   </style>
@@ -27,7 +33,7 @@
 <body>
   <div class="card">
     <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <h1>Consulta Confirmada</h1>
     <p>O pagamento foi processado com sucesso. Vai receber um e-mail de confirmacao com todos os detalhes e o link da videochamada.</p>
@@ -39,43 +45,24 @@
       <div class="info-line"><span>Nome</span><span id="bNome">—</span></div>
     </div>
 
-    <!-- Pré-formulário: só aparece para primeira consulta -->
-    <div id="preFormWrap" style="display:none;margin:16px 0;padding:16px;background:#FFF8E1;border:1.5px solid #F59E0B;border-radius:10px;text-align:left;">
-      <div style="font-size:0.8rem;font-weight:700;color:#92400E;margin-bottom:6px;">📋 Próximo passo — Formulário inicial</div>
-      <p style="font-size:0.82rem;color:#78350F;line-height:1.6;margin-bottom:10px;">Para aproveitar melhor a primeira sessão, pedimos que preencha um breve formulário antes de nos encontrarmos. Leva apenas 3 minutos.</p>
-      <a id="btnPreForm" href="#" target="_blank" style="display:inline-block;background:#F59E0B;color:#fff;font-weight:700;font-size:0.82rem;padding:8px 16px;border-radius:7px;text-decoration:none;">Preencher formulário →</a>
+    <div class="form-cta" id="formCta" style="display:none">
+      <h3>📋 Questionário de pré-consulta</h3>
+      <p>Para aproveitar ao máximo a primeira sessão, preencha este breve formulário antes da consulta.</p>
+      <a id="btnPreForm" href="#" class="btn-outline" target="_blank" rel="noopener">Preencher formulário →</a>
     </div>
 
-    <!-- Pacotes: só aparece para consultas de seguimento -->
-    <div id="pacotesWrap" style="display:none;margin:16px 0;padding:16px;background:#EAF5EF;border:1.5px solid #3D8C6A;border-radius:10px;text-align:left;">
-      <div style="font-size:0.8rem;font-weight:700;color:#2D6B50;margin-bottom:6px;">💚 Poupe com um Pacote de Sessões</div>
-      <p style="font-size:0.82rem;color:#374151;line-height:1.6;margin-bottom:10px;">Continuar o processo terapêutico é o caminho certo. Com um pacote de sessões poupa até 20% e garante continuidade no seu acompanhamento.</p>
-      <a href="pacotes.html" style="display:inline-block;background:#3D8C6A;color:#fff;font-weight:700;font-size:0.82rem;padding:8px 16px;border-radius:7px;text-decoration:none;">Ver pacotes disponíveis →</a>
-    </div>
-
-    <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="mailto:frederico.e@psiagora.com" style="color:#3D8C6A">frederico.e@psiagora.com</a>.</p>
+    <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="mailto:info@psiagora.com" style="color:#00C48C">info@psiagora.com</a>.</p>
     <a href="/" class="btn">Voltar ao inicio</a>
   </div>
   <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
 
   <script>
-    const APPS_SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
-    const APPS_SCRIPT_URL_V2 = APPS_SCRIPT_URL; // mesmo script
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
     const APPS_SCRIPT_TOKEN = 'psiagora2026';
-    // URL do Google Form de pré-consulta (substituir pelo URL real depois de criar o Form)
-    const PRE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSflok7v2Ztdmiomth74v826Jz_UFUn1N2X98BjCnWqJujZZTQ/viewform';
+    const PRE_FORM_URL = 'https://docs.google.com/forms/d/1BfEiQh_FGvuNpSEYOXOj0eE_XFP805bZ83OOGyD1hYM/viewform';
 
     async function init() {
       try {
-        // ── Reserva provisória confirmada via payToken ───────────────────
-        const urlParams = new URLSearchParams(window.location.search);
-        const payToken  = urlParams.get('payToken');
-        if (payToken) {
-          await confirmarProvisorio(payToken);
-          return;
-        }
-
-        // ── Fluxo normal (agendar.html → sucesso.html) ───────────────────
         const b = JSON.parse(sessionStorage.getItem('psiagora_booking') || '{}');
         if (!b.date || !b.time) return;
 
@@ -85,6 +72,15 @@
         document.getElementById('bTime').textContent = b.time;
         document.getElementById('bNome').textContent = b.nome || '—';
         document.getElementById('bookingInfo').style.display = 'block';
+
+        // Mostrar form de pré-consulta para primeiras consultas
+        if ((b.tipo || 'primeira') === 'primeira') {
+          const url = PRE_FORM_URL + '?usp=pp_url'
+            + (b.nome  ? '&entry.nome='  + encodeURIComponent(b.nome)  : '')
+            + (b.email ? '&entry.email=' + encodeURIComponent(b.email) : '');
+          document.getElementById('btnPreForm').href = url;
+          document.getElementById('formCta').style.display = 'block';
+        }
 
         // Criar evento no Google Calendar se Apps Script estiver configurado
         if (APPS_SCRIPT_URL) {
@@ -109,52 +105,10 @@
           }
         }
 
-        // Mostrar pré-formulário se for primeira consulta; pacotes se for seguimento
-        if ((b.tipo || 'primeira') === 'primeira') {
-          document.getElementById('preFormWrap').style.display = 'block';
-          document.getElementById('btnPreForm').href = PRE_FORM_URL + '?nome=' + encodeURIComponent(b.nome || '') + '&email=' + encodeURIComponent(b.email || '');
-        } else {
-          document.getElementById('pacotesWrap').style.display = 'block';
-        }
-
         // Limpar dados da sessão
         sessionStorage.removeItem('psiagora_booking');
       } catch(e) {
         console.error(e);
-      }
-    }
-
-    async function confirmarProvisorio(payToken) {
-      try {
-        document.querySelector('h1').textContent = 'A confirmar a sua reserva...';
-        document.querySelector('p').textContent = 'Por favor aguarde um momento.';
-
-        const r = await fetch(`${APPS_SCRIPT_URL_V2}?action=confirmarProvisorio&payToken=${encodeURIComponent(payToken)}`);
-        const d = await r.json();
-
-        if (d.success) {
-          document.querySelector('h1').textContent = 'Consulta Confirmada';
-          document.querySelector('p').textContent = 'O pagamento foi processado com sucesso. Vai receber um email de confirmação com todos os detalhes e o link da videochamada.';
-
-          const [y,mo,dy] = d.dataStr.split('-').map(Number);
-          const dt = new Date(y, mo-1, dy);
-          document.getElementById('bDate').textContent = dt.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-          document.getElementById('bTime').textContent = d.hora;
-          document.getElementById('bNome').textContent = d.nome || '—';
-          document.getElementById('bookingInfo').style.display = 'block';
-
-          if ((d.tipo || 'seguimento') !== 'primeira') {
-            document.getElementById('pacotesWrap').style.display = 'block';
-          }
-        } else {
-          document.querySelector('h1').textContent = 'Erro na confirmação';
-          document.querySelector('p').textContent = d.error || 'Não foi possível confirmar a reserva. Contacte frederico.e@psiagora.com.';
-          document.querySelector('.icon svg').setAttribute('stroke', '#DC2626');
-          document.querySelector('.icon').style.background = '#FEF2F2';
-        }
-      } catch(e) {
-        document.querySelector('h1').textContent = 'Erro de ligação';
-        document.querySelector('p').textContent = 'Não foi possível contactar o servidor. Tente novamente ou contacte frederico.e@psiagora.com.';
       }
     }
 

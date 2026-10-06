@@ -2,20 +2,22 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Agendar Consulta | Psiagora</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --verde: #3D8C6A;
-      --verde-escuro: #2D6B50;
-      --verde-claro: #EAF5EF;
+      --verde: #00C48C;
+      --verde-escuro: #009B72;
+      --verde-claro: #E6F8F4;
       --cinza-fundo: #F7F8FA;
       --cinza-borda: #E5E7EB;
       --texto: #1A2332;
       --texto-sec: #5A6678;
       --branco: #FFFFFF;
-      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+      --gradiente: linear-gradient(135deg, #00C48C 0%, #2CC7C8 100%);
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -409,7 +411,7 @@
     <div class="booking-header">
       <div class="status-dot"></div>
       <div class="booking-header-text">
-        <h2>Agendar com <span id="psi-nome-header"></span></h2>
+        <h2>Escolha a Data e Hora</h2>
         <p>Horarios atualizados regularmente</p>
       </div>
     </div>
@@ -466,11 +468,11 @@
         </div>
         <!-- Tipo detectado automaticamente com base no histórico -->
         <input type="hidden" id="tipo-hidden" name="tipo" value="primeira">
-        <div class="form-group" id="tipo-badge-wrap">
+        <div class="form-group" id="tipo-badge-wrap" style="display:none;">
           <label>Tipo de consulta</label>
-          <div id="tipo-badge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--cinza-fundo);border:1.5px solid var(--cinza-borda);font-size:0.9rem;margin-top:6px;">
-            <span id="tipo-badge-texto" style="font-weight:500;color:var(--texto-sec);">—</span>
-            <span id="tipo-badge-preco" style="font-weight:700;margin-left:auto;"></span>
+          <div id="tipo-badge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--verde-claro);border:1.5px solid var(--verde);font-size:0.9rem;margin-top:6px;">
+            <span id="tipo-badge-texto" style="font-weight:600;color:var(--verde);">Primeira consulta</span>
+            <span id="tipo-badge-preco" style="color:var(--verde);font-weight:700;margin-left:auto;">65,00 €</span>
           </div>
           <p id="tipo-badge-info" style="font-size:0.78rem;color:var(--texto-sec);margin-top:5px;"></p>
         </div>
@@ -496,27 +498,27 @@
       <div class="card-title">O que esta incluido</div>
       <div class="checklist">
         <div class="check-item">
-          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="check-text"><strong>Sessao de 50 min.</strong><span>Dedicado exclusivamente a si.</span></div>
         </div>
         <div class="check-item">
-          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="check-text"><strong>Psicologo certificado</strong><span>Cedula pela Ordem dos Psicologos.</span></div>
         </div>
         <div class="check-item">
-          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="check-text"><strong>Videochamada segura</strong><span>Encriptada e totalmente privada.</span></div>
         </div>
         <div class="check-item">
-          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="check-text"><strong>Sem espera</strong><span>Vaga nos proximos dias uteis.</span></div>
         </div>
         <div class="check-item">
-          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="check-text"><strong>Cancelamento gratis</strong><span>Ate 24h antes, sem custos.</span></div>
         </div>
         <div class="check-item">
-          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3D8C6A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#00C48C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="check-text"><strong>Confirmacao imediata</strong><span>Recebe o link por e-mail.</span></div>
         </div>
       </div>
@@ -549,60 +551,34 @@
 (() => {
   'use strict';
 
-  // ── PSICOLOGOS ───────────────────────────────────────────────
-  // Para adicionar um novo psicólogo: copiar um bloco abaixo e
-  // substituir o appsScriptUrl pelo URL do script desse psicólogo.
-  const PSICOLOGOS = {
-    frederico: {
-      nome: 'Frederico Castro',
-      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec',
-      appsScriptToken: 'psiagora2026',
-      precoPrimeira: 65, precoSeguinte: 50,
-      diasDisponiveis: [1, 2, 3, 4, 5],
-      horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'],
-    },
-    susana: {
-      nome: 'Susana Ferreira',
-      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec',
-      appsScriptToken: 'psiagora2026',
-      precoPrimeira: 65, precoSeguinte: 50,
-      diasDisponiveis: [1, 2, 4, 5],
-      horasPadrao: ['10:00','11:00','12:00','15:00','16:00','17:00'],
-    },
-    ana: {
-      nome: 'Ana Melo',
-      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec',
-      appsScriptToken: 'psiagora2026',
-      precoPrimeira: 65, precoSeguinte: 50,
-      diasDisponiveis: [2, 3, 4, 5],
-      horasPadrao: ['09:00','10:00','11:00','15:00','16:00','17:00'],
-    },
-    joao: {
-      nome: 'João Oliveira',
-      appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec',
-      appsScriptToken: 'psiagora2026',
-      precoPrimeira: 65, precoSeguinte: 50,
-      diasDisponiveis: [1, 3, 4, 5],
-      horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00'],
-    },
-  };
-
-  // Lê o psicólogo da URL (?psicologo=frederico)
-  const _slug = new URLSearchParams(window.location.search).get('psicologo') || 'frederico';
-  const _psi  = PSICOLOGOS[_slug] || PSICOLOGOS.frederico;
-
   // ── CONFIGURACAO ─────────────────────────────────────────────
+  // Edita esta secao para ajustar horarios e o link de pagamento Stripe.
   const CONFIG = {
-    stripeLinkPrimeira: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',
-    stripeLinkSeguinte: 'https://buy.stripe.com/6oUfZj9gj2dRcBDeFH9Zm02',
-    precoPrimeira:    _psi.precoPrimeira,
-    precoSeguinte:    _psi.precoSeguinte,
-    appsScriptUrl:    _psi.appsScriptUrl,
-    appsScriptToken:  _psi.appsScriptToken,
-    diasDisponiveis:  _psi.diasDisponiveis,
-    horasPadrao:      _psi.horasPadrao,
-    diasBloqueados:   [],
-    janelaDias:       60,
+
+    // Link de pagamento gerado no Stripe Dashboard → Payment Links
+    stripeLinkPrimeira: 'https://buy.stripe.com/cNi6oJ2RV3hVeJL69b9Zm01',  // 65€ - primeira consulta
+    stripeLinkSeguinte: 'https://buy.stripe.com/6oUfZj9gj2dRcBDeFH9Zm02',  // 50€ - consultas seguintes
+    precoPrimeira: 65,
+    precoSeguinte: 50,
+
+    // URL do Google Apps Script
+    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec',
+
+    // Token secreto — tem de ser igual ao SECRET_TOKEN no Apps Script
+    appsScriptToken: 'psiagora2026',
+
+    // Dias da semana disponiveis (0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab)
+    diasDisponiveis: [1, 2, 3, 4, 5],
+
+    // Horas disponiveis por defeito — usadas como fallback se o Apps Script nao estiver configurado
+    horasPadrao: ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'],
+
+    // Dias completamente bloqueados, ex: ferias ou feriados
+    // Formato: 'YYYY-MM-DD'
+    diasBloqueados: [],
+
+    // Quantos dias a frente mostrar no calendario
+    janelaDias: 60,
   };
   // ─────────────────────────────────────────────────────────────
 
@@ -771,7 +747,7 @@
       <div class="summary-line"><span>Data</span><span>${fmt}</span></div>
       <div class="summary-line"><span>Hora</span><span>${state.selectedTime}</span></div>
       <div class="summary-line"><span>Duracao</span><span>50 minutos</span></div>
-      <div class="summary-line"><span>Valor</span><span id="summary-valor" style="color:var(--texto-sec);font-size:0.82rem;">Por favor preencha os dados em baixo</span></div>
+      <div class="summary-line"><span>Valor</span><span id="summary-valor">${CONFIG.precoPrimeira.toFixed(2).replace('.',',')} €</span></div>
     `;
   }
 
@@ -822,7 +798,6 @@
     const preco = document.getElementById('tipo-badge-preco');
     const info  = document.getElementById('tipo-badge-info');
     wrap.style.display = '';
-    texto.style.fontStyle = '';
     if (tipo === 'seguimento') {
       texto.textContent = 'Consulta de seguimento';
       preco.textContent = CONFIG.precoSeguinte.toFixed(2).replace('.',',') + ' €';
@@ -841,27 +816,49 @@
       preco.style.color = 'var(--verde)';
     }
     const el = document.getElementById('summary-valor');
-    if (el) {
-      el.textContent = (tipo === 'seguimento' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira).toFixed(2).replace('.',',') + ' €';
-      el.style.color = '';
-      el.style.fontSize = '';
-    }
+    if (el) el.textContent = (tipo === 'seguimento' ? CONFIG.precoSeguinte : CONFIG.precoPrimeira).toFixed(2).replace('.',',') + ' €';
   }
 
+  // Cache em sessionStorage para não repetir chamadas
+  const _vcCache = {};
+  function _vcKey(email, tel) { return (email + '|' + tel).toLowerCase(); }
+
   async function verificarCliente(email, telefone) {
+    const key = _vcKey(email, telefone);
+    if (_vcCache[key]) return _vcCache[key];
+    // sessionStorage persiste enquanto o tab estiver aberto
+    const cached = sessionStorage.getItem('vc_' + key);
+    if (cached) { _vcCache[key] = cached; return cached; }
+
     const params = new URLSearchParams({ action: 'verificarCliente' });
     if (email)    params.set('email', email);
     if (telefone) params.set('telefone', telefone);
     try {
       const r = await fetch(`${CONFIG.appsScriptUrl}?${params}`);
       const j = await r.json();
-      return j.tipo || 'primeira';
+      const tipo = j.tipo || 'primeira';
+      _vcCache[key] = tipo;
+      try { sessionStorage.setItem('vc_' + key, tipo); } catch(e) {}
+      return tipo;
     } catch(e) {
       return 'primeira';
     }
   }
 
-  // Dispara quando o utilizador sai do campo email
+  // Dispara enquanto o utilizador escreve o email (debounce 600ms)
+  let _emailDebounce;
+  document.getElementById('f-email').addEventListener('input', () => {
+    clearTimeout(_emailDebounce);
+    const email = document.getElementById('f-email').value.trim();
+    if (!email || !email.includes('@') || !email.includes('.')) return;
+    _emailDebounce = setTimeout(async () => {
+      verificacaoEmCurso = verificarCliente(email, '');
+      const tipo = await verificacaoEmCurso;
+      setTipo(tipo, 'detectado');
+    }, 600);
+  });
+
+  // Blur como fallback (garante que dispara mesmo sem debounce)
   document.getElementById('f-email').addEventListener('blur', async () => {
     const email = document.getElementById('f-email').value.trim();
     if (!email || !email.includes('@')) return;
@@ -902,11 +899,6 @@
   })();
 
   // ── INIT ─────────────────────────────────────────────────────
-  // Preenche nome do psicólogo e ajusta link voltar
-  document.getElementById('psi-nome-header').textContent = _psi.nome;
-  const btnVoltar = document.querySelector('.btn-voltar');
-  if (btnVoltar) { btnVoltar.href = 'equipa.html'; btnVoltar.textContent = '← Escolher outro psicólogo'; }
-
   renderCalendar();
 })();
 </script>

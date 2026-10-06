@@ -2,116 +2,107 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Política de Privacidade | Psiagora</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --verde:#3D8C6A; --verde-claro:#EAF5EF; --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678; --gradiente:linear-gradient(135deg,#3D8C6A,#4A90D9); }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--texto);-webkit-font-smoothing:antialiased;}
-    header{position:fixed;top:0;left:0;right:0;z-index:900;height:56px;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--borda);display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
-    .logo{font-size:1.3rem;font-weight:800;background:var(--gradiente);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
-    .btn-voltar{font-size:0.85rem;font-weight:500;color:var(--texto-sec);text-decoration:none;}
-    .page-wrap{max-width:740px;margin:0 auto;padding:80px 20px 60px;}
-    .page-title{font-size:1.6rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.3px;}
-    .page-meta{font-size:0.82rem;color:var(--texto-sec);margin-bottom:40px;}
-    h2{font-size:1rem;font-weight:700;margin:32px 0 10px;color:var(--texto);}
-    p{font-size:0.9rem;color:var(--texto-sec);line-height:1.8;margin-bottom:10px;}
-    ul{font-size:0.9rem;color:var(--texto-sec);line-height:1.8;margin:8px 0 10px 20px;}
-    a{color:var(--verde);text-decoration:none;}
-    a:hover{text-decoration:underline;}
-    .highlight-box{background:var(--verde-claro);border:1px solid rgba(61,140,106,0.25);border-radius:10px;padding:16px 20px;margin:24px 0;}
-    .highlight-box p{color:#2D6B50;margin:0;}
-    footer{background:#111827;color:rgba(255,255,255,0.4);padding:20px;text-align:center;font-size:0.76rem;}
-    footer a{color:rgba(255,255,255,0.35);text-decoration:none;}
-    hr{border:none;border-top:1px solid var(--borda);margin:28px 0;}
+    :root {
+      --verde: #00C48C; --verde-claro: #E6F8F4;
+      --cinza-fundo: #F7F8FA; --cinza-borda: #E5E7EB;
+      --texto: #1A2332; --texto-sec: #5A6678;
+      --gradiente: linear-gradient(135deg, #00C48C 0%, #2CC7C8 100%);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); }
+    header { background: #fff; border-bottom: 1px solid var(--cinza-borda); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.3rem; font-weight: 800; background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+    .back { font-size: 0.85rem; color: var(--verde); text-decoration: none; font-weight: 600; }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+    h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .meta { color: var(--texto-sec); font-size: 0.875rem; margin-bottom: 40px; }
+    h2 { font-size: 1.1rem; font-weight: 700; margin: 32px 0 12px; }
+    p { line-height: 1.75; color: var(--texto-sec); font-size: 0.95rem; margin-bottom: 12px; }
+    ul { margin: 8px 0 12px 20px; }
+    ul li { line-height: 1.75; color: var(--texto-sec); font-size: 0.95rem; margin-bottom: 6px; }
+    a { color: var(--verde); }
+    footer { text-align: center; padding: 32px 24px; font-size: 0.8rem; color: var(--texto-sec); border-top: 1px solid var(--cinza-borda); background: #fff; }
+    @media (max-width: 600px) { h1 { font-size: 1.5rem; } }
   </style>
 </head>
 <body>
 <header>
-  <a class="logo" href="/">Psiagora</a>
-  <a href="/" class="btn-voltar">&#8592; Voltar</a>
+  <a href="/" class="logo">Psiagora</a>
+  <a href="/" class="back">← Voltar ao início</a>
 </header>
+<main>
+  <h1>Política de Privacidade</h1>
+  <p class="meta">Última actualização: Outubro de 2026</p>
 
-<div class="page-wrap">
-  <h1 class="page-title">Política de Privacidade</h1>
-  <p class="page-meta">Última actualização: Outubro de 2026</p>
+  <h2>1. Responsável pelo tratamento</h2>
+  <p>Frederico Esgalhado, psicólogo clínico, responsável pela plataforma Psiagora (psiagora.com). Contacto: <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a>.</p>
 
-  <div class="highlight-box">
-    <p>A Psiagora respeita a sua privacidade e cumpre o Regulamento Geral sobre a Proteção de Dados (RGPD — Regulamento UE 2016/679) e a legislação portuguesa aplicável.</p>
-  </div>
-
-  <h2>1. Responsável pelo Tratamento</h2>
-  <p>O responsável pelo tratamento dos seus dados pessoais é:</p>
-  <p><strong>Frederico Esgalhado</strong><br>
-  Email: <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a><br>
-  Website: <a href="https://psiagora.com">psiagora.com</a></p>
-
-  <h2>2. Dados Recolhidos</h2>
-  <p>Aquando do agendamento de uma consulta, recolhemos os seguintes dados:</p>
+  <h2>2. Dados recolhidos</h2>
+  <p>Recolhemos apenas os dados estritamente necessários para a prestação do serviço:</p>
   <ul>
-    <li>Nome completo</li>
-    <li>Endereço de email</li>
-    <li>Número de telefone (opcional)</li>
-    <li>Data e hora da consulta</li>
-    <li>Tipo de consulta (primeira consulta ou seguimento)</li>
-    <li>Notas opcionais fornecidas pelo utilizador</li>
-  </ul>
-  <p>Não recolhemos dados de saúde, dados clínicos nem qualquer informação sensível através deste website. As notas clínicas são geridas exclusivamente pelo psicólogo no âmbito do sigilo profissional.</p>
-
-  <h2>3. Finalidade do Tratamento</h2>
-  <p>Os dados recolhidos são utilizados exclusivamente para:</p>
-  <ul>
-    <li>Processar e confirmar a marcação da consulta</li>
-    <li>Enviar confirmações, lembretes e actualizações sobre a consulta</li>
-    <li>Criar o evento no Google Calendar e gerar o link de videochamada (Google Meet)</li>
-    <li>Registar o histórico de marcações para fins administrativos</li>
-    <li>Responder a pedidos de remarcação ou cancelamento</li>
+    <li><strong>Nome completo</strong> — para identificação e criação do evento no calendário.</li>
+    <li><strong>Endereço de email</strong> — para envio de confirmação, lembretes e link de videochamada.</li>
+    <li><strong>Número de telefone</strong> (opcional) — para contacto em caso de necessidade.</li>
+    <li><strong>Notas sobre a consulta</strong> (opcional) — informação partilhada voluntariamente pelo cliente.</li>
+    <li><strong>Dados de pagamento</strong> — processados directamente pela Stripe; a Psiagora não tem acesso aos dados do cartão.</li>
   </ul>
 
-  <h2>4. Base Legal</h2>
-  <p>O tratamento de dados baseia-se na execução de um contrato (prestação de serviços de consulta psicológica) e no consentimento do titular dos dados, prestado aquando do preenchimento do formulário de agendamento.</p>
-
-  <h2>5. Partilha de Dados</h2>
-  <p>Os seus dados podem ser partilhados com os seguintes subcontratantes, exclusivamente para a prestação do serviço:</p>
+  <h2>3. Finalidade do tratamento</h2>
+  <p>Os dados são tratados exclusivamente para:</p>
   <ul>
-    <li><strong>Google LLC</strong> — Google Calendar, Google Meet e Google Sheets (alojamento de eventos e videochamadas). <a href="https://policies.google.com/privacy" target="_blank">Política de privacidade Google</a></li>
-    <li><strong>Stripe, Inc.</strong> — processamento de pagamentos. <a href="https://stripe.com/pt/privacy" target="_blank">Política de privacidade Stripe</a></li>
-    <li><strong>GitHub, Inc.</strong> — alojamento do website (GitHub Pages). Não tem acesso aos dados de agendamento.</li>
+    <li>Gerir o agendamento e confirmação de consultas.</li>
+    <li>Enviar comunicações relacionadas com a marcação (confirmação, lembrete, remarcação).</li>
+    <li>Processar o pagamento através da Stripe.</li>
+    <li>Criar o evento no Google Calendar e o link Google Meet.</li>
   </ul>
-  <p>Não vendemos, cedemos nem partilhamos os seus dados com terceiros para fins comerciais ou de marketing.</p>
+  <p>Não utilizamos os dados para fins de marketing, publicidade ou análise de comportamento.</p>
 
-  <h2>6. Prazo de Conservação</h2>
-  <p>Os seus dados pessoais são conservados pelo período mínimo necessário para a prestação do serviço e cumprimento de obrigações legais, nomeadamente obrigações fiscais e contabilísticas (até 10 anos, conforme legislação fiscal portuguesa). Após esse período, os dados são eliminados de forma segura.</p>
+  <h2>4. Base legal</h2>
+  <p>O tratamento baseia-se na execução do contrato de prestação de serviços (artigo 6.º, n.º 1, alínea b) do RGPD) e, em certas circunstâncias, no legítimo interesse do responsável pelo tratamento.</p>
 
-  <h2>7. Os Seus Direitos (RGPD)</h2>
-  <p>Enquanto titular dos dados, tem os seguintes direitos:</p>
+  <h2>5. Partilha de dados com terceiros</h2>
+  <p>Os dados são partilhados apenas com os seguintes subcontratantes, estritamente para execução do serviço:</p>
   <ul>
-    <li><strong>Acesso</strong> — solicitar uma cópia dos dados que temos sobre si</li>
-    <li><strong>Rectificação</strong> — corrigir dados incompletos ou incorrectos</li>
-    <li><strong>Apagamento</strong> — solicitar a eliminação dos seus dados ("direito ao esquecimento")</li>
-    <li><strong>Limitação</strong> — restringir o tratamento em determinadas circunstâncias</li>
-    <li><strong>Portabilidade</strong> — receber os seus dados num formato estruturado e legível por máquina</li>
-    <li><strong>Oposição</strong> — opor-se ao tratamento dos seus dados</li>
+    <li><strong>Stripe</strong> — processamento de pagamentos. <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Política de privacidade</a>.</li>
+    <li><strong>Google (Calendar, Meet, Gmail)</strong> — agendamento, videochamada e comunicações. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de privacidade</a>.</li>
+    <li><strong>GitHub Pages</strong> — alojamento do website. <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" rel="noopener">Política de privacidade</a>.</li>
   </ul>
-  <p>Para exercer qualquer destes direitos, contacte-nos por email: <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a>. Responderemos no prazo máximo de 30 dias.</p>
-  <p>Tem ainda o direito de apresentar uma reclamação à autoridade de controlo competente em Portugal: <a href="https://www.cnpd.pt" target="_blank">Comissão Nacional de Proteção de Dados (CNPD)</a>.</p>
+  <p>Não vendemos, alugamos nem partilhamos os seus dados com terceiros para fins comerciais.</p>
 
-  <h2>8. Cookies</h2>
-  <p>Este website utiliza apenas cookies técnicos estritamente necessários para o funcionamento do serviço (sessionStorage para guardar temporariamente os dados da marcação durante o processo de agendamento). Não utilizamos cookies de rastreamento, publicidade ou análise de comportamento.</p>
+  <h2>6. Conservação dos dados</h2>
+  <p>Os dados são conservados pelo período necessário ao cumprimento das finalidades descritas e das obrigações legais aplicáveis. Os registos de marcações são mantidos por um período máximo de 5 anos, salvo obrigação legal de prazo superior.</p>
 
-  <h2>9. Segurança</h2>
-  <p>Adoptamos medidas técnicas e organizativas adequadas para proteger os seus dados contra acesso não autorizado, perda ou divulgação. As comunicações são efectuadas via HTTPS e os dados de pagamento são processados directamente pela Stripe, sem que o website armazene qualquer informação de cartão.</p>
+  <h2>7. Seus direitos (RGPD)</h2>
+  <p>Tem direito a:</p>
+  <ul>
+    <li><strong>Acesso</strong> — saber que dados temos sobre si.</li>
+    <li><strong>Rectificação</strong> — corrigir dados incorrectos.</li>
+    <li><strong>Apagamento</strong> — solicitar a eliminação dos seus dados ("direito ao esquecimento").</li>
+    <li><strong>Portabilidade</strong> — receber os seus dados num formato estruturado.</li>
+    <li><strong>Oposição</strong> — opor-se ao tratamento em determinadas circunstâncias.</li>
+    <li><strong>Limitação</strong> — solicitar a limitação do tratamento.</li>
+  </ul>
+  <p>Para exercer qualquer um destes direitos, contacte <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a>. Tem também o direito de apresentar reclamação à Comissão Nacional de Protecção de Dados (CNPD) em <a href="https://www.cnpd.pt" target="_blank" rel="noopener">cnpd.pt</a>.</p>
 
-  <h2>10. Alterações a Esta Política</h2>
-  <p>Podemos actualizar esta política periodicamente. Qualquer alteração significativa será comunicada através do website. A data da última actualização está indicada no topo desta página.</p>
+  <h2>8. Segurança</h2>
+  <p>Adoptamos medidas técnicas e organizacionais adequadas para proteger os seus dados contra acesso não autorizado, perda ou destruição, incluindo comunicações cifradas (HTTPS) e acesso restrito às bases de dados de agendamentos.</p>
 
-  <hr>
-  <p style="font-size:0.82rem">Dúvidas? Contacte-nos em <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a></p>
-</div>
-
+  <h2>9. Alterações a esta política</h2>
+  <p>Podemos actualizar esta política periodicamente. A data da última actualização está indicada no topo desta página. Alterações significativas serão comunicadas por email aos clientes activos.</p>
+</main>
 <footer>
-  <p>© 2026 Psiagora &nbsp;·&nbsp; <a href="/privacidade">Privacidade</a> &nbsp;·&nbsp; <a href="/termos">Termos</a> &nbsp;·&nbsp; Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a></p>
+  <strong>Psiagora</strong> &nbsp;·&nbsp;
+  <a href="/termos">Termos</a> &nbsp;·&nbsp;
+  <a href="/cookies">Cookies</a> &nbsp;·&nbsp;
+  <a href="/consentimento-informado">Consentimento Informado</a>
+  <br><br>
+  Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora
 </footer>
 </body>
 </html>

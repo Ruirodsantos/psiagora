@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pagamento nao concluido | Psiagora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --verde:#00C48C; --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678; --gradiente:linear-gradient(135deg,#00C48C,#2CC7C8); }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--cinza);color:var(--texto);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+    .card{background:#fff;border-radius:16px;border:1px solid var(--borda);padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+    .icon{width:64px;height:64px;background:#FEF2F2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+    .icon svg{width:30px;height:30px;}
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:10px;letter-spacing:-.3px;}
+    p{font-size:0.92rem;color:var(--texto-sec);line-height:1.65;margin-bottom:8px;}
+    .btn{display:inline-block;margin-top:16px;background:var(--verde);color:#fff;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:0.9rem;}
+    .btn-ghost{background:transparent;color:var(--texto-sec);border:1px solid var(--borda);margin-left:8px;}
+    footer{margin-top:32px;font-size:0.78rem;color:var(--texto-sec);}
+    footer a{color:var(--verde);text-decoration:none;}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h1>Pagamento nao concluido</h1>
+    <p>O pagamento nao foi processado. Nao foi cobrado qualquer valor.</p>
+    <p>Pode tentar novamente ou contactar-nos se o problema persistir.</p>
+    <div>
+      <a href="agendar.html" class="btn">Tentar novamente</a>
+      <a href="mailto:info@psiagora.com" class="btn btn-ghost">Contactar</a>
+    </div>
+  </div>
+  <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
+</body>
+</html>

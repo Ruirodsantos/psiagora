@@ -2,18 +2,21 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Portal Psicólogos | Psiagora</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --verde: #3D8C6A; --verde-escuro: #2D6B50; --verde-claro: #EAF5EF;
+      --verde: #00C48C; --verde-escuro: #009B72; --verde-claro: #E6F8F4;
       --cinza-fundo: #F7F8FA; --cinza-borda: #E5E7EB;
       --texto: #1A2332; --texto-sec: #5A6678; --branco: #FFFFFF;
-      --gradiente: linear-gradient(135deg, #3D8C6A 0%, #4A90D9 100%);
+      --gradiente: linear-gradient(135deg, #00C48C 0%, #2CC7C8 100%);
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    html { overflow-x: hidden; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden; }
 
     /* LOGIN */
     #login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
@@ -72,17 +75,6 @@
     .num-sessoes { font-weight: 700; color: var(--verde); }
     .empty-state { text-align: center; padding: 40px; color: var(--texto-sec); font-size: 0.85rem; }
 
-    /* Detalhe cliente */
-    #detalhe-wrap { display: none; margin-top: 24px; background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow: hidden; }
-    .detalhe-header { padding: 16px 20px; border-bottom: 1px solid var(--cinza-borda); display: flex; justify-content: space-between; align-items: center; }
-    .detalhe-header h3 { font-size: 0.95rem; font-weight: 700; }
-    .btn-fechar { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--texto-sec); padding: 0 4px; }
-    .detalhe-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .detalhe-info p { font-size: 0.82rem; color: var(--texto-sec); margin-bottom: 6px; }
-    .detalhe-info strong { color: var(--texto); }
-    .historico-list { display: flex; flex-direction: column; gap: 6px; }
-    .hist-item { display: flex; justify-content: space-between; padding: 8px 10px; background: var(--cinza-fundo); border-radius: 6px; font-size: 0.8rem; }
-
     .loading { text-align: center; padding: 40px; color: var(--texto-sec); }
 
     /* Reserva Provisória */
@@ -103,29 +95,82 @@
     .provisorio-msg.ok { background: var(--verde-claro); color: var(--verde-escuro); display: block; }
     .provisorio-msg.err { background: #FEF2F2; color: #DC2626; display: block; }
 
+    /* ── DOSSIER DO CLIENTE ───────────────────────────────────── */
+    #detalhe-wrap { display: none; margin-top: 24px; background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow: hidden; }
+    .detalhe-header { padding: 16px 20px; border-bottom: 1px solid var(--cinza-borda); display: flex; justify-content: space-between; align-items: flex-start; background: var(--branco); }
+    .detalhe-header-info h3 { font-size: 1rem; font-weight: 700; }
+    .detalhe-contatos { font-size: 0.8rem; color: var(--texto-sec); margin-top: 3px; }
+    .btn-fechar { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--texto-sec); padding: 0 4px; flex-shrink: 0; }
+
+    /* Tabs */
+    .tabs-nav { display: flex; border-bottom: 2px solid var(--cinza-borda); background: #EFF1F5; padding: 0 20px; overflow-x: auto; gap: 4px; }
+    .tab-btn { background: none; border: none; padding: 13px 18px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--texto-sec); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; white-space: nowrap; letter-spacing: 0.2px; }
+    .tab-btn:hover { color: var(--verde); background: rgba(0,196,140,0.07); border-radius: 6px 6px 0 0; }
+    .tab-btn.tab-active { color: var(--verde); border-bottom-color: var(--verde); background: var(--branco); border-radius: 6px 6px 0 0; }
+    .tab-pane { padding: 20px; }
+
+    /* Perfil info */
+    .perfil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .detalhe-info p { font-size: 0.84rem; color: var(--texto-sec); margin-bottom: 7px; line-height: 1.5; }
+    .detalhe-info strong { color: var(--texto); }
+
+    /* Sessão cards */
+    .sessao-card { border: 1px solid var(--cinza-borda); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .sessao-card-header { padding: 11px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--branco); transition: background 0.1s; gap: 8px; }
+    .sessao-card-header:hover { background: var(--cinza-fundo); }
+    .sessao-card-body { padding: 16px; border-top: 1px solid var(--cinza-borda); background: #FAFEF9; }
+    .nota-preview-text { font-size: 0.78rem; color: var(--texto-sec); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nota-preview-text.has-nota { color: var(--verde); }
+    .nota-textarea { width: 100%; min-height: 180px; padding: 12px; border: 1px solid var(--cinza-borda); border-radius: 8px; font-family: inherit; font-size: 0.88rem; line-height: 1.75; resize: vertical; color: var(--texto); background: var(--branco); }
+    .nota-textarea:focus { outline: none; border-color: var(--verde); box-shadow: 0 0 0 3px rgba(61,140,106,0.1); }
+    .btn-guardar-nota { padding: 8px 18px; background: var(--verde); color: var(--branco); border: none; border-radius: 7px; font-family: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+    .btn-guardar-nota:hover { background: var(--verde-escuro); }
+    .btn-guardar-nota:disabled { opacity: 0.6; cursor: not-allowed; }
+    .nota-status-msg { font-size: 0.8rem; display: none; }
+
+    /* Upload zone */
+    .upload-zone { border: 2px dashed var(--cinza-borda); border-radius: 10px; padding: 28px 20px; text-align: center; transition: all 0.15s; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--verde); background: var(--verde-claro); cursor: pointer; }
+    .btn-upload { margin-top: 10px; padding: 8px 20px; background: var(--verde); color: var(--branco); border: none; border-radius: 7px; font-family: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+    .btn-upload:hover { background: var(--verde-escuro); }
+    .upload-progress-msg { font-size: 0.85rem; color: var(--texto-sec); padding: 10px 0; display: none; }
+
+    /* Doc items */
+    .doc-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid var(--cinza-borda); border-radius: 8px; margin-bottom: 8px; background: var(--branco); gap: 12px; }
+    .doc-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .doc-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .doc-nome { font-weight: 600; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .doc-data { font-size: 0.75rem; color: var(--texto-sec); }
+    .doc-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .btn-doc-link { padding: 6px 12px; background: var(--cinza-fundo); color: var(--verde); border: 1px solid var(--cinza-borda); border-radius: 6px; font-family: inherit; font-size: 0.78rem; font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }
+    .btn-doc-enviar { padding: 6px 12px; background: var(--verde); color: var(--branco); border: none; border-radius: 6px; font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .btn-doc-enviar:hover { background: var(--verde-escuro); }
+
     @media (max-width: 700px) {
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .detalhe-body { grid-template-columns: 1fr; }
-      .portal-body { padding: 16px 12px 60px; }
-      /* Tabela mobile: esconder colunas desnecessárias, evitar scroll horizontal */
-      .tabela-wrap { overflow-x: hidden; }
-      table { table-layout: fixed; width: 100%; }
-      td:nth-child(3), th:nth-child(3),
-      td:nth-child(4), th:nth-child(4) { display: none; }
-      td:nth-child(1) { width: 55%; }
-      td:nth-child(2) { width: 30%; }
-      td:nth-child(5) { width: 15%; }
-      td:nth-child(2) .email-cell { font-size: 0.72rem; word-break: break-all; }
-      /* Filtros em coluna */
-      .filtros { flex-direction: column; }
-      .filtros input, .filtros select { width: 100%; min-width: unset; }
-      /* Formulário provisório em coluna */
-      #provisorioForm .form-row { grid-template-columns: 1fr; }
-      /* Detalhe: sem espaço extra */
-      #detalhe-wrap { margin-top: 16px; }
-      /* Header stats menos padding */
+      .portal-body { padding: 16px 16px 80px; max-width: 100%; }
+      header { padding: 0 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .stat-card { padding: 10px 12px; }
       .stat-val { font-size: 1.3rem; }
+      .tabela-wrap { overflow: hidden; border-radius: 10px; }
+      table { table-layout: fixed; width: 100%; }
+      td:nth-child(2), th:nth-child(2),
+      td:nth-child(3), th:nth-child(3) { display: none; }
+      td:nth-child(1), th:nth-child(1) { width: 55%; }
+      td:nth-child(4), th:nth-child(4) { width: 15%; text-align: center; }
+      td:nth-child(5), th:nth-child(5) { width: 30%; }
+      .filtros { flex-direction: column; gap: 8px; }
+      .filtros input, .filtros select { width: 100%; min-width: unset; box-sizing: border-box; }
+      #provisorioForm .form-row { grid-template-columns: 1fr; }
+      #provisorioForm { padding: 16px; }
+      .perfil-grid { grid-template-columns: 1fr; }
+      #detalhe-wrap { margin-top: 12px; }
+      .tabs-nav { padding: 0 12px; }
+      .tab-pane { padding: 14px; }
+      .doc-item { flex-direction: column; align-items: flex-start; }
+      .doc-actions { width: 100%; }
+      .btn-doc-link, .btn-doc-enviar { flex: 1; text-align: center; }
+      .nota-preview-text { max-width: 160px; }
     }
   </style>
 </head>
@@ -245,33 +290,71 @@
       <div class="provisorio-msg" id="provisorioMsg"></div>
     </div>
 
-    <!-- Detalhe cliente -->
+    <!-- Dossier do cliente -->
     <div id="detalhe-wrap">
       <div class="detalhe-header">
-        <h3 id="detalheNome">—</h3>
+        <div class="detalhe-header-info">
+          <h3 id="detalheNome">—</h3>
+          <div class="detalhe-contatos" id="detalheContatos"></div>
+        </div>
         <button class="btn-fechar" id="btnFecharDetalhe">✕</button>
       </div>
-      <div class="detalhe-body">
-        <div class="detalhe-info" id="detalheInfo"></div>
-        <div>
-          <div style="font-size:0.78rem;font-weight:700;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Histórico de sessões</div>
-          <div class="historico-list" id="detalheHistorico"></div>
+
+      <!-- Tabs -->
+      <div class="tabs-nav">
+        <button class="tab-btn tab-active" data-tab="perfil" onclick="switchTab('perfil')">📋 Perfil</button>
+        <button class="tab-btn" data-tab="notas" onclick="switchTab('notas')">📝 Sessões &amp; Notas</button>
+        <button class="tab-btn" data-tab="docs" onclick="switchTab('docs')">📎 Documentos</button>
+      </div>
+
+      <!-- Tab: Perfil -->
+      <div class="tab-pane" id="tab-perfil">
+        <div class="perfil-grid">
+          <div class="detalhe-info" id="detalheInfo"></div>
+          <div>
+            <div style="font-size:0.78rem;font-weight:700;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Histórico de sessões</div>
+            <div id="detalheHistorico"></div>
+          </div>
         </div>
+      </div>
+
+      <!-- Tab: Sessões & Notas -->
+      <div class="tab-pane" id="tab-notas" style="display:none">
+        <p style="font-size:0.8rem;color:var(--texto-sec);margin-bottom:16px;">Notas clínicas por sessão — visíveis apenas no portal.</p>
+        <div id="sessoes-notas-loading" style="text-align:center;padding:20px;color:var(--texto-sec);font-size:0.85rem;display:none;">A carregar notas...</div>
+        <div id="sessoes-notas-lista"></div>
+      </div>
+
+      <!-- Tab: Documentos -->
+      <div class="tab-pane" id="tab-docs" style="display:none">
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" style="display:none" multiple>
+          <div style="font-size:1.6rem;margin-bottom:8px;">📎</div>
+          <div style="font-size:0.9rem;font-weight:600;color:var(--texto);">Arrastar ficheiros aqui</div>
+          <div style="font-size:0.8rem;color:var(--texto-sec);margin:4px 0 10px;">ou</div>
+          <button class="btn-upload" onclick="document.getElementById('fileInput').click()">Selecionar ficheiros</button>
+        </div>
+        <div class="upload-progress-msg" id="uploadProgress">A fazer upload...</div>
+        <div id="docs-lista" style="margin-top:16px;"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+  // URL acessível globalmente para funções fora do IIFE
+  const PORTAL_API_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
+  const PORTAL_TOKEN   = 'portal2026';
+
 (() => {
   'use strict';
 
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
-  // Password do portal — o Frederico pode alterar isto
+  const APPS_SCRIPT_URL = PORTAL_API_URL;
   const PORTAL_PASSWORD = 'psiagora_portal_2026';
 
   let todosClientes = [];
   let nomeUtilizador = '';
+  let clienteAtivo = null;
 
   // ── LOGIN ──────────────────────────────────────────────────
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -297,12 +380,13 @@
     document.getElementById('login-wrap').style.display = 'flex';
     document.getElementById('inputPass').value = '';
     todosClientes = [];
+    clienteAtivo = null;
   });
 
   // ── CARREGAR DADOS ─────────────────────────────────────────
   async function carregarDados() {
     try {
-      const r = await fetch(`${APPS_SCRIPT_URL}?action=getClientes&token=portal2026`);
+      const r = await fetch(`${APPS_SCRIPT_URL}?action=getClientes&token=${PORTAL_TOKEN}`);
       const j = await r.json();
 
       if (j.error) {
@@ -310,7 +394,6 @@
         return;
       }
 
-      // j.clientes = array de { nome, email, telefone, data, hora, tipo, descricao }
       const rows = j.clientes || [];
       todosClientes = agruparPorCliente(rows);
       renderStats(todosClientes, rows);
@@ -318,7 +401,6 @@
       document.getElementById('loadingMsg').style.display = 'none';
       document.getElementById('tabelaClientes').style.display = 'table';
     } catch(err) {
-      // Modo demo: dados fictícios para testar o layout
       todosClientes = dadosDemo();
       renderStats(todosClientes, []);
       renderTabela(todosClientes);
@@ -353,21 +435,13 @@
         { data: '2026-09-22', hora: '14:00', tipo: 'seguimento', descricao: '' },
         { data: '2026-09-29', hora: '14:00', tipo: 'seguimento', descricao: '' },
       ]},
-      { nome: 'Ana Costa', email: 'ana.costa@example.com', telefone: '+351 914 000 003', sessoes: [
-        { data: '2026-10-03', hora: '11:00', tipo: 'primeira', descricao: 'Gestão de stress' },
-      ]},
-      { nome: 'Pedro Alves', email: 'pedro@example.com', telefone: '+351 915 000 004', sessoes: [
-        { data: '2026-09-10', hora: '16:00', tipo: 'primeira', descricao: '' },
-        { data: '2026-09-24', hora: '16:00', tipo: 'seguimento', descricao: '' },
-        { data: '2026-10-05', hora: '16:00', tipo: 'seguimento', descricao: '' },
-      ]},
     ];
   }
 
   // ── STATS ──────────────────────────────────────────────────
   function renderStats(clientes, rows) {
     const totalSessoes = clientes.reduce((s, c) => s + c.sessoes.length, 0);
-    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => x.tipo === 'primeira').length, 0);
+    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => !(x.tipo||'').toLowerCase().includes('seg')).length, 0);
     document.getElementById('statClientes').textContent = clientes.length;
     document.getElementById('statSessoes').textContent = totalSessoes;
     document.getElementById('statPrimeiras').textContent = primeiras;
@@ -393,7 +467,8 @@
 
     filtrados.forEach(c => {
       const ultimaSessao = c.sessoes[c.sessoes.length-1];
-      const tipoMais = c.sessoes.filter(s=>s.tipo==='seguimento').length > 0 ? 'seguimento' : 'primeira';
+      const temSeguimento = c.sessoes.some(s=>(s.tipo||'').toLowerCase().includes('seg'));
+      const tipoMais = temSeguimento || c.sessoes.length > 1 ? 'seguimento' : 'primeira';
       const tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
       tr.innerHTML = `
@@ -413,10 +488,18 @@
     const [y,m,d] = iso.split('-').map(Number);
     return new Date(y, m-1, d).toLocaleDateString('pt-PT', {day:'numeric', month:'short', year:'numeric'});
   }
+  window._formatData = formatData; // expor para funções externas
 
-  // ── DETALHE ────────────────────────────────────────────────
+  // ── DOSSIER DO CLIENTE ─────────────────────────────────────
   function mostrarDetalhe(c) {
+    clienteAtivo = c;
+    window._clienteAtivo = c; // acessível nas window.* funções
+
     document.getElementById('detalheNome').textContent = c.nome;
+    document.getElementById('detalheContatos').textContent =
+      [c.email, c.telefone].filter(Boolean).join(' · ');
+
+    // Tab Perfil
     document.getElementById('detalheInfo').innerHTML = `
       <p><strong>Email:</strong> ${c.email || '—'}</p>
       <p><strong>Telefone:</strong> ${c.telefone || '—'}</p>
@@ -425,19 +508,26 @@
       <p><strong>Última sessão:</strong> ${formatData(c.sessoes[c.sessoes.length-1]?.data)}</p>
       ${c.sessoes[0]?.descricao ? `<p style="margin-top:10px;padding:10px;background:var(--cinza-fundo);border-radius:6px;font-size:0.8rem;color:var(--texto-sec)"><strong>Motivo inicial:</strong> ${c.sessoes[0].descricao}</p>` : ''}
     `;
+
     const hist = document.getElementById('detalheHistorico');
-    hist.innerHTML = c.sessoes.slice().reverse().map((s, i) => `
-      <div class="hist-item">
+    hist.innerHTML = c.sessoes.slice().reverse().map(s => `
+      <div style="display:flex;justify-content:space-between;padding:8px 10px;background:var(--cinza-fundo);border-radius:6px;font-size:0.8rem;margin-bottom:6px;">
         <span>${formatData(s.data)} — ${s.hora}</span>
-        <span class="badge badge-${s.tipo}">${s.tipo === 'seguimento' ? 'Seguimento' : '1.ª consulta'}</span>
+        <span class="badge badge-${(s.tipo||'').toLowerCase().includes('seg') ? 'seguimento' : 'primeira'}">${(s.tipo||'').toLowerCase().includes('seg') ? 'Seguimento' : '1.ª consulta'}</span>
       </div>
     `).join('');
+
+    // Activar tab Perfil
+    switchTab('perfil');
+
     document.getElementById('detalhe-wrap').style.display = 'block';
     document.getElementById('detalhe-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   document.getElementById('btnFecharDetalhe').addEventListener('click', () => {
     document.getElementById('detalhe-wrap').style.display = 'none';
+    clienteAtivo = null;
+    window._clienteAtivo = null;
   });
 
   // ── FILTROS ────────────────────────────────────────────────
@@ -446,12 +536,248 @@
 
 })();
 
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+
+  const activeBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  if (activeBtn) activeBtn.classList.add('tab-active');
+  const pane = document.getElementById('tab-' + tab);
+  if (pane) pane.style.display = 'block';
+
+  const c = window._clienteAtivo;
+  if (tab === 'notas' && c) carregarNotasSessoes(c);
+  if (tab === 'docs'  && c) carregarFicheiros(c);
+};
+
+// ─── SESSÕES & NOTAS ─────────────────────────────────────────────────────────
+async function carregarNotasSessoes(c) {
+  const loading = document.getElementById('sessoes-notas-loading');
+  const lista   = document.getElementById('sessoes-notas-lista');
+  loading.style.display = 'block';
+  lista.innerHTML = '';
+
+  let notasMap = {};
+  try {
+    const r = await fetch(`${PORTAL_API_URL}?action=getNotasCliente&token=${PORTAL_TOKEN}&email=${encodeURIComponent(c.email)}`);
+    const j = await r.json();
+    (j.sessoes || []).forEach(s => { notasMap[s.data + '|' + s.hora] = s.notas || ''; });
+  } catch(e) { /* usa notasMap vazio */ }
+  loading.style.display = 'none';
+
+  if (!c.sessoes.length) {
+    lista.innerHTML = '<div style="font-size:0.85rem;color:var(--texto-sec);padding:10px 0">Sem sessões registadas.</div>';
+    return;
+  }
+
+  lista.innerHTML = c.sessoes.slice().reverse().map((s) => {
+    const key  = s.data + '|' + s.hora;
+    const nota = notasMap[key] || '';
+    const tipoNorm = (s.tipo||'').toLowerCase().includes('seg') ? 'seguimento' : 'primeira';
+    const preview  = nota
+      ? (nota.length > 90 ? nota.substring(0,90)+'…' : nota)
+      : '— sem notas';
+    return `
+      <div class="sessao-card" data-data="${s.data}" data-hora="${s.hora}">
+        <div class="sessao-card-header" onclick="toggleSessao(this.parentElement)">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
+            <span style="font-weight:600;font-size:0.87rem;white-space:nowrap">${window._formatData(s.data)} — ${s.hora}</span>
+            <span class="badge badge-${tipoNorm}">${tipoNorm==='seguimento'?'Seguimento':'1.ª consulta'}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <span class="nota-preview-text ${nota?'has-nota':''}">${preview}</span>
+            <span class="toggle-arrow" style="font-size:0.75rem;color:var(--texto-sec)">▼</span>
+          </div>
+        </div>
+        <div class="sessao-card-body" style="display:none">
+          <textarea class="nota-textarea" placeholder="Notas clínicas desta sessão — privadas, visíveis apenas no portal…" rows="8">${nota}</textarea>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn-guardar-nota" onclick="guardarNota(this)">Guardar nota</button>
+            <span class="nota-status-msg"></span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+window.toggleSessao = function(card) {
+  const body  = card.querySelector('.sessao-card-body');
+  const arrow = card.querySelector('.toggle-arrow');
+  const open  = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  arrow.textContent  = open ? '▼' : '▲';
+  if (!open) card.querySelector('.nota-textarea').focus();
+};
+
+window.guardarNota = async function(btn) {
+  const card   = btn.closest('.sessao-card');
+  const nota   = card.querySelector('.nota-textarea').value;
+  const status = card.querySelector('.nota-status-msg');
+  const data   = card.dataset.data;
+  const hora   = card.dataset.hora;
+  const c      = window._clienteAtivo;
+  if (!c) return;
+
+  btn.disabled = true; btn.textContent = 'A guardar…';
+  status.style.display = 'none';
+
+  try {
+    const r = await fetch(PORTAL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action:'guardarNota', token:PORTAL_TOKEN, email:c.email, dataConsulta:data, hora, nota }),
+    });
+    const j = await r.json();
+    if (j.success) {
+      status.textContent = '✓ Guardado';
+      status.style.color = 'var(--verde)';
+      status.style.display = 'inline';
+      // Actualizar preview no header
+      const prev = card.querySelector('.nota-preview-text');
+      if (prev) {
+        const previewTxt = nota ? (nota.length>90?nota.substring(0,90)+'…':nota) : '— sem notas';
+        prev.textContent = previewTxt;
+        prev.className = 'nota-preview-text' + (nota?' has-nota':'');
+      }
+      setTimeout(() => { status.style.display = 'none'; }, 3000);
+    } else {
+      status.textContent = '⚠ ' + (j.error || 'Erro ao guardar');
+      status.style.color = '#DC2626';
+      status.style.display = 'inline';
+    }
+  } catch(e) {
+    status.textContent = '⚠ Erro de ligação';
+    status.style.color = '#DC2626';
+    status.style.display = 'inline';
+  }
+  btn.disabled = false; btn.textContent = 'Guardar nota';
+};
+
+// ─── DOCUMENTOS ───────────────────────────────────────────────────────────────
+async function carregarFicheiros(c) {
+  const lista = document.getElementById('docs-lista');
+  lista.innerHTML = '<div style="font-size:0.85rem;color:var(--texto-sec)">A carregar ficheiros...</div>';
+  try {
+    const r = await fetch(`${PORTAL_API_URL}?action=getNotasCliente&token=${PORTAL_TOKEN}&email=${encodeURIComponent(c.email)}`);
+    const j = await r.json();
+    const ficheiros = j.ficheiros || [];
+    if (!ficheiros.length) {
+      lista.innerHTML = '<div style="font-size:0.85rem;color:var(--texto-sec);padding:8px 0">Nenhum ficheiro carregado para este cliente.</div>';
+      return;
+    }
+    lista.innerHTML = ficheiros.map(f => `
+      <div class="doc-item">
+        <div class="doc-info">
+          <span class="doc-icon">📄</span>
+          <div style="min-width:0">
+            <div class="doc-nome" title="${f.filename}">${f.filename}</div>
+            <div class="doc-data">${new Date(f.uploadedAt).toLocaleDateString('pt-PT')}</div>
+          </div>
+        </div>
+        <div class="doc-actions">
+          <a href="${f.fileUrl}" target="_blank" rel="noopener" class="btn-doc-link">Abrir</a>
+          <button class="btn-doc-enviar" onclick="enviarDocumento(${JSON.stringify(f.filename)}, ${JSON.stringify(f.fileUrl)}, ${JSON.stringify(f.downloadUrl||f.fileUrl)})">Enviar ao cliente</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    lista.innerHTML = '<div style="font-size:0.85rem;color:#DC2626">Erro ao carregar ficheiros.</div>';
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFileUpload(files) {
+  const c = window._clienteAtivo;
+  if (!c || !files.length) return;
+  const progress = document.getElementById('uploadProgress');
+  progress.style.display = 'block';
+
+  for (const file of Array.from(files)) {
+    progress.textContent = `A fazer upload de "${file.name}"...`;
+    try {
+      const base64 = await fileToBase64(file);
+      const r = await fetch(PORTAL_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          action: 'uploadFicheiro', token: PORTAL_TOKEN,
+          email: c.email, nomeCliente: c.nome,
+          filename: file.name,
+          mimetype: file.type || 'application/octet-stream',
+          dataBase64: base64,
+        }),
+      });
+      const j = await r.json();
+      if (!j.success) throw new Error(j.error || 'Upload falhou');
+    } catch(err) {
+      progress.textContent = '⚠ Erro: ' + err.message;
+      setTimeout(() => { progress.style.display = 'none'; }, 4000);
+      return;
+    }
+  }
+  progress.style.display = 'none';
+  await carregarFicheiros(c);
+}
+
+window.enviarDocumento = async function(filename, fileUrl, downloadUrl) {
+  const c = window._clienteAtivo;
+  if (!c?.email) return;
+
+  const mensagem = prompt(`Mensagem para ${c.nome} (opcional — deixe em branco para mensagem padrão):`, '');
+  if (mensagem === null) return; // cancelado
+
+  try {
+    const r = await fetch(PORTAL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action: 'enviarDocumento', token: PORTAL_TOKEN,
+        emailCliente: c.email, nomeCliente: c.nome,
+        filename, fileUrl, downloadUrl,
+        mensagem: mensagem || undefined,
+      }),
+    });
+    const j = await r.json();
+    if (j.success) alert(`✓ "${filename}" enviado para ${c.email}`);
+    else alert('Erro: ' + (j.error || 'Tente novamente'));
+  } catch(e) {
+    alert('Erro de ligação. Tente novamente.');
+  }
+};
+
+// ── Setup upload zone ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const zone  = document.getElementById('uploadZone');
+  const input = document.getElementById('fileInput');
+
+  zone.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'BUTTON') input.click();
+  });
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    handleFileUpload(e.dataTransfer.files);
+  });
+  input.addEventListener('change', () => {
+    handleFileUpload(input.files);
+    input.value = '';
+  });
+});
+
 // ── Reserva Provisória ────────────────────────────────────────────────────────
 window.toggleProvisorioForm = function() {
   const form = document.getElementById('provisorioForm');
   form.style.display = form.style.display === 'block' ? 'none' : 'block';
   if (form.style.display === 'block') {
-    // Set min date to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('pvData').min = today;
     document.getElementById('pvData').value = '';
@@ -470,34 +796,24 @@ window.enviarProvisorio = async function() {
   const btn      = document.getElementById('btnEnviarProvisorio');
 
   msg.className = 'provisorio-msg';
-
   if (!nome || !email || !data || !hora) {
     msg.textContent = 'Preencha o nome, email, data e hora.';
     msg.className = 'provisorio-msg err'; return;
   }
-
   btn.disabled = true; btn.textContent = 'A enviar...';
 
   try {
-    const APPS_URL = document.querySelector('script').textContent.match(/APPS_SCRIPT_URL\s*=\s*'([^']+)'/)?.[1]
-      || 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
-
-    const r = await fetch(APPS_URL, {
+    const r = await fetch(PORTAL_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: 'criarProvisorio',
-        token: 'portal2026',
-        nome, email, telefone, dataStr: data, hora, tipo,
-      }),
+      body: JSON.stringify({ action:'criarProvisorio', token:PORTAL_TOKEN, nome, email, telefone, dataStr:data, hora, tipo }),
     });
     const d = await r.json();
     if (d.success) {
       const dl = new Date(d.deadline);
       const dlFmt = dl.toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
-      msg.textContent = `✓ Link de pagamento enviado para ${email}. Prazo: ${dlFmt}.`;
+      msg.textContent = `✓ Link enviado para ${email}. Prazo: ${dlFmt}.`;
       msg.className = 'provisorio-msg ok';
-      // Reset form
       ['pvNome','pvEmail','pvTelefone','pvData'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('pvHora').value = '';
       document.getElementById('pvTipo').value = 'seguimento';
