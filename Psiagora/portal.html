@@ -103,10 +103,10 @@
     .btn-fechar { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--texto-sec); padding: 0 4px; flex-shrink: 0; }
 
     /* Tabs */
-    .tabs-nav { display: flex; border-bottom: 1px solid var(--cinza-borda); background: var(--cinza-fundo); padding: 0 20px; overflow-x: auto; }
-    .tab-btn { background: none; border: none; padding: 11px 16px; font-family: inherit; font-size: 0.82rem; font-weight: 600; color: var(--texto-sec); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; white-space: nowrap; }
-    .tab-btn:hover { color: var(--verde); }
-    .tab-btn.tab-active { color: var(--verde); border-bottom-color: var(--verde); }
+    .tabs-nav { display: flex; border-bottom: 2px solid var(--cinza-borda); background: #EFF1F5; padding: 0 20px; overflow-x: auto; gap: 4px; }
+    .tab-btn { background: none; border: none; padding: 13px 18px; font-family: inherit; font-size: 0.85rem; font-weight: 700; color: var(--texto-sec); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; white-space: nowrap; letter-spacing: 0.2px; }
+    .tab-btn:hover { color: var(--verde); background: rgba(0,196,140,0.07); border-radius: 6px 6px 0 0; }
+    .tab-btn.tab-active { color: var(--verde); border-bottom-color: var(--verde); background: var(--branco); border-radius: 6px 6px 0 0; }
     .tab-pane { padding: 20px; }
 
     /* Perfil info */
@@ -441,7 +441,7 @@
   // ── STATS ──────────────────────────────────────────────────
   function renderStats(clientes, rows) {
     const totalSessoes = clientes.reduce((s, c) => s + c.sessoes.length, 0);
-    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => x.tipo === 'primeira' || x.tipo === 'Primeira').length, 0);
+    const primeiras = clientes.reduce((s, c) => s + c.sessoes.filter(x => (x.tipo||'').toLowerCase().includes('prim')).length, 0);
     document.getElementById('statClientes').textContent = clientes.length;
     document.getElementById('statSessoes').textContent = totalSessoes;
     document.getElementById('statPrimeiras').textContent = primeiras;
@@ -467,7 +467,7 @@
 
     filtrados.forEach(c => {
       const ultimaSessao = c.sessoes[c.sessoes.length-1];
-      const tipoMais = c.sessoes.filter(s=>s.tipo==='seguimento'||s.tipo==='Seguimento').length > 0 ? 'seguimento' : 'primeira';
+      const tipoMais = c.sessoes.filter(s=>(s.tipo||'').toLowerCase().includes('seg')).length > 0 ? 'seguimento' : 'primeira';
       const tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
       tr.innerHTML = `

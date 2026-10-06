@@ -83,6 +83,7 @@ function doGet(e) {
         if (!sheet) return jsonResponse({ clientes: [] });
         const rows = sheet.getDataRange().getValues();
         const clientes = [];
+        const tz = Session.getScriptTimeZone();
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i];
           clientes.push({
@@ -90,10 +91,10 @@ function doGet(e) {
             nome:      (r[1] || '').toString(),
             email:     (r[2] || '').toString(),
             telefone:  (r[3] || '').toString(),
-            data:      (r[4] || '').toString(),
-            hora:      (r[5] || '').toString(),
+            data:      r[4] instanceof Date ? Utilities.formatDate(r[4], tz, 'yyyy-MM-dd') : (r[4] || '').toString(),
+            hora:      r[5] instanceof Date ? Utilities.formatDate(r[5], tz, 'HH:mm')      : (r[5] || '').toString(),
             tipo:      (r[6] || '').toString(),
-            descricao: (r[7] || '').toString(),
+            descricao: (r[9] || '').toString(), // col J — notas/motivo do cliente
           });
         }
         return jsonResponse({ clientes });
@@ -123,10 +124,11 @@ function doGet(e) {
             for (let i = 1; i < rows.length; i++) {
               const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
               if (rowEmail === emailCliente) {
+                const tz2 = Session.getScriptTimeZone();
                 sessoes.push({
                   rowIndex: i + 1,
-                  data:  (rows[i][4]  || '').toString(),
-                  hora:  (rows[i][5]  || '').toString(),
+                  data:  rows[i][4] instanceof Date ? Utilities.formatDate(rows[i][4], tz2, 'yyyy-MM-dd') : (rows[i][4]  || '').toString(),
+                  hora:  rows[i][5] instanceof Date ? Utilities.formatDate(rows[i][5], tz2, 'HH:mm')      : (rows[i][5]  || '').toString(),
                   tipo:  (rows[i][6]  || '').toString(),
                   notas: (rows[i][10] || '').toString(), // coluna K — Notas Clínicas
                 });
