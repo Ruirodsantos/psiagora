@@ -20,6 +20,10 @@
     .info-line:last-child{border-bottom:none;}
     .info-line span:last-child{font-weight:600;color:var(--texto);}
     .btn{display:inline-block;margin-top:8px;background:var(--verde);color:#fff;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:0.9rem;}
+    .btn-outline{display:inline-block;margin-top:8px;background:#fff;color:var(--verde);padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:0.9rem;border:2px solid var(--verde);}
+    .form-cta{background:#F0FBF6;border:1px solid #B6E4CE;border-radius:12px;padding:18px 20px;margin:20px 0;text-align:left;}
+    .form-cta h3{font-size:0.9rem;font-weight:700;color:var(--texto);margin-bottom:6px;}
+    .form-cta p{font-size:0.82rem;color:var(--texto-sec);margin-bottom:12px;}
     footer{margin-top:32px;font-size:0.78rem;color:var(--texto-sec);}
     footer a{color:var(--verde);text-decoration:none;}
   </style>
@@ -39,6 +43,12 @@
       <div class="info-line"><span>Nome</span><span id="bNome">—</span></div>
     </div>
 
+    <div class="form-cta" id="formCta" style="display:none">
+      <h3>📋 Questionário de pré-consulta</h3>
+      <p>Para aproveitar ao máximo a primeira sessão, preencha este breve formulário antes da consulta.</p>
+      <a id="btnPreForm" href="#" class="btn-outline" target="_blank" rel="noopener">Preencher formulário →</a>
+    </div>
+
     <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="mailto:info@psiagora.com" style="color:#3D8C6A">info@psiagora.com</a>.</p>
     <a href="/" class="btn">Voltar ao inicio</a>
   </div>
@@ -47,6 +57,7 @@
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
     const APPS_SCRIPT_TOKEN = 'psiagora2026';
+    const PRE_FORM_URL = 'https://docs.google.com/forms/d/1BfEiQh_FGvuNpSEYOXOj0eE_XFP805bZ83OOGyD1hYM/viewform';
 
     async function init() {
       try {
@@ -59,6 +70,15 @@
         document.getElementById('bTime').textContent = b.time;
         document.getElementById('bNome').textContent = b.nome || '—';
         document.getElementById('bookingInfo').style.display = 'block';
+
+        // Mostrar form de pré-consulta para primeiras consultas
+        if ((b.tipo || 'primeira') === 'primeira') {
+          const url = PRE_FORM_URL + '?usp=pp_url'
+            + (b.nome  ? '&entry.nome='  + encodeURIComponent(b.nome)  : '')
+            + (b.email ? '&entry.email=' + encodeURIComponent(b.email) : '');
+          document.getElementById('btnPreForm').href = url;
+          document.getElementById('formCta').style.display = 'block';
+        }
 
         // Criar evento no Google Calendar se Apps Script estiver configurado
         if (APPS_SCRIPT_URL) {
