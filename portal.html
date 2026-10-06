@@ -266,7 +266,7 @@
 (() => {
   'use strict';
 
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
   // Password do portal — o Frederico pode alterar isto
   const PORTAL_PASSWORD = 'psiagora_portal_2026';
 
@@ -480,7 +480,7 @@ window.enviarProvisorio = async function() {
 
   try {
     const APPS_URL = document.querySelector('script').textContent.match(/APPS_SCRIPT_URL\s*=\s*'([^']+)'/)?.[1]
-      || 'https://script.google.com/macros/s/AKfycbwJdTicZgKwZZVjq6ScKm9aBAQA6uWxf8Dk7Arsb3V0e2PoNB3j3wz1pFZ7v08NY9W0/exec';
+      || 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
 
     const r = await fetch(APPS_URL, {
       method: 'POST',
