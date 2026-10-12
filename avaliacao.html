@@ -156,8 +156,8 @@ async function init() {
     estado.definicao   = d.definicao;
     estado.respostas   = new Array(d.definicao.itens.length).fill(null);
 
-    document.getElementById('qInstrumento').textContent = d.instrumento;
-    document.getElementById('qTitulo').textContent      = d.definicao.nome;
+    document.getElementById('qInstrumento').style.display = 'none';
+    document.getElementById('qTitulo').textContent      = 'Questionário de Avaliação';
     document.getElementById('qInstrucoes').textContent  = d.definicao.instrucoes;
 
     renderItem(0);
