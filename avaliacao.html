@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Questionário de Avaliação | Psiagora</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde:#00C48C; --verde-escuro:#009B72; --verde-claro:#E6F8F4;
+      --cinza-fundo:#F7F8FA; --cinza-borda:#E5E7EB;
+      --texto:#1A2332; --texto-sec:#5A6678; --branco:#FFFFFF;
+      --gradiente:linear-gradient(135deg,#00C48C 0%,#2CC7C8 100%);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; color:var(--texto); background:var(--cinza-fundo); min-height:100vh; -webkit-font-smoothing:antialiased; }
+    header { background:var(--gradiente); padding:14px 20px; display:flex; align-items:center; gap:10px; }
+    .logo { font-size:1.2rem; font-weight:800; color:#fff; text-decoration:none; display:flex; align-items:center; gap:8px; letter-spacing:-0.3px; }
+    .logo img { filter:brightness(10); }
+    main { max-width:620px; margin:0 auto; padding:32px 16px 80px; }
+
+    /* Loading / error / done */
+    .state-card { background:var(--branco); border:1px solid var(--cinza-borda); border-radius:16px; padding:40px 28px; text-align:center; margin-top:8px; }
+    .state-icon { font-size:3rem; margin-bottom:16px; }
+    .state-title { font-size:1.2rem; font-weight:800; margin-bottom:8px; }
+    .state-desc { font-size:0.9rem; color:var(--texto-sec); line-height:1.6; }
+
+    /* Questionário */
+    .q-header { margin-bottom:24px; }
+    .q-instrumento { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--verde); margin-bottom:6px; }
+    .q-titulo { font-size:1.3rem; font-weight:800; margin-bottom:8px; letter-spacing:-0.3px; }
+    .q-instrucoes { font-size:0.9rem; color:var(--texto-sec); line-height:1.6; background:var(--verde-claro); border-radius:10px; padding:14px 16px; }
+    .q-progress { display:flex; align-items:center; gap:10px; margin:20px 0 8px; }
+    .q-progress-bar { flex:1; height:5px; background:var(--cinza-borda); border-radius:3px; overflow:hidden; }
+    .q-progress-fill { height:100%; background:var(--gradiente); border-radius:3px; transition:width 0.3s; }
+    .q-progress-txt { font-size:0.78rem; color:var(--texto-sec); font-weight:600; white-space:nowrap; }
+
+    /* Item */
+    .item-card { background:var(--branco); border:1.5px solid var(--cinza-borda); border-radius:14px; padding:20px; margin-bottom:12px; transition:border-color 0.15s; }
+    .item-card.selected { border-color:var(--verde); background:var(--verde-claro); }
+    .item-num { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--texto-sec); margin-bottom:8px; }
+    .item-texto { font-size:0.95rem; font-weight:600; line-height:1.5; margin-bottom:14px; }
+    .opcoes { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    @media(max-width:480px) { .opcoes { grid-template-columns:1fr; } }
+    .opcao { display:flex; align-items:center; gap:10px; padding:10px 14px; border:1.5px solid var(--cinza-borda); border-radius:9px; cursor:pointer; transition:all 0.12s; background:var(--branco); font-size:0.85rem; font-weight:500; }
+    .opcao:hover { border-color:var(--verde); background:var(--verde-claro); }
+    .opcao.ativa { border-color:var(--verde); background:var(--verde); color:#fff; font-weight:700; }
+    .opcao-radio { width:16px; height:16px; border-radius:50%; border:2px solid currentColor; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .opcao.ativa .opcao-radio::after { content:''; width:7px; height:7px; background:#fff; border-radius:50%; }
+
+    /* Nav */
+    .q-nav { display:flex; gap:10px; margin-top:20px; justify-content:space-between; align-items:center; }
+    .btn { padding:12px 24px; border-radius:9px; font-family:inherit; font-size:0.9rem; font-weight:700; cursor:pointer; border:none; transition:all 0.15s; }
+    .btn-primary { background:var(--verde); color:#fff; }
+    .btn-primary:hover:not(:disabled) { background:var(--verde-escuro); }
+    .btn-primary:disabled { opacity:0.45; cursor:not-allowed; }
+    .btn-ghost { background:transparent; color:var(--texto-sec); border:1.5px solid var(--cinza-borda); }
+    .btn-ghost:hover { border-color:var(--verde); color:var(--verde); }
+
+    /* Spinner */
+    .spinner { width:36px; height:36px; border:3px solid var(--cinza-borda); border-top-color:var(--verde); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Resultado */
+    .resultado { background:var(--branco); border:1px solid var(--cinza-borda); border-radius:16px; padding:28px; }
+    .score-badge { display:inline-block; padding:8px 20px; border-radius:20px; font-size:0.85rem; font-weight:700; margin-bottom:16px; }
+    .score-verde    { background:#D1FAE5; color:#065F46; }
+    .score-amarelo  { background:#FEF3C7; color:#92400E; }
+    .score-laranja  { background:#FFEDD5; color:#9A3412; }
+    .score-vermelho { background:#FEE2E2; color:#991B1B; }
+    .score-numero { font-size:2.5rem; font-weight:800; margin-bottom:4px; }
+    .score-nivel { font-size:1rem; font-weight:700; margin-bottom:16px; }
+    .alerta-q9 { background:#FEE2E2; border:1px solid #FECACA; border-radius:10px; padding:14px 16px; color:#991B1B; font-size:0.88rem; font-weight:600; margin-bottom:16px; line-height:1.5; }
+    .score-desc { font-size:0.88rem; color:var(--texto-sec); line-height:1.65; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/"><img src="/favicon.svg" width="22" height="22" alt=""><span>Psiagora</span></a>
+</header>
+
+<main>
+  <!-- Loading -->
+  <div id="stateLoading" class="state-card">
+    <div class="spinner"></div>
+    <div class="state-title">A carregar questionário…</div>
+  </div>
+
+  <!-- Error -->
+  <div id="stateError" class="state-card" style="display:none">
+    <div class="state-icon">⚠️</div>
+    <div class="state-title" id="erroTitulo">Link inválido</div>
+    <div class="state-desc" id="erroDesc">Este questionário não existe ou já foi respondido.</div>
+  </div>
+
+  <!-- Questionário -->
+  <div id="stateForm" style="display:none">
+    <div class="q-header">
+      <div class="q-instrumento" id="qInstrumento"></div>
+      <div class="q-titulo" id="qTitulo"></div>
+      <div class="q-instrucoes" id="qInstrucoes"></div>
+    </div>
+    <div class="q-progress">
+      <div class="q-progress-bar"><div class="q-progress-fill" id="qProgressFill" style="width:0%"></div></div>
+      <div class="q-progress-txt" id="qProgressTxt">0 / 0</div>
+    </div>
+    <div id="qItens"></div>
+    <div class="q-nav">
+      <button class="btn btn-ghost" id="btnAnterior" onclick="navItem(-1)" style="visibility:hidden">← Anterior</button>
+      <button class="btn btn-primary" id="btnProximo" onclick="navItem(1)" disabled>Seguinte →</button>
+    </div>
+  </div>
+
+  <!-- Enviar (última página) -->
+  <div id="stateSubmit" style="display:none">
+    <div class="state-card">
+      <div class="state-icon">✅</div>
+      <div class="state-title">Tudo preenchido!</div>
+      <div class="state-desc" style="margin-bottom:24px;">Reveja as suas respostas antes de submeter. Após a submissão o questionário fica encerrado.</div>
+      <button class="btn btn-primary" id="btnSubmeter" onclick="submeter()" style="width:100%;padding:14px;font-size:1rem;">Submeter respostas</button>
+    </div>
+  </div>
+
+  <!-- Resultado -->
+  <div id="stateResultado" class="resultado" style="display:none">
+    <div class="q-instrumento" id="resInstrumento"></div>
+    <div class="score-numero" id="resScore"></div>
+    <div class="score-nivel" id="resNivel"></div>
+    <div id="resAlerta" style="display:none" class="alerta-q9">⚠️ Identificou pensamentos de se magoar. O seu psicólogo foi notificado e irá contactá-lo(a) em breve.</div>
+    <div class="score-desc" id="resDesc"></div>
+    <p style="margin-top:20px;font-size:0.8rem;color:#9CA3AF;">As suas respostas foram registadas e estão disponíveis para o seu psicólogo.</p>
+  </div>
+</main>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx0K-HDk_a423G_gViw4bzakO_hA26k1wJ5GycZ14QWIaz9BezcY3u6-HeybqwV2CQR/exec';
+
+let estado = { token:'', instrumento:'', definicao:null, itemAtual:0, respostas:[] };
+
+function show(id) {
+  ['stateLoading','stateError','stateForm','stateSubmit','stateResultado'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? '' : 'none';
+  });
+}
+
+function getToken() {
+  return new URLSearchParams(window.location.search).get('token') || '';
+}
+
+async function gasPost(body) {
+  const r = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(body) });
+  return r.json();
+}
+
+async function init() {
+  const token = getToken();
+  if (!token) { mostrarErro('Link inválido', 'Não foi encontrado nenhum questionário neste link.'); return; }
+  estado.token = token;
+
+  try {
+    const r = await fetch(GAS_URL + '?action=getAvaliacao&token=' + encodeURIComponent(token));
+    const d = await r.json();
+    if (d.error) { mostrarErro(d.error === 'Este questionário já foi respondido.' ? 'Já respondido' : 'Link inválido', d.error); return; }
+
+    estado.instrumento = d.instrumento;
+    estado.definicao   = d.definicao;
+    estado.respostas   = new Array(d.definicao.itens.length).fill(null);
+
+    document.getElementById('qInstrumento').textContent = d.instrumento;
+    document.getElementById('qTitulo').textContent      = d.definicao.nome;
+    document.getElementById('qInstrucoes').textContent  = d.definicao.instrucoes;
+
+    renderItem(0);
+    show('stateForm');
+  } catch(e) {
+    mostrarErro('Erro de ligação', 'Não foi possível carregar o questionário. Tente novamente.');
+  }
+}
+
+function mostrarErro(titulo, desc) {
+  document.getElementById('erroTitulo').textContent = titulo;
+  document.getElementById('erroDesc').textContent   = desc;
+  show('stateError');
+}
+
+function renderItem(idx) {
+  const def    = estado.definicao;
+  const total  = def.itens.length;
+  estado.itemAtual = idx;
+
+  // Progress
+  const respondidos = estado.respostas.filter(r => r !== null).length;
+  document.getElementById('qProgressFill').style.width = (respondidos / total * 100) + '%';
+  document.getElementById('qProgressTxt').textContent  = respondidos + ' / ' + total + ' respondidas';
+
+  // Item
+  const container = document.getElementById('qItens');
+  container.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'item-card' + (estado.respostas[idx] !== null ? ' selected' : '');
+  card.innerHTML = '<div class="item-num">Pergunta ' + (idx + 1) + ' de ' + total + '</div>' +
+    '<div class="item-texto">' + def.itens[idx] + '</div>' +
+    '<div class="opcoes">' +
+    def.escala.map((op, v) =>
+      '<div class="opcao' + (estado.respostas[idx] === v ? ' ativa' : '') + '" onclick="selecionar(' + v + ')">' +
+      '<span class="opcao-radio"></span>' + op + '</div>'
+    ).join('') +
+    '</div>';
+  container.appendChild(card);
+
+  // Navegação
+  document.getElementById('btnAnterior').style.visibility = idx > 0 ? 'visible' : 'hidden';
+  const btnProx = document.getElementById('btnProximo');
+  btnProx.disabled = estado.respostas[idx] === null;
+
+  const isLast = idx === total - 1;
+  btnProx.textContent = isLast ? 'Terminar →' : 'Seguinte →';
+}
+
+function selecionar(valor) {
+  estado.respostas[estado.itemAtual] = valor;
+  renderItem(estado.itemAtual);
+}
+
+function navItem(dir) {
+  const total = estado.definicao.itens.length;
+  const novo  = estado.itemAtual + dir;
+  if (novo >= total) { show('stateSubmit'); return; }
+  if (novo < 0) return;
+  renderItem(novo);
+}
+
+async function submeter() {
+  const btn = document.getElementById('btnSubmeter');
+  btn.disabled = true;
+  btn.textContent = 'A enviar…';
+
+  try {
+    const d = await gasPost({ action:'submitAvaliacao', token: estado.token, respostas: estado.respostas });
+    if (d.error) { btn.disabled = false; btn.textContent = 'Submeter respostas'; alert('Erro: ' + d.error); return; }
+
+    // Mostrar resultado
+    const descricoes = {
+      'PHQ-9': {
+        'Mínimo':              'Sem sinais significativos de depressão neste momento.',
+        'Ligeiro':             'Sintomas ligeiros. Monitorizar evolução ao longo das sessões.',
+        'Moderado':            'Sintomas moderados que merecem atenção clínica.',
+        'Moderadamente grave': 'Nível que justifica avaliação cuidada e plano terapêutico estruturado.',
+        'Grave':               'Sintomas graves. Acompanhamento intensivo recomendado.'
+      },
+      'GAD-7': {
+        'Mínimo':    'Sem sinais significativos de ansiedade neste momento.',
+        'Ligeiro':   'Ansiedade ligeira. Monitorizar evolução.',
+        'Moderado':  'Ansiedade moderada. O psicólogo irá abordar este tema nas sessões.',
+        'Grave':     'Ansiedade elevada. Acompanhamento clínico estruturado recomendado.'
+      }
+    };
+    const corMap = { 'Mínimo':'verde', 'Ligeiro':'amarelo', 'Moderado':'laranja', 'Moderadamente grave':'vermelho', 'Grave':'vermelho' };
+    const cor    = corMap[d.nivel] || 'verde';
+    const desc   = (descricoes[estado.instrumento] || {})[d.nivel] || '';
+    const max    = estado.instrumento === 'PHQ-9' ? 27 : 21;
+
+    document.getElementById('resInstrumento').textContent = estado.instrumento + ' — Resultado';
+    const scoreEl = document.getElementById('resScore');
+    scoreEl.textContent = d.score + ' / ' + max;
+    const badge = document.createElement('div');
+    badge.className = 'score-badge score-' + cor;
+    badge.textContent = d.nivel;
+    scoreEl.before(badge);
+    document.getElementById('resNivel').textContent = '';
+    document.getElementById('resDesc').textContent  = desc;
+    if (d.alertaQ9) document.getElementById('resAlerta').style.display = '';
+
+    show('stateResultado');
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Submeter respostas';
+    alert('Erro de ligação. Tente novamente.');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════╗
- * ║           PSIAGORA — Google Apps Script v3.0                ║
+ * ║           PSIAGORA — Google Apps Script v5.0                ║
  * ║                Desenvolvido por Adventis                    ║
  * ╚══════════════════════════════════════════════════════════════╝
  *
@@ -94,6 +94,7 @@ function doGet(e) {
             data:      r[4] instanceof Date ? Utilities.formatDate(r[4], tz, 'yyyy-MM-dd') : (r[4] || '').toString(),
             hora:      r[5] instanceof Date ? Utilities.formatDate(r[5], tz, 'HH:mm')      : (r[5] || '').toString(),
             tipo:      (r[6] || '').toString(),
+            preco:     parseFloat(r[7]) || 0,   // col H — valor (€)
             descricao: (r[9] || '').toString(), // col J — notas/motivo do cliente
           });
         }
@@ -137,10 +138,17 @@ function doGet(e) {
           }
         }
 
-        // Ficheiros guardados em ScriptProperties
+        // Ficheiros guardados em ScriptProperties — agrupados por sessão
         const filesKey = 'files_' + emailCliente.replace(/[^a-z0-9]/g, '_');
-        let ficheiros = [];
-        try { ficheiros = JSON.parse(props.getProperty(filesKey) || '[]'); } catch(e2) { ficheiros = []; }
+        let todosFicheiros = [];
+        try { todosFicheiros = JSON.parse(props.getProperty(filesKey) || '[]'); } catch(e2) { todosFicheiros = []; }
+
+        // Injetar ficheiros em cada sessão
+        sessoes.forEach(s => {
+          s.ficheiros = todosFicheiros.filter(f => f.dataConsulta === s.data && f.hora === s.hora);
+        });
+        // Ficheiros sem sessão associada (uploads antigos)
+        const ficheiros = todosFicheiros.filter(f => !f.dataConsulta);
 
         return jsonResponse({ sessoes, ficheiros });
       } catch(err) {
@@ -198,6 +206,11 @@ function doGet(e) {
       }
     }
 
+    // ── Avaliações: carregar questionário para paciente ──────────
+    if (e.parameter.action === 'getAvaliacao') {
+      return getAvaliacaoPublica(e.parameter.token || '');
+    }
+
     // Disponibilidade de um dia (uso existente)
     const date = e.parameter.date;
     if (!date) return jsonResponse({ error: 'Parâmetro "date" ou "action" obrigatório.' });
@@ -217,6 +230,11 @@ function doGet(e) {
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
+
+    // ── Avaliações ───────────────────────────────────────────────────────────
+    if (data.action === 'criarAvaliacao')   return criarAvaliacaoFn(data);
+    if (data.action === 'submitAvaliacao')  return submitAvaliacaoFn(data);
+    if (data.action === 'getAvaliacoes')    return getAvaliacoesFn(data);
 
     // ── Remarcação pelo cliente ──────────────────────────────────────────────
     if (data.action === 'remarcar') {
@@ -255,12 +273,13 @@ function doPost(e) {
 
         const rows      = sheet.getDataRange().getValues();
         const emailNorm = email.toLowerCase().trim();
+        const tz3       = Session.getScriptTimeZone();
         let found       = false;
 
         for (let i = 1; i < rows.length; i++) {
           const rowEmail = (rows[i][2] || '').toString().toLowerCase().trim();
-          const rowData  = (rows[i][4] || '').toString();
-          const rowHora  = (rows[i][5] || '').toString();
+          const rowData  = rows[i][4] instanceof Date ? Utilities.formatDate(rows[i][4], tz3, 'yyyy-MM-dd') : (rows[i][4] || '').toString();
+          const rowHora  = rows[i][5] instanceof Date ? Utilities.formatDate(rows[i][5], tz3, 'HH:mm')      : (rows[i][5] || '').toString();
           if (rowEmail === emailNorm && rowData === dataConsulta && rowHora === hora) {
             sheet.getRange(i + 1, 11).setValue(nota || '');
             found = true;
@@ -281,40 +300,46 @@ function doPost(e) {
       const portalPass  = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
       if (portalToken !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
 
-      const { email, nomeCliente, filename, mimetype, dataBase64 } = data;
+      const { email, nomeCliente, filename, mimetype, dataBase64, dataConsulta, hora } = data;
       if (!email || !filename || !dataBase64) return jsonResponse({ error: 'Dados em falta.' });
 
       try {
-        // Criar/encontrar pasta raiz
-        const rootName = 'Psiagora — Documentos Clientes';
+        // Pasta raiz: Clientes
         let rootFolder;
-        const rootSearch = DriveApp.getFoldersByName(rootName);
-        rootFolder = rootSearch.hasNext() ? rootSearch.next() : DriveApp.createFolder(rootName);
+        const rootSearch = DriveApp.getFoldersByName('Clientes');
+        rootFolder = rootSearch.hasNext() ? rootSearch.next() : DriveApp.createFolder('Clientes');
 
-        // Subpasta por cliente
-        const clientName = nomeCliente || email;
+        // Subpasta por cliente (nome)
+        const clientName = (nomeCliente || email).trim();
         let clientFolder;
         const clientSearch = rootFolder.getFoldersByName(clientName);
         clientFolder = clientSearch.hasNext() ? clientSearch.next() : rootFolder.createFolder(clientName);
 
+        // Subpasta por ano
+        const ano = dataConsulta ? dataConsulta.substring(0, 4) : new Date().getFullYear().toString();
+        let yearFolder;
+        const yearSearch = clientFolder.getFoldersByName(ano);
+        yearFolder = yearSearch.hasNext() ? yearSearch.next() : clientFolder.createFolder(ano);
+
         // Criar ficheiro
         const decoded  = Utilities.base64Decode(dataBase64);
         const blob     = Utilities.newBlob(decoded, mimetype || 'application/octet-stream', filename);
-        const file     = clientFolder.createFile(blob);
+        const file     = yearFolder.createFile(blob);
         file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
         const fileId      = file.getId();
         const fileUrl     = file.getUrl();
         const downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId;
 
-        // Guardar referência em ScriptProperties
-        const props    = PropertiesService.getScriptProperties();
-        const filesKey = 'files_' + email.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        let ficheiros  = [];
+        // Guardar referência por sessão em ScriptProperties
+        const props      = PropertiesService.getScriptProperties();
+        const emailNorm  = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        // Chave global por cliente
+        const filesKey   = 'files_' + emailNorm;
+        let ficheiros    = [];
         try { ficheiros = JSON.parse(props.getProperty(filesKey) || '[]'); } catch(e2) { ficheiros = []; }
-
-        ficheiros.unshift({ fileId, filename, fileUrl, downloadUrl, uploadedAt: new Date().toISOString() });
-        if (ficheiros.length > 50) ficheiros = ficheiros.slice(0, 50);
+        ficheiros.unshift({ fileId, filename, fileUrl, downloadUrl, uploadedAt: new Date().toISOString(), dataConsulta: dataConsulta || '', hora: hora || '' });
+        if (ficheiros.length > 100) ficheiros = ficheiros.slice(0, 100);
         props.setProperty(filesKey, JSON.stringify(ficheiros));
 
         return jsonResponse({ success: true, fileId, fileUrl, downloadUrl, filename });
@@ -1315,6 +1340,279 @@ function liberarProvisionaisExpirados() {
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  TESTE — corre directamente no editor para verificar envio de email
+// ══════════════════════════════════════════════════════════════════════════════
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  🧪 AVALIAÇÕES PSICOLÓGICAS — PHQ-9 + GAD-7
+// ══════════════════════════════════════════════════════════════════════════════
+
+const SHEET_AVALIACOES = 'Avaliações';
+
+// ─── Definições dos instrumentos ─────────────────────────────────────────────
+
+function getInstrumento(nome) {
+  const instrumentos = {
+    'PHQ-9': {
+      nome: 'PHQ-9 — Saúde do Paciente (Depressão)',
+      instrucoes: 'Durante as últimas 2 semanas, com que frequência foi incomodado(a) por algum dos seguintes problemas?',
+      escala: ['Nunca', 'Vários dias', 'Mais de metade dos dias', 'Quase todos os dias'],
+      itens: [
+        'Pouco interesse ou prazer em fazer as coisas',
+        'Sentir-se em baixo, deprimido(a) ou sem esperança',
+        'Ter dificuldade em adormecer ou em manter o sono, ou dormir demais',
+        'Sentir-se cansado(a) ou com pouca energia',
+        'Ter pouco apetite ou comer demasiado',
+        'Sentir-se mal consigo próprio(a) — ou que é um falhado(a), ou que decepcionou a sua família ou a si próprio(a)',
+        'Ter dificuldade em concentrar-se nas coisas, tal como ler o jornal ou ver televisão',
+        'Mexer-se ou falar tão devagar que outras pessoas podiam notar? Ou pelo contrário, estar tão agitado(a) que se andava a mexer muito mais do que é habitual',
+        'Ter pensamentos de que seria melhor estar morto(a) ou de se magoar de alguma forma'
+      ]
+    },
+    'GAD-7': {
+      nome: 'GAD-7 — Escala de Ansiedade Generalizada',
+      instrucoes: 'Durante as últimas 2 semanas, com que frequência foi incomodado(a) por algum dos seguintes problemas?',
+      escala: ['Nunca', 'Vários dias', 'Mais de metade dos dias', 'Quase todos os dias'],
+      itens: [
+        'Sentir-se nervoso(a), ansioso(a) ou em pânico',
+        'Não ser capaz de parar ou controlar as preocupações',
+        'Preocupar-se demasiado com diferentes coisas',
+        'Dificuldade em relaxar',
+        'Estar tão agitado(a) que é difícil permanecer quieto(a)',
+        'Tornar-se facilmente incomodado(a) ou irritável',
+        'Sentir medo como se algo terrível pudesse acontecer'
+      ]
+    }
+  };
+  return instrumentos[nome] || null;
+}
+
+function cotarInstrumento(nome, respostas) {
+  const total = respostas.reduce(function(s, r) { return s + (parseInt(r) || 0); }, 0);
+  let nivel, cor;
+  if (nome === 'PHQ-9') {
+    if      (total <= 4)  { nivel = 'Mínimo';              cor = 'verde';        }
+    else if (total <= 9)  { nivel = 'Ligeiro';             cor = 'amarelo';      }
+    else if (total <= 14) { nivel = 'Moderado';            cor = 'laranja';      }
+    else if (total <= 19) { nivel = 'Moderadamente grave'; cor = 'vermelho';     }
+    else                  { nivel = 'Grave';               cor = 'vermelho';     }
+    const alertaQ9 = (parseInt(respostas[8]) || 0) > 0;
+    return { total: total, nivel: nivel, cor: cor, alertaQ9: alertaQ9 };
+  }
+  if (nome === 'GAD-7') {
+    if      (total <= 4)  { nivel = 'Mínimo';   cor = 'verde';    }
+    else if (total <= 9)  { nivel = 'Ligeiro';  cor = 'amarelo';  }
+    else if (total <= 14) { nivel = 'Moderado'; cor = 'laranja';  }
+    else                  { nivel = 'Grave';    cor = 'vermelho'; }
+    return { total: total, nivel: nivel, cor: cor, alertaQ9: false };
+  }
+  return { total: total, nivel: 'Desconhecido', cor: 'cinza', alertaQ9: false };
+}
+
+// ─── Garantir que a sheet de Avaliações existe ────────────────────────────────
+
+function getSheetAvaliacoes() {
+  const props = PropertiesService.getScriptProperties();
+  const sheetId = props.getProperty('SHEET_ID');
+  if (!sheetId) throw new Error('SHEET_ID não configurado.');
+  const ss = SpreadsheetApp.openById(sheetId);
+  let sheet = ss.getSheetByName(SHEET_AVALIACOES);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_AVALIACOES);
+    const headers = ['Token','Email Cliente','Nome Cliente','Instrumento','Status','Data Criação','Data Resposta','Respostas (JSON)','Score Total','Nível','Alerta Q9','Email Psicólogo'];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers])
+      .setFontWeight('bold').setBackground('#2A0753').setFontColor('#ffffff');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 220);
+    sheet.setColumnWidth(8, 300);
+  }
+  return sheet;
+}
+
+// ─── criarAvaliacaoFn ─────────────────────────────────────────────────────────
+// POST { action:'criarAvaliacao', token:portalToken, emailCliente, nomeCliente, instrumento }
+
+function criarAvaliacaoFn(data) {
+  const portalPass = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+  if ((data.token || '') !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
+
+  const { emailCliente, nomeCliente, instrumento } = data;
+  if (!emailCliente || !instrumento) return jsonResponse({ error: 'Dados em falta.' });
+  if (!getInstrumento(instrumento)) return jsonResponse({ error: 'Instrumento desconhecido.' });
+
+  try {
+    const token = Utilities.getUuid();
+    const agora = new Date().toISOString();
+    const sheet = getSheetAvaliacoes();
+
+    sheet.appendRow([
+      token,
+      emailCliente.toLowerCase().trim(),
+      (nomeCliente || '').trim(),
+      instrumento,
+      'pendente',
+      agora,
+      '',
+      '',
+      '',
+      '',
+      '',
+      data.emailPsicologo || EMAIL_FREDERICO
+    ]);
+
+    const link = SITE_URL + '/avaliacao.html?token=' + token;
+
+    // Enviar email ao cliente com o link
+    const instr = getInstrumento(instrumento);
+    MailApp.sendEmail({
+      to: emailCliente,
+      subject: 'Questionário de Avaliação — Psiagora',
+      htmlBody:
+        '<div style="font-family:sans-serif;max-width:540px;margin:0 auto;">' +
+        '<div style="background:linear-gradient(135deg,#00C48C,#2CC7C8);padding:20px 24px;border-radius:8px 8px 0 0;">' +
+        '<h2 style="color:#fff;margin:0;font-size:18px;">🌿 Psiagora</h2></div>' +
+        '<div style="background:#fff;padding:24px;border:1px solid #E5E7EB;border-radius:0 0 8px 8px;">' +
+        '<p style="color:#1A2332;font-size:14px;">Olá <strong>' + (nomeCliente || '') + '</strong>,</p>' +
+        '<p style="color:#5A6678;font-size:14px;line-height:1.6;">O seu psicólogo enviou-lhe um questionário de avaliação: <strong>' + instr.nome + '</strong>.</p>' +
+        '<p style="color:#5A6678;font-size:14px;line-height:1.6;">Demorará apenas alguns minutos a preencher. As suas respostas são confidenciais e serão analisadas pelo seu psicólogo.</p>' +
+        '<div style="text-align:center;margin:28px 0;">' +
+        '<a href="' + link + '" style="background:#00C48C;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">Preencher questionário →</a></div>' +
+        '<p style="color:#9CA3AF;font-size:12px;">Se não estava à espera deste email, ignore-o. O link é de utilização única.</p>' +
+        '</div></div>',
+      name: 'Psiagora'
+    });
+
+    return jsonResponse({ success: true, token: token, link: link });
+  } catch(err) {
+    return jsonResponse({ error: err.message });
+  }
+}
+
+// ─── getAvaliacaoPublica ──────────────────────────────────────────────────────
+// GET ?action=getAvaliacao&token=XXX  — público, sem autenticação
+
+function getAvaliacaoPublica(token) {
+  if (!token) return jsonResponse({ error: 'Token em falta.' });
+  try {
+    const sheet = getSheetAvaliacoes();
+    const rows  = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === token) {
+        if (rows[i][4] === 'concluída') return jsonResponse({ error: 'Este questionário já foi respondido.' });
+        const instrNome = rows[i][3];
+        const instr     = getInstrumento(instrNome);
+        if (!instr) return jsonResponse({ error: 'Instrumento não encontrado.' });
+        return jsonResponse({
+          success:     true,
+          token:       token,
+          nome:        rows[i][2],
+          instrumento: instrNome,
+          definicao:   instr
+        });
+      }
+    }
+    return jsonResponse({ error: 'Questionário não encontrado ou link inválido.' });
+  } catch(err) {
+    return jsonResponse({ error: err.message });
+  }
+}
+
+// ─── submitAvaliacaoFn ────────────────────────────────────────────────────────
+// POST { action:'submitAvaliacao', token, respostas:[0,1,2,...] }
+
+function submitAvaliacaoFn(data) {
+  const { token, respostas } = data;
+  if (!token || !respostas) return jsonResponse({ error: 'Dados em falta.' });
+
+  try {
+    const sheet = getSheetAvaliacoes();
+    const rows  = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] !== token) continue;
+      if (rows[i][4] === 'concluída') return jsonResponse({ error: 'Já respondido.' });
+
+      const instrNome = rows[i][3];
+      const result    = cotarInstrumento(instrNome, respostas);
+      const agora     = new Date().toISOString();
+
+      // Actualizar linha: status, data_resposta, respostas, score, nível, alertaQ9
+      sheet.getRange(i + 1, 5).setValue('concluída');
+      sheet.getRange(i + 1, 7).setValue(agora);
+      sheet.getRange(i + 1, 8).setValue(JSON.stringify(respostas));
+      sheet.getRange(i + 1, 9).setValue(result.total);
+      sheet.getRange(i + 1, 10).setValue(result.nivel);
+      sheet.getRange(i + 1, 11).setValue(result.alertaQ9 ? 'SIM' : '');
+
+      // Notificar psicólogo
+      const emailPsi = rows[i][11] || EMAIL_FREDERICO;
+      const nome     = rows[i][2] || rows[i][1];
+      const alertaTxt = result.alertaQ9 ? '<p style="background:#FEE2E2;border-left:4px solid #EF4444;padding:12px;color:#991B1B;font-size:14px;font-weight:700;">⚠️ ATENÇÃO: O paciente assinalou resposta positiva no item 9 (ideação). Avalie com urgência.</p>' : '';
+      MailApp.sendEmail({
+        to: emailPsi,
+        subject: '✅ Avaliação concluída: ' + nome + ' — ' + instrNome + ' (' + result.total + ' pts — ' + result.nivel + ')',
+        htmlBody:
+          '<div style="font-family:sans-serif;max-width:540px;">' +
+          '<div style="background:linear-gradient(135deg,#00C48C,#2CC7C8);padding:16px 20px;border-radius:8px 8px 0 0;">' +
+          '<h2 style="color:#fff;margin:0;font-size:16px;">🌿 Psiagora — Resultado de Avaliação</h2></div>' +
+          '<div style="background:#fff;padding:20px;border:1px solid #E5E7EB;border-radius:0 0 8px 8px;">' +
+          alertaTxt +
+          '<p style="color:#1A2332;"><strong>' + nome + '</strong> completou o <strong>' + instrNome + '</strong>.</p>' +
+          '<table style="width:100%;border-collapse:collapse;margin:16px 0;">' +
+          '<tr><td style="padding:8px;color:#5A6678;font-size:13px;">Score total</td><td style="padding:8px;font-weight:700;">' + result.total + ' / ' + (instrNome === 'PHQ-9' ? '27' : '21') + '</td></tr>' +
+          '<tr style="background:#F7F8FA;"><td style="padding:8px;color:#5A6678;font-size:13px;">Nível</td><td style="padding:8px;font-weight:700;">' + result.nivel + '</td></tr>' +
+          '</table>' +
+          '<p style="color:#9CA3AF;font-size:12px;">Pode ver o detalhe completo no portal da Psiagora.</p>' +
+          '</div></div>',
+        name: 'Psiagora Avaliações'
+      });
+
+      return jsonResponse({ success: true, score: result.total, nivel: result.nivel, alertaQ9: result.alertaQ9 });
+    }
+
+    return jsonResponse({ error: 'Token não encontrado.' });
+  } catch(err) {
+    return jsonResponse({ error: err.message });
+  }
+}
+
+// ─── getAvaliacoesFn ──────────────────────────────────────────────────────────
+// POST { action:'getAvaliacoes', token:portalToken, emailCliente }
+
+function getAvaliacoesFn(data) {
+  const portalPass = (PropertiesService.getScriptProperties().getProperty('PORTAL_TOKEN') || 'portal2026');
+  if ((data.token || '') !== portalPass) return jsonResponse({ error: 'Não autorizado.' });
+
+  const emailCliente = (data.emailCliente || '').toLowerCase().trim();
+  if (!emailCliente) return jsonResponse({ avaliacoes: [] });
+
+  try {
+    const sheet = getSheetAvaliacoes();
+    const rows  = sheet.getDataRange().getValues();
+    const lista = [];
+
+    for (let i = 1; i < rows.length; i++) {
+      if ((rows[i][1] || '').toString().toLowerCase().trim() !== emailCliente) continue;
+      lista.push({
+        token:        rows[i][0],
+        instrumento:  rows[i][3],
+        status:       rows[i][4],
+        dataCriacao:  rows[i][5],
+        dataResposta: rows[i][6],
+        respostas:    rows[i][7] ? JSON.parse(rows[i][7]) : [],
+        score:        rows[i][8],
+        nivel:        rows[i][9],
+        alertaQ9:     rows[i][10] === 'SIM'
+      });
+    }
+
+    return jsonResponse({ avaliacoes: lista });
+  } catch(err) {
+    return jsonResponse({ error: err.message, avaliacoes: [] });
+  }
+}
+
+
 // ══════════════════════════════════════════════════════════════════════════════
 
 function testEmail() {

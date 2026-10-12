@@ -6,6 +6,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Portal Psicólogos | Psiagora</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6XZWPZP2N5');</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -39,6 +42,43 @@
     .portal-user { font-size: 0.82rem; color: var(--texto-sec); }
     .btn-sair { font-size: 0.8rem; color: var(--texto-sec); background: none; border: 1px solid var(--cinza-borda); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
     .btn-sair:hover { background: var(--cinza-fundo); }
+    .btn-admin { font-size: 1rem; color: var(--texto-sec); background: none; border: 1px solid var(--cinza-borda); padding: 5px 9px; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-admin:hover { background: var(--cinza-fundo); color: var(--texto); }
+
+    /* Avaliações */
+    .aval-card { background:var(--branco); border:1.5px solid var(--cinza-borda); border-radius:12px; padding:16px 18px; margin-bottom:10px; }
+    .aval-card.pendente { border-left:4px solid #F59E0B; }
+    .aval-card.concluida { border-left:4px solid var(--verde); }
+    .aval-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
+    .aval-nome { font-weight:700; font-size:0.9rem; }
+    .aval-badge { font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:20px; }
+    .aval-badge.pendente { background:#FEF3C7; color:#92400E; }
+    .aval-badge.concluida { background:#D1FAE5; color:#065F46; }
+    .aval-score { font-size:1.3rem; font-weight:800; color:var(--verde); }
+    .aval-nivel { font-size:0.78rem; color:var(--texto-sec); margin-top:2px; }
+    .aval-meta { font-size:0.78rem; color:var(--texto-sec); }
+    .aval-link { font-size:0.8rem; color:var(--verde); font-weight:600; cursor:pointer; text-decoration:underline; }
+    .aval-alerta { font-size:0.8rem; background:#FEE2E2; color:#991B1B; border-radius:6px; padding:5px 10px; font-weight:600; margin-top:6px; display:inline-block; }
+
+    /* Admin modal */
+    .admin-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:2000; align-items:center; justify-content:center; }
+    .admin-overlay.open { display:flex; }
+    .admin-modal { background:var(--branco); border-radius:14px; padding:28px; width:min(520px,94vw); max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.18); }
+    .admin-modal h2 { font-size:1rem; font-weight:800; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; }
+    .admin-close { background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--texto-sec); padding:2px 6px; }
+    .admin-pin-form { display:flex; gap:8px; margin-bottom:20px; }
+    .admin-pin-form input { flex:1; padding:9px 12px; border:1px solid var(--cinza-borda); border-radius:8px; font-family:inherit; font-size:0.88rem; }
+    .admin-pin-form button { padding:9px 16px; background:var(--verde); color:#fff; border:none; border-radius:8px; font-family:inherit; font-size:0.88rem; font-weight:700; cursor:pointer; }
+    .admin-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+    .admin-stat { background:var(--cinza-fundo); border-radius:10px; padding:14px 16px; }
+    .admin-stat-label { font-size:0.72rem; font-weight:600; color:var(--texto-sec); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+    .admin-stat-val { font-size:1.4rem; font-weight:800; color:var(--texto); }
+    .admin-stat-val.green { color:var(--verde); }
+    .admin-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    .admin-table th { text-align:left; padding:6px 10px; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--texto-sec); border-bottom:2px solid var(--cinza-borda); }
+    .admin-table td { padding:7px 10px; border-bottom:1px solid var(--cinza-borda); }
+    .admin-table tr:last-child td { border-bottom:none; }
+    .admin-err { color:#DC2626; font-size:0.82rem; margin-top:6px; }
 
     .portal-body { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
 
@@ -214,6 +254,7 @@
     <div class="logo" style="display:inline-flex;align-items:center;gap:8px;"><img src="/favicon.svg" width="24" height="24" style="display:block;flex-shrink:0;" alt=""><span>Psiagora</span></div>
     <div class="header-right">
       <span class="portal-user" id="portalNome"></span>
+      <button class="btn-admin" id="btnAdmin" title="Resumo financeiro">⚙</button>
       <button class="btn-sair" id="btnSair">Sair</button>
     </div>
   </header>
@@ -317,6 +358,7 @@
         <button class="tab-btn tab-active" data-tab="perfil" onclick="switchTab('perfil')">📋 Perfil</button>
         <button class="tab-btn" data-tab="notas" onclick="switchTab('notas')">📝 Sessões &amp; Notas</button>
         <button class="tab-btn" data-tab="docs" onclick="switchTab('docs')">📎 Documentos</button>
+        <button class="tab-btn" data-tab="avaliacoes" onclick="switchTab('avaliacoes');carregarAvaliacoes()">📊 Avaliações</button>
       </div>
 
       <!-- Tab: Perfil -->
@@ -349,6 +391,23 @@
         <div class="upload-progress-msg" id="uploadProgress">A fazer upload...</div>
         <div id="docs-lista" style="margin-top:16px;"></div>
       </div>
+
+      <!-- Tab: Avaliações -->
+      <div class="tab-pane" id="tab-avaliacoes" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:0.85rem;color:var(--texto-sec);">Questionários enviados a este cliente</div>
+          <div style="display:flex;gap:8px;">
+            <select id="selectInstrumento" style="border:1.5px solid var(--cinza-borda);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:0.85rem;color:var(--texto);background:#fff;">
+              <option value="PHQ-9">PHQ-9 (Depressão)</option>
+              <option value="GAD-7">GAD-7 (Ansiedade)</option>
+            </select>
+            <button onclick="enviarAvaliacao()" style="background:var(--verde);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:inherit;font-size:0.85rem;font-weight:700;cursor:pointer;">+ Enviar questionário</button>
+          </div>
+        </div>
+        <div id="aval-loading" style="text-align:center;padding:32px;color:var(--texto-sec);font-size:0.88rem;">A carregar…</div>
+        <div id="aval-lista"></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -455,7 +514,7 @@
       const key = (r.email || r.telefone || r.nome || '').toLowerCase().trim();
       if (!key) return;
       if (!mapa[key]) mapa[key] = { nome: r.nome, email: r.email, telefone: r.telefone, sessoes: [] };
-      mapa[key].sessoes.push({ data: r.data, hora: r.hora, tipo: r.tipo, descricao: r.descricao });
+      mapa[key].sessoes.push({ data: r.data, hora: r.hora, tipo: r.tipo, descricao: r.descricao, preco: r.preco || 0 });
     });
     return Object.values(mapa).sort((a,b) => {
       const da = a.sessoes[a.sessoes.length-1]?.data || '';
@@ -936,6 +995,222 @@ window.enviarProvisorio = async function() {
   }
   btn.disabled = false; btn.textContent = 'Enviar link de pagamento ao cliente';
 };
+
+// ─── AVALIAÇÕES ───────────────────────────────────────────────────────────────
+
+window.carregarAvaliacoes = async function() {
+  const c = window._clienteAtivo;
+  if (!c) return;
+  const loading = document.getElementById('aval-loading');
+  const lista   = document.getElementById('aval-lista');
+  loading.style.display = 'block';
+  lista.innerHTML = '';
+
+  try {
+    const r = await fetch(PORTAL_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action:'getAvaliacoes', token: PORTAL_TOKEN, emailCliente: c.email })
+    });
+    const j = await r.json();
+    loading.style.display = 'none';
+    const avs = j.avaliacoes || [];
+
+    if (!avs.length) {
+      lista.innerHTML = '<div style="font-size:0.85rem;color:var(--texto-sec);padding:16px 0;">Nenhum questionário enviado ainda. Use o botão "Enviar questionário" para começar.</div>';
+      return;
+    }
+
+    const corMap = { 'Mínimo':'verde', 'Ligeiro':'amarelo', 'Moderado':'laranja', 'Moderadamente grave':'vermelho', 'Grave':'vermelho' };
+
+    lista.innerHTML = avs.slice().reverse().map(av => {
+      const concluida = av.status === 'concluída';
+      const dataC = av.dataCriacao ? new Date(av.dataCriacao).toLocaleDateString('pt-PT') : '—';
+      const dataR = av.dataResposta ? new Date(av.dataResposta).toLocaleDateString('pt-PT') : '—';
+      const cor   = concluida ? (corMap[av.nivel] || 'verde') : '';
+      const max   = av.instrumento === 'PHQ-9' ? 27 : 21;
+      const link  = location.origin + '/avaliacao.html?token=' + av.token;
+
+      return `<div class="aval-card ${av.status.replace('í','i')}">
+        <div class="aval-top">
+          <div>
+            <span class="aval-nome">${av.instrumento}</span>
+            <span class="aval-badge ${av.status.replace('í','i')}">${concluida ? 'Concluída' : 'Pendente'}</span>
+          </div>
+          ${concluida
+            ? `<div style="text-align:right"><div class="aval-score">${av.score} <span style="font-size:0.75rem;font-weight:500;color:var(--texto-sec)">/ ${max}</span></div><div class="aval-nivel">${av.nivel}</div></div>`
+            : `<span class="aval-link" onclick="copiarLink('${link}')">Copiar link</span>`
+          }
+        </div>
+        <div class="aval-meta">Enviado: ${dataC}${concluida ? ' &nbsp;·&nbsp; Respondido: ' + dataR : ''}</div>
+        ${av.alertaQ9 ? '<div class="aval-alerta">⚠️ Alerta: resposta positiva no item de ideação (Q9)</div>' : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    loading.style.display = 'none';
+    lista.innerHTML = '<div style="font-size:0.85rem;color:#EF4444;">Erro ao carregar avaliações.</div>';
+  }
+};
+
+window.enviarAvaliacao = async function() {
+  const c = window._clienteAtivo;
+  if (!c) return;
+  const instrumento = document.getElementById('selectInstrumento').value;
+  const btn = document.querySelector('#tab-avaliacoes button');
+  btn.disabled = true;
+  btn.textContent = 'A enviar…';
+
+  try {
+    const r = await fetch(PORTAL_API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action:'criarAvaliacao', token: PORTAL_TOKEN, emailCliente: c.email, nomeCliente: c.nome, instrumento })
+    });
+    const j = await r.json();
+    if (j.error) { alert('Erro: ' + j.error); }
+    else {
+      await window.carregarAvaliacoes();
+      const link = j.link || '';
+      if (link) {
+        const copiado = await navigator.clipboard.writeText(link).then(() => true).catch(() => false);
+        alert('✅ Questionário enviado por email para ' + c.email + '.' + (copiado ? '\n\nLink também copiado para a área de transferência.' : ''));
+      }
+    }
+  } catch(e) {
+    alert('Erro de ligação.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '+ Enviar questionário';
+  }
+};
+
+window.copiarLink = function(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    alert('Link copiado!\n\n' + link);
+  }).catch(() => {
+    prompt('Copie o link:', link);
+  });
+};
+
+// ─── ADMIN / RESUMO FINANCEIRO ────────────────────────────────────────────────
+const ADMIN_PIN = 'frederico_admin_2026';
+let adminUnlocked = false;
+
+document.getElementById('btnAdmin').addEventListener('click', () => {
+  document.getElementById('adminOverlay').classList.add('open');
+  if (adminUnlocked) renderAdmin();
+  else document.getElementById('adminPinInput').focus();
+});
+
+document.getElementById('adminClose').addEventListener('click', () => {
+  document.getElementById('adminOverlay').classList.remove('open');
+});
+
+document.getElementById('adminOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('adminOverlay'))
+    document.getElementById('adminOverlay').classList.remove('open');
+});
+
+document.getElementById('adminPinForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const pin = document.getElementById('adminPinInput').value;
+  if (pin === ADMIN_PIN) {
+    adminUnlocked = true;
+    document.getElementById('adminPinSection').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    renderAdmin();
+  } else {
+    document.getElementById('adminPinErr').textContent = 'PIN incorreto.';
+  }
+});
+
+function renderAdmin() {
+  if (!todosClientes.length) {
+    document.getElementById('adminContent').innerHTML = '<p style="color:var(--texto-sec);font-size:0.85rem">Sem dados para mostrar.</p>';
+    return;
+  }
+
+  const agora = new Date();
+  const mesAtual = agora.getFullYear() + '-' + String(agora.getMonth()+1).padStart(2,'0');
+  const mesAnterior = (() => { const d = new Date(agora); d.setMonth(d.getMonth()-1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); })();
+
+  // Calcular receitas por mês
+  const porMes = {};
+  let totalReceita = 0;
+  todosClientes.forEach(c => {
+    c.sessoes.forEach(s => {
+      const mes = (s.data || '').substring(0,7);
+      if (!mes) return;
+      if (!porMes[mes]) porMes[mes] = { sessoes: 0, receita: 0 };
+      porMes[mes].sessoes++;
+      porMes[mes].receita += s.preco || 0;
+      totalReceita += s.preco || 0;
+    });
+  });
+
+  const receitaMes = (porMes[mesAtual]?.receita || 0).toFixed(0);
+  const sessoesMes = porMes[mesAtual]?.sessoes || 0;
+  const receitaMesAnt = (porMes[mesAnterior]?.receita || 0).toFixed(0);
+  const sessoesMesAnt = porMes[mesAnterior]?.sessoes || 0;
+
+  // Clientes ativos (sessão nos últimos 30 dias)
+  const limite = new Date(); limite.setDate(limite.getDate()-30);
+  const ativos = todosClientes.filter(c => {
+    const ultima = c.sessoes[c.sessoes.length-1]?.data;
+    return ultima && new Date(ultima) >= limite;
+  }).length;
+
+  // Tabela últimos 6 meses
+  const meses = Object.keys(porMes).sort().slice(-6);
+  const tabelaRows = meses.reverse().map(m => {
+    const [ano, mes] = m.split('-');
+    const nomeMes = new Date(+ano, +mes-1, 1).toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+    return `<tr>
+      <td>${nomeMes}</td>
+      <td>${porMes[m].sessoes}</td>
+      <td style="font-weight:600;color:var(--verde)">${porMes[m].receita.toFixed(0)} €</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('adminContent').innerHTML = `
+    <div class="admin-stats">
+      <div class="admin-stat">
+        <div class="admin-stat-label">Este mês</div>
+        <div class="admin-stat-val green">${receitaMes} €</div>
+        <div style="font-size:0.75rem;color:var(--texto-sec);margin-top:2px">${sessoesMes} sessões</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Mês anterior</div>
+        <div class="admin-stat-val">${receitaMesAnt} €</div>
+        <div style="font-size:0.75rem;color:var(--texto-sec);margin-top:2px">${sessoesMesAnt} sessões</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Total acumulado</div>
+        <div class="admin-stat-val">${totalReceita.toFixed(0)} €</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-label">Clientes ativos (30 dias)</div>
+        <div class="admin-stat-val">${ativos}</div>
+      </div>
+    </div>
+    <table class="admin-table">
+      <thead><tr><th>Mês</th><th>Sessões</th><th>Receita</th></tr></thead>
+      <tbody>${tabelaRows}</tbody>
+    </table>`;
+}
 </script>
+
+<!-- ADMIN MODAL -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-modal">
+    <h2>Resumo Financeiro <button class="admin-close" id="adminClose">✕</button></h2>
+    <div id="adminPinSection">
+      <form class="admin-pin-form" id="adminPinForm">
+        <input type="password" id="adminPinInput" placeholder="PIN de acesso…" autocomplete="off">
+        <button type="submit">Entrar</button>
+      </form>
+      <div class="admin-err" id="adminPinErr"></div>
+    </div>
+    <div id="adminContent" style="display:none"></div>
+  </div>
+</div>
 </body>
 </html>
