@@ -64,16 +64,7 @@
     @keyframes spin { to { transform:rotate(360deg); } }
 
     /* Resultado */
-    .resultado { background:var(--branco); border:1px solid var(--cinza-borda); border-radius:16px; padding:28px; }
-    .score-badge { display:inline-block; padding:8px 20px; border-radius:20px; font-size:0.85rem; font-weight:700; margin-bottom:16px; }
-    .score-verde    { background:#D1FAE5; color:#065F46; }
-    .score-amarelo  { background:#FEF3C7; color:#92400E; }
-    .score-laranja  { background:#FFEDD5; color:#9A3412; }
-    .score-vermelho { background:#FEE2E2; color:#991B1B; }
-    .score-numero { font-size:2.5rem; font-weight:800; margin-bottom:4px; }
-    .score-nivel { font-size:1rem; font-weight:700; margin-bottom:16px; }
-    .alerta-q9 { background:#FEE2E2; border:1px solid #FECACA; border-radius:10px; padding:14px 16px; color:#991B1B; font-size:0.88rem; font-weight:600; margin-bottom:16px; line-height:1.5; }
-    .score-desc { font-size:0.88rem; color:var(--texto-sec); line-height:1.65; }
+    .resultado { background:var(--branco); border:1px solid var(--cinza-borda); border-radius:16px; padding:28px; text-align:center; }
   </style>
 </head>
 <body>
@@ -125,12 +116,9 @@
 
   <!-- Resultado -->
   <div id="stateResultado" class="resultado" style="display:none">
-    <div class="q-instrumento" id="resInstrumento"></div>
-    <div class="score-numero" id="resScore"></div>
-    <div class="score-nivel" id="resNivel"></div>
-    <div id="resAlerta" style="display:none" class="alerta-q9">⚠️ Identificou pensamentos de se magoar. O seu psicólogo foi notificado e irá contactá-lo(a) em breve.</div>
-    <div class="score-desc" id="resDesc"></div>
-    <p style="margin-top:20px;font-size:0.8rem;color:#9CA3AF;">As suas respostas foram registadas e estão disponíveis para o seu psicólogo.</p>
+    <div style="font-size:3rem;margin-bottom:16px;">🌿</div>
+    <div style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">Obrigado pelo preenchimento</div>
+    <div style="font-size:0.9rem;color:var(--texto-sec);line-height:1.65;max-width:380px;margin:0 auto;">As suas respostas foram registadas com sucesso e estão disponíveis para o seu psicólogo. Pode fechar esta página.</div>
   </div>
 </main>
 
@@ -240,38 +228,6 @@ async function submeter() {
   try {
     const d = await gasPost({ action:'submitAvaliacao', token: estado.token, respostas: estado.respostas });
     if (d.error) { btn.disabled = false; btn.textContent = 'Submeter respostas'; alert('Erro: ' + d.error); return; }
-
-    // Mostrar resultado
-    const descricoes = {
-      'PHQ-9': {
-        'Mínimo':              'Sem sinais significativos de depressão neste momento.',
-        'Ligeiro':             'Sintomas ligeiros. Monitorizar evolução ao longo das sessões.',
-        'Moderado':            'Sintomas moderados que merecem atenção clínica.',
-        'Moderadamente grave': 'Nível que justifica avaliação cuidada e plano terapêutico estruturado.',
-        'Grave':               'Sintomas graves. Acompanhamento intensivo recomendado.'
-      },
-      'GAD-7': {
-        'Mínimo':    'Sem sinais significativos de ansiedade neste momento.',
-        'Ligeiro':   'Ansiedade ligeira. Monitorizar evolução.',
-        'Moderado':  'Ansiedade moderada. O psicólogo irá abordar este tema nas sessões.',
-        'Grave':     'Ansiedade elevada. Acompanhamento clínico estruturado recomendado.'
-      }
-    };
-    const corMap = { 'Mínimo':'verde', 'Ligeiro':'amarelo', 'Moderado':'laranja', 'Moderadamente grave':'vermelho', 'Grave':'vermelho' };
-    const cor    = corMap[d.nivel] || 'verde';
-    const desc   = (descricoes[estado.instrumento] || {})[d.nivel] || '';
-    const max    = estado.instrumento === 'PHQ-9' ? 27 : 21;
-
-    document.getElementById('resInstrumento').textContent = estado.instrumento + ' — Resultado';
-    const scoreEl = document.getElementById('resScore');
-    scoreEl.textContent = d.score + ' / ' + max;
-    const badge = document.createElement('div');
-    badge.className = 'score-badge score-' + cor;
-    badge.textContent = d.nivel;
-    scoreEl.before(badge);
-    document.getElementById('resNivel').textContent = '';
-    document.getElementById('resDesc').textContent  = desc;
-    if (d.alertaQ9) document.getElementById('resAlerta').style.display = '';
 
     show('stateResultado');
   } catch(e) {
