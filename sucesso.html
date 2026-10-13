@@ -6,6 +6,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Consulta Confirmada | Psiagora</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6XZWPZP2N5');</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root { --verde:#00C48C; --verde-claro:#E6F8F4; --cinza:#F7F8FA; --borda:#E5E7EB; --texto:#1A2332; --texto-sec:#5A6678; --gradiente:linear-gradient(135deg,#00C48C,#4A90D9); }
@@ -51,7 +54,7 @@
       <a id="btnPreForm" href="#" class="btn-outline" target="_blank" rel="noopener">Preencher formulário →</a>
     </div>
 
-    <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="mailto:info@psiagora.com" style="color:#00C48C">info@psiagora.com</a>.</p>
+    <p style="margin-top:12px">Se nao receber o e-mail em 10 minutos, verifique a pasta de spam ou contacte-nos em <a href="#" data-em="ZnJlZGVyaWNvLmVAcHNpYWdvcmEuY29t" style="color:#00C48C" data-show="1">frederico&#46;e&#64;psiagora&#46;com</a>.</p>
     <a href="/" class="btn">Voltar ao inicio</a>
   </div>
   <footer>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora</footer>
@@ -114,5 +117,8 @@
 
     init();
   </script>
+<script>
+(function(){var els=document.querySelectorAll('[data-em]');els.forEach(function(el){var e=atob(el.getAttribute('data-em'));el.href='mailto:'+e;if(el.hasAttribute('data-show'))el.textContent=e;});})();
+</script>
 </body>
 </html>

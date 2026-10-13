@@ -6,6 +6,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Agendar Consulta | Psiagora</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6XZWPZP2N5');</script>
   <meta name="description" content="Marque a sua consulta de psicologia online. Escolha o dia e hora que melhor se adapta a si — confirmação imediata por e-mail.">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -545,7 +548,7 @@
 </div>
 
 <footer>
-  <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="/privacidade">Privacidade</a></p>
+  <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="privacidade.html">Privacidade</a></p>
 </footer>
 
 <script>
@@ -900,6 +903,19 @@
   })();
 
   // ── INIT ─────────────────────────────────────────────────────
+
+  // Mostrar psicólogo pré-selecionado se vier de equipa.html
+  (function() {
+    const NOMES = { frederico: 'Dr. Frederico Esgalhado', susana: 'Dra. Susana Silva', ana: 'Dra. Ana Costa', joao: 'Dr. João Ferreira' };
+    const p = new URLSearchParams(window.location.search).get('psicologo');
+    if (p && NOMES[p]) {
+      const h = document.querySelector('.booking-header-text h2');
+      const sub = document.querySelector('.booking-header-text p');
+      if (h) h.textContent = 'Agendar com ' + NOMES[p];
+      if (sub) sub.textContent = 'Escolha a data e hora que prefere';
+    }
+  })();
+
   renderCalendar();
 })();
 </script>

@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Psiagora | Psicologia e Bem-Estar Emocional</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6XZWPZP2N5');</script>
   <meta name="description" content="Psicologia online com psicólogos certificados pela Ordem dos Psicólogos. Sessões por videochamada, sem lista de espera, cancelamento gratuito até 24h.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
@@ -674,9 +677,9 @@
     <h2 class="section-title">Fale connosco</h2>
     <p class="section-sub" style="margin-left:auto;margin-right:auto;">Tem dúvidas antes de agendar? Estamos disponíveis para ajudar.</p>
     <div class="contacto-cards">
-      <a href="mailto:info@psiagora.com" class="contacto-card">
+      <a href="#" data-em="ZnJlZGVyaWNvLmVAcHNpYWdvcmEuY29t" class="contacto-card" data-show="1">
         <div class="c-label">E-mail</div>
-        <div class="c-value">info@psiagora.com</div>
+        <div class="c-value">frederico&#46;e&#64;psiagora&#46;com</div>
       </a>
       <a href="https://wa.me/351912392960" class="contacto-card">
         <div class="c-label">WhatsApp</div>
@@ -699,10 +702,11 @@
       <div>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Todos os direitos reservados</div>
     </div>
     <div class="footer-links">
-      <a href="/termos">Termos</a>
-      <a href="/privacidade">Privacidade</a>
-      <a href="/cookies">Cookies</a>
-      <a href="/consentimento-informado">Consentimento Informado</a>
+      <a href="termos.html">Termos</a>
+      <a href="privacidade.html">Privacidade</a>
+      <a href="cookies.html">Cookies</a>
+      <a href="consentimento-informado.html">Consentimento Informado</a>
+      <a href="portal.html" style="opacity:0.45;font-size:0.75rem;">Área Profissional</a>
     </div>
   </div>
 </footer>
@@ -720,6 +724,9 @@
       mobileMenu.classList.remove('open');
     });
   });
+</script>
+<script>
+(function(){var els=document.querySelectorAll('[data-em]');els.forEach(function(el){var e=atob(el.getAttribute('data-em'));el.href='mailto:'+e;if(el.hasAttribute('data-show'))el.textContent=e;});})();
 </script>
 </body>
 </html>

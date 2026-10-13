@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pacotes de Sessões | Psiagora</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6XZWPZP2N5');</script>
   <meta name="description" content="Pacotes de sessões de psicologia com desconto até 20%. Comprometa-se com o seu processo terapêutico e poupe por sessão.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,7 +18,7 @@
       --gradiente: linear-gradient(135deg, #00C48C 0%, #2CC7C8 100%);
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Inter', sans-serif; color: var(--texto); background: var(--cinza-fundo); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     header { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: 56px; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid var(--cinza-borda); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
     .logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; background: var(--gradiente); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
     .btn-voltar { font-size: 0.85rem; font-weight: 500; color: var(--texto-sec); text-decoration: none; }
@@ -69,7 +72,7 @@
     .btn-pacote.ghost:hover { background: var(--verde-claro); }
 
     /* Comparação */
-    .comparacao { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+    .comparacao { background: var(--branco); border: 1px solid var(--cinza-borda); border-radius: 12px; overflow-x: auto; margin-bottom: 24px; }
     .comparacao table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
     .comparacao th { background: var(--cinza-fundo); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.78rem; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 0.5px; }
     .comparacao td { padding: 10px 14px; border-top: 1px solid var(--cinza-borda); }
@@ -217,14 +220,17 @@
 
   <div class="nota-avulso">
     Prefere marcar sessão a sessão? <a href="equipa.html">Agende uma consulta avulso aqui →</a>
-    &nbsp;·&nbsp; Dúvidas? <a href="mailto:frederico.e@psiagora.com">frederico.e@psiagora.com</a>
+    &nbsp;·&nbsp; Dúvidas? <a href="#" data-em="ZnJlZGVyaWNvLmVAcHNpYWdvcmEuY29t" data-show="1">frederico&#46;e&#64;psiagora&#46;com</a>
   </div>
 
 </div>
 
 <footer>
-  <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="/privacidade">Privacidade</a></p>
+  <p>Desenvolvido por <a href="https://adventishub.com" target="_blank">Adventis</a> &nbsp;·&nbsp; © 2026 Psiagora &nbsp;·&nbsp; <a href="privacidade.html">Privacidade</a></p>
 </footer>
 
+<script>
+(function(){var els=document.querySelectorAll('[data-em]');els.forEach(function(el){var e=atob(el.getAttribute('data-em'));el.href='mailto:'+e;if(el.hasAttribute('data-show'))el.textContent=e;});})();
+</script>
 </body>
 </html>

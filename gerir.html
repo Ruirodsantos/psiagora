@@ -6,6 +6,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Remarcar Consulta | Psiagora</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6XZWPZP2N5"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6XZWPZP2N5');</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -222,7 +225,7 @@
     <div id="estado-erro" style="display:none">
       <div class="card">
         <h2>Link inválido</h2>
-        <p style="color:var(--texto-sec);font-size:0.9rem;margin-top:8px;">Este link de remarcação não é válido ou já expirou. Por favor contacte-nos em <a href="mailto:frederico.e@psiagora.com" style="color:var(--verde)">frederico.e@psiagora.com</a>.</p>
+        <p style="color:var(--texto-sec);font-size:0.9rem;margin-top:8px;">Este link de remarcação não é válido ou já expirou. Por favor contacte-nos em <a href="#" data-em="ZnJlZGVyaWNvLmVAcHNpYWdvcmEuY29t" style="color:var(--verde)" data-show="1">frederico&#46;e&#64;psiagora&#46;com</a>.</p>
       </div>
     </div>
 
@@ -521,5 +524,8 @@
 
     init();
   </script>
+<script>
+(function(){var els=document.querySelectorAll('[data-em]');els.forEach(function(el){var e=atob(el.getAttribute('data-em'));el.href='mailto:'+e;if(el.hasAttribute('data-show'))el.textContent=e;});})();
+</script>
 </body>
 </html>
