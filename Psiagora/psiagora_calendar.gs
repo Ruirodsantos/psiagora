@@ -24,7 +24,7 @@
  *   - Google Calendar API (para criar eventos com Google Meet)
  */
 
-// ─── ⚙️  CONFIGURAÇÃO — editar aqui ──────────────────────────────────────────
+// ─── ⚙  CONFIGURAÇÃO — editar aqui ──────────────────────────────────────────
 
 const CALENDAR_ID     = 'frederico.e@psiagora.com';
 const EMAIL_FREDERICO = 'frederico.e@psiagora.com';
@@ -366,8 +366,8 @@ function doPost(e) {
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#2A0753;padding:28px 32px;">
-      <div style="color:#00C48C;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora</div>
-      <h1 style="color:#fff;margin:0;font-size:20px;font-weight:800;">📎 Documento partilhado</h1>
+      <img src="https://psiagora.com/favicon.svg" width="28" height="28" alt="Psiagora" style="display:block;filter:brightness(0) invert(1);margin-bottom:10px;">
+      <h1 style="color:#fff;margin:0;font-size:20px;font-weight:800;">Documento partilhado</h1>
     </div>
     <div style="padding:28px 32px;">
       <p style="color:#1C1430;font-size:15px;margin:0 0 16px;">Olá <strong>${nomeCliente || ''}</strong>,</p>
@@ -564,7 +564,7 @@ function criarEvento({ nome, email, telefone, dataStr, hora, tipo, descricao }) 
 
   const preco     = tipo === 'seguinte' ? '50,00 €' : '65,00 €';
   const tipoTexto = tipo === 'seguinte' ? 'Consulta de seguimento' : 'Primeira consulta';
-  const titulo    = `🧠 ${tipoTexto} — ${nome}`;
+  const titulo    = `${tipoTexto} — ${nome}`;
 
   const descEvento = [
     `Cliente: ${nome}`,
@@ -644,7 +644,7 @@ function enviarEmailCliente({ nome, email, dataStr, hora, tipo, meetLink, bookin
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#2A0753;padding:28px 32px;">
-      <div style="color:#00C48C;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora</div>
+      <img src="https://psiagora.com/favicon.svg" width="28" height="28" alt="Psiagora" style="display:block;filter:brightness(0) invert(1);margin-bottom:10px;">
       <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;">Consulta confirmada ✓</h1>
     </div>
     <div style="padding:28px 32px;">
@@ -726,7 +726,7 @@ function enviarEmailFrederico({ nome, email, telefone, dataStr, hora, tipo, desc
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#00C48C;padding:20px 28px;">
-      <h1 style="color:#fff;margin:0;font-size:18px;font-weight:800;">🗓️ Nova marcação recebida</h1>
+      <h1 style="color:#fff;margin:0;font-size:18px;font-weight:800;">Nova marcação recebida</h1>
     </div>
     <div style="padding:24px 28px;">
       <table style="width:100%;border-collapse:collapse;">
@@ -761,7 +761,7 @@ function enviarEmailFrederico({ nome, email, telefone, dataStr, hora, tipo, desc
 
   MailApp.sendEmail({
     to: EMAIL_FREDERICO,
-    subject: `🗓️ Nova consulta: ${nome} — ${dataFormatada} às ${hora}`,
+    subject: `Nova consulta: ${nome} — ${dataFormatada} às ${hora}`,
     htmlBody: html,
     name: 'Psiagora Agendamentos',
   });
@@ -786,7 +786,7 @@ function enviarEmailRemarcacao({ nome, email, dataStr, hora, tipo, meetLink, boo
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#2A0753;padding:28px 32px;">
-      <div style="color:#00C48C;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora</div>
+      <img src="https://psiagora.com/favicon.svg" width="28" height="28" alt="Psiagora" style="display:block;filter:brightness(0) invert(1);margin-bottom:10px;">
       <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;">Consulta remarcada ✓</h1>
     </div>
     <div style="padding:28px 32px;">
@@ -847,7 +847,7 @@ function enviarEmailFredericoRemarcacao({ nome, email, dataStr, hora, dataAnteri
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#4A90D9;padding:20px 28px;">
-      <h1 style="color:#fff;margin:0;font-size:18px;font-weight:800;">🔄 Consulta remarcada</h1>
+      <h1 style="color:#fff;margin:0;font-size:18px;font-weight:800;">Consulta remarcada</h1>
     </div>
     <div style="padding:24px 28px;">
       <p style="color:#1C1430;font-size:14px;"><strong>${nome}</strong> (<a href="mailto:${email}" style="color:#3D8C6A;">${email}</a>) remarcou a consulta:</p>
@@ -869,7 +869,7 @@ function enviarEmailFredericoRemarcacao({ nome, email, dataStr, hora, dataAnteri
 
   MailApp.sendEmail({
     to: EMAIL_FREDERICO,
-    subject: `🔄 Consulta remarcada: ${nome} → ${fmt(dataStr)} às ${hora}`,
+    subject: `Consulta remarcada: ${nome} → ${fmt(dataStr)} às ${hora}`,
     htmlBody: html,
     name: 'Psiagora Agendamentos',
   });
@@ -929,7 +929,7 @@ function enviarLembrete() {
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#2A0753;padding:20px 28px;">
-      <h1 style="color:#00C48C;margin:0;font-size:18px;font-weight:800;">⏰ Lembrete — consulta amanhã</h1>
+      <h1 style="color:#00C48C;margin:0;font-size:18px;font-weight:800;">Lembrete — consulta amanhã</h1>
     </div>
     <div style="padding:24px 28px;">
       <p style="color:#1C1430;font-size:15px;">Olá <strong>${b.nome}</strong>,</p>
@@ -1086,7 +1086,7 @@ function enviarEmailCancelamento({ nome, email, dataStr, hora }) {
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#F7F8FA;margin:0;padding:24px;">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
     <div style="background:#2A0753;padding:28px 32px;">
-      <div style="color:#00C48C;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Psiagora</div>
+      <img src="https://psiagora.com/favicon.svg" width="28" height="28" alt="Psiagora" style="display:block;filter:brightness(0) invert(1);margin-bottom:10px;">
       <h1 style="color:#fff;margin:0;font-size:22px;font-weight:800;">Consulta cancelada</h1>
     </div>
     <div style="padding:28px 32px;">
@@ -1123,7 +1123,7 @@ function enviarEmailFredericoCancelamento({ nome, email, dataStr, hora }) {
 
   MailApp.sendEmail({
     to: EMAIL_FREDERICO,
-    subject: `❌ Consulta cancelada: ${nome} — ${dataFormatada} às ${hora}`,
+    subject: `Consulta cancelada: ${nome} — ${dataFormatada} às ${hora}`,
     htmlBody: `<p style="font-family:sans-serif;font-size:14px;"><strong>${nome}</strong> (<a href="mailto:${email}">${email}</a>) cancelou a consulta de <strong>${dataFormatada} às ${hora}</strong>. O evento foi removido do Calendar.</p>`,
     name: 'Psiagora Agendamentos',
   });
@@ -1176,7 +1176,7 @@ function processarProvisorio(data) {
   try {
     MailApp.sendEmail({
       to: EMAIL_FREDERICO,
-      subject: `🕐 Reserva provisória criada: ${nome} — ${dfmt} às ${hora}`,
+      subject: `Reserva provisória criada: ${nome} — ${dfmt} às ${hora}`,
       htmlBody: `<p style="font-family:sans-serif;font-size:14px;">Reserva provisória criada para <strong>${nome}</strong> (${email}) em <strong>${dfmt} às ${hora}</strong>.<br>Prazo de pagamento: <strong>${deadline.toLocaleString('pt-PT')}</strong>.<br>Se não pagar até essa hora, o horário será libertado automaticamente.</p>`,
       name: 'Psiagora Agendamentos',
     });
@@ -1234,7 +1234,7 @@ function enviarEmailProvisorioCliente({ nome, email, dataStr, hora, tipo, payTok
         </tr>
       </table>
       <div style="background:#FFF8E1;border:1.5px solid #F59E0B;border-radius:10px;padding:16px;margin-bottom:20px;">
-        <p style="color:#92400E;font-size:13px;font-weight:700;margin:0 0 4px;">⚠️ Atenção</p>
+        <p style="color:#92400E;font-size:13px;font-weight:700;margin:0 0 4px;">Atenção</p>
         <p style="color:#78350F;font-size:12px;line-height:1.6;margin:0;">Se o pagamento não for efectuado até ao prazo indicado, o horário será automaticamente libertado.</p>
       </div>
       <div style="text-align:center;">
@@ -1325,7 +1325,7 @@ function liberarProvisionaisExpirados() {
         const dfmt = new Date(y,mo-1,d).toLocaleDateString('pt-PT', { weekday:'long', day:'numeric', month:'long' });
         MailApp.sendEmail({
           to: EMAIL_FREDERICO,
-          subject: `⏰ Reserva provisória expirada: ${b.nome} — ${dfmt} às ${b.hora}`,
+          subject: `Reserva provisória expirada: ${b.nome} — ${dfmt} às ${b.hora}`,
           htmlBody: `<p style="font-family:sans-serif;font-size:14px;">A reserva provisória de <strong>${b.nome}</strong> (${b.email}) para <strong>${dfmt} às ${b.hora}</strong> expirou sem pagamento. O horário está novamente disponível.</p>`,
           name: 'Psiagora Agendamentos',
         });
@@ -1470,7 +1470,7 @@ function criarAvaliacaoFn(data) {
       htmlBody:
         '<div style="font-family:sans-serif;max-width:540px;margin:0 auto;">' +
         '<div style="background:linear-gradient(135deg,#00C48C,#2CC7C8);padding:20px 24px;border-radius:8px 8px 0 0;">' +
-        '<h2 style="color:#fff;margin:0;font-size:18px;">🌿 Psiagora</h2></div>' +
+        '<img src="https://psiagora.com/favicon.svg" width="28" height="28" alt="Psiagora" style="display:block;filter:brightness(0) invert(1);"></div>' +
         '<div style="background:#fff;padding:24px;border:1px solid #E5E7EB;border-radius:0 0 8px 8px;">' +
         '<p style="color:#1A2332;font-size:14px;">Olá <strong>' + (nomeCliente || '') + '</strong>,</p>' +
         '<p style="color:#5A6678;font-size:14px;line-height:1.6;">O seu psicólogo enviou-lhe um questionário de avaliação: <strong>' + instr.nome + '</strong>.</p>' +
@@ -1547,14 +1547,14 @@ function submitAvaliacaoFn(data) {
       // Notificar psicólogo
       const emailPsi = rows[i][11] || EMAIL_FREDERICO;
       const nome     = rows[i][2] || rows[i][1];
-      const alertaTxt = result.alertaQ9 ? '<p style="background:#FEE2E2;border-left:4px solid #EF4444;padding:12px;color:#991B1B;font-size:14px;font-weight:700;">⚠️ ATENÇÃO: O paciente assinalou resposta positiva no item 9 (ideação). Avalie com urgência.</p>' : '';
+      const alertaTxt = result.alertaQ9 ? '<p style="background:#FEE2E2;border-left:4px solid #EF4444;padding:12px;color:#991B1B;font-size:14px;font-weight:700;">ATENÇÃO: O paciente assinalou resposta positiva no item 9 (ideação). Avalie com urgência.</p>' : '';
       MailApp.sendEmail({
         to: emailPsi,
-        subject: '✅ Avaliação concluída: ' + nome + ' — ' + instrNome + ' (' + result.total + ' pts — ' + result.nivel + ')',
+        subject: 'Avaliação concluída: ' + nome + ' — ' + instrNome + ' (' + result.total + ' pts — ' + result.nivel + ')',
         htmlBody:
           '<div style="font-family:sans-serif;max-width:540px;">' +
           '<div style="background:linear-gradient(135deg,#00C48C,#2CC7C8);padding:16px 20px;border-radius:8px 8px 0 0;">' +
-          '<h2 style="color:#fff;margin:0;font-size:16px;">🌿 Psiagora — Resultado de Avaliação</h2></div>' +
+          '<img src="https://psiagora.com/favicon.svg" width="24" height="24" alt="Psiagora" style="display:inline-block;filter:brightness(0) invert(1);vertical-align:middle;margin-right:8px;"><span style="color:#fff;font-size:16px;font-weight:700;vertical-align:middle;">Resultado de Avaliação</span></div>' +
           '<div style="background:#fff;padding:20px;border:1px solid #E5E7EB;border-radius:0 0 8px 8px;">' +
           alertaTxt +
           '<p style="color:#1A2332;"><strong>' + nome + '</strong> completou o <strong>' + instrNome + '</strong>.</p>' +
