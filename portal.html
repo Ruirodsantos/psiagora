@@ -1109,8 +1109,7 @@ document.getElementById('adminOverlay').addEventListener('click', (e) => {
     document.getElementById('adminOverlay').classList.remove('open');
 });
 
-document.getElementById('adminPinForm').addEventListener('submit', (e) => {
-  e.preventDefault();
+function verificarAdminPin() {
   const pin = document.getElementById('adminPinInput').value;
   if (pin === ADMIN_PIN) {
     adminUnlocked = true;
@@ -1120,7 +1119,7 @@ document.getElementById('adminPinForm').addEventListener('submit', (e) => {
   } else {
     document.getElementById('adminPinErr').textContent = 'PIN incorreto.';
   }
-});
+}
 
 function renderAdmin() {
   if (!todosClientes.length) {
@@ -1203,10 +1202,10 @@ function renderAdmin() {
   <div class="admin-modal">
     <h2>Resumo Financeiro <button class="admin-close" id="adminClose">✕</button></h2>
     <div id="adminPinSection">
-      <form class="admin-pin-form" id="adminPinForm">
-        <input type="password" id="adminPinInput" placeholder="PIN de acesso…" autocomplete="off">
-        <button type="submit">Entrar</button>
-      </form>
+      <div class="admin-pin-form">
+        <input type="password" id="adminPinInput" placeholder="PIN de acesso…" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();verificarAdminPin();}">
+        <button type="button" onclick="verificarAdminPin()">Entrar</button>
+      </div>
       <div class="admin-err" id="adminPinErr"></div>
     </div>
     <div id="adminContent" style="display:none"></div>
